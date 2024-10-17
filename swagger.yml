@@ -1,0 +1,66 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: Gym Badges API
+
+tags:
+  - name: Login
+    description: Endpoints responsible for login operations.
+
+paths:
+
+  /login:
+    post:
+      operationId: login
+      tags:
+        - Login
+      produces:
+        - application/json
+      parameters:
+        - name: input
+          description: Data required for login
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/login_request_body"
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/login_response"
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
+
+definitions:
+
+  generic_response:
+    type: object
+    title: Generic Operation Response
+    description: Describes the generic result of a request.
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+
+  login_request_body:
+    type: object
+    title: Login Response
+    description: Describes the login response with the information necessary to maintain the session.
+    properties:
+      user:
+        type: string
+      password:
+        type: string
+
+  login_response:
+    type: object
+    title: Login Response
+    description: Describes the login response with the information necessary to maintain the session.
+    properties:
+      token:
+        type: string
