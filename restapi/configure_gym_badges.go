@@ -4,6 +4,9 @@ package restapi
 
 import (
 	"crypto/tls"
+	loginHandler "gym-badges-api/internal/handler/login"
+	userDAO "gym-badges-api/internal/repository/user/postgresql"
+	loginService "gym-badges-api/internal/service/login"
 	"gym-badges-api/restapi/operations"
 	"gym-badges-api/restapi/operations/login"
 	"net/http"
@@ -20,28 +23,31 @@ func configureFlags(_ *operations.GymBadgesAPI) {
 }
 
 func configureAPI(api *operations.GymBadgesAPI) http.Handler {
-	// configure the api here
+
+	/*******************************************************************
+	DEPENDENCY INJECTION
+	*******************************************************************/
+
+	// DAO'S
+	userDAO := userDAO.NewUserDAO()
+
+	// SERVICES
+	loginService := loginService.NewLoginService(userDAO)
+
+	// HANDLERS
+	loginHandler := loginHandler.NewLoginHandler(loginService)
+
 	api.ServeError = errors.ServeError
 
-	// Set your custom logger if needed. Default one is log.Printf
-	// Expected interface func(string, ...interface{})
-	//
-	// Example:
-	// api.Logger = log.Printf
-
 	api.UseSwaggerUI()
-	// To continue using redoc as your UI, uncomment the following line
-	// api.UseRedoc()
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.LoginLoginHandler == nil {
-		api.LoginLoginHandler = login.LoginHandlerFunc(func(params login.LoginParams) middleware.Responder {
-			return middleware.NotImplemented("operation login.Login has not yet been implemented")
-		})
-	}
+	api.LoginLoginHandler = login.LoginHandlerFunc(func(params login.LoginParams) middleware.Responder {
+		return loginHandler.Login(params)
+	})
 
 	api.PreServerShutdown = func() {}
 

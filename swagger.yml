@@ -28,6 +28,11 @@ paths:
           description: Success Response
           schema:
             $ref: "#/definitions/login_response"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
         500:
           description: Unexpected Error
           schema:

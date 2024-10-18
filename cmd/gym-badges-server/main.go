@@ -2,9 +2,9 @@ package main
 
 import (
 	configs "gym-badges-api/config/gym-badges-server"
+	"gym-badges-api/internal/utils"
 	"gym-badges-api/restapi"
 	"gym-badges-api/restapi/operations"
-	"log"
 	"os"
 
 	"github.com/go-openapi/loads"
@@ -15,9 +15,11 @@ func main() {
 
 	configs.LoadConfig()
 
+	ctxLog := utils.BuildLogger()
+
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
-		log.Fatalln(err)
+		ctxLog.Fatalln(err)
 	}
 
 	api := operations.NewGymBadgesAPI(swaggerSpec)
@@ -34,7 +36,7 @@ func main() {
 	for _, optsGroup := range api.CommandLineOptionsGroups {
 		_, err := parser.AddGroup(optsGroup.ShortDescription, optsGroup.LongDescription, optsGroup.Options)
 		if err != nil {
-			log.Fatalln(err)
+			ctxLog.Fatalln(err)
 		}
 	}
 
@@ -51,7 +53,7 @@ func main() {
 	server.ConfigureAPI()
 
 	if err := server.Serve(); err != nil {
-		log.Fatalln(err)
+		ctxLog.Fatalln(err)
 	}
 
 }
