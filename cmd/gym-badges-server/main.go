@@ -2,9 +2,9 @@ package main
 
 import (
 	configs "gym-badges-api/config/gym-badges-server"
-	"gym-badges-api/internal/utils"
 	"gym-badges-api/restapi"
 	"gym-badges-api/restapi/operations"
+	toolsLogging "gym-badges-api/tools/logging"
 	"os"
 
 	"github.com/go-openapi/loads"
@@ -15,7 +15,7 @@ func main() {
 
 	configs.LoadConfig()
 
-	ctxLog := utils.BuildLogger()
+	ctxLog := toolsLogging.BuildLogger()
 
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {

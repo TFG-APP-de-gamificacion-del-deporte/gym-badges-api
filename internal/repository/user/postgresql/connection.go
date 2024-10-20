@@ -3,7 +3,8 @@ package postgresql
 import (
 	"fmt"
 	"gym-badges-api/internal/repository/user"
-	"gym-badges-api/internal/utils"
+	toolsConfig "gym-badges-api/tools/config"
+	toolsLogging "gym-badges-api/tools/logging"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -35,12 +36,12 @@ type GormConfiguration struct {
 }
 
 func LoadConfig() {
-	utils.LoadGenericConfig(&Config)
+	toolsConfig.LoadGenericConfig(&Config)
 }
 
 func OpenConnection() *gorm.DB {
 
-	ctxLogger := utils.BuildLogger()
+	ctxLogger := toolsLogging.BuildLogger()
 
 	dbURI := fmt.Sprintf("host=%s%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable",
 		Config.CloudSqlPrefix, Config.Host,

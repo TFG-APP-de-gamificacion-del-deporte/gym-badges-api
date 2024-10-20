@@ -4,8 +4,8 @@ import (
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
 	userDAO "gym-badges-api/internal/repository/user"
-	"gym-badges-api/internal/utils"
 	"gym-badges-api/mocks/dao"
+	toolsLogging "gym-badges-api/tools/logging"
 	toolsTesting "gym-badges-api/tools/testing"
 	"testing"
 
@@ -50,7 +50,7 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 		)
 
 		BeforeEach(func() {
-			ctxLogger = utils.BuildLogger()
+			ctxLogger = toolsLogging.BuildLogger()
 
 			username = "admin"
 			password = "admin123"
