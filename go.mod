@@ -13,7 +13,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jessevdk/go-flags v1.6.1
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/onsi/ginkgo/v2 v2.20.2
+	github.com/onsi/gomega v1.34.2
 	github.com/sirupsen/logrus v1.9.3
+	go.uber.org/mock v0.5.0
 	golang.org/x/net v0.30.0
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
@@ -22,9 +25,14 @@ require (
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-openapi/analysis v0.23.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
+	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
+	github.com/golangci/golangci-lint v1.61.0 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/google/pprof v0.0.0-20240827171923-fa2c70bbbfe5 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.5 // indirect
@@ -40,5 +48,6 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/tools v0.24.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
