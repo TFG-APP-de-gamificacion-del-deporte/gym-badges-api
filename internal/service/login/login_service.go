@@ -21,7 +21,7 @@ type LoginService struct {
 
 func (s LoginService) Login(username, password string, ctxLog *log.Entry) (*models.LoginResponse, error) {
 
-	ctxLog.Debug("LOGIN_SERVICE: Processing login request for user: %s", username)
+	ctxLog.Debugf("LOGIN_SERVICE: Processing login request for user: %s", username)
 
 	user, err := s.UserDAO.GetUser(username, ctxLog)
 	if err != nil {

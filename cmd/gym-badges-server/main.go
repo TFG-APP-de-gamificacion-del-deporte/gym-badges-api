@@ -26,7 +26,11 @@ func main() {
 	server := restapi.NewServer(api)
 	server.Port = configs.Basic.Port
 
-	defer server.Shutdown()
+	defer func(server *restapi.Server) {
+		if err := server.Shutdown(); err != nil {
+			ctxLog.Error(err)
+		}
+	}(server)
 
 	parser := flags.NewParser(server, flags.Default)
 	parser.ShortDescription = "Gym Badges API"
