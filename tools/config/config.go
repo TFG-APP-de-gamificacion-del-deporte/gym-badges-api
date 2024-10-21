@@ -1,4 +1,4 @@
-package utils
+package config
 
 import (
 	"gym-badges-api/internal/constants"

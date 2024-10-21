@@ -5,9 +5,9 @@ import (
 	"fmt"
 	customErrors "gym-badges-api/internal/custom-errors"
 	loginService "gym-badges-api/internal/service/login"
-	"gym-badges-api/internal/utils"
 	"gym-badges-api/models"
 	op "gym-badges-api/restapi/operations/login"
+	toolsLogging "gym-badges-api/tools/logging"
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -39,7 +39,7 @@ type loginHandler struct {
 
 func (receiver loginHandler) Login(params op.LoginParams) middleware.Responder {
 
-	ctxLog := utils.BuildLogger(params.HTTPRequest.Context())
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 
 	ctxLog.Infof("LOGIN_HANDLER: Login for user: %s", params.Input.User)
 

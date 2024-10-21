@@ -2,7 +2,8 @@ package configs
 
 import (
 	"gym-badges-api/internal/repository/user/postgresql"
-	"gym-badges-api/internal/utils"
+	toolsConfig "gym-badges-api/tools/config"
+	toolsLogging "gym-badges-api/tools/logging"
 )
 
 var (
@@ -14,7 +15,7 @@ type BasicConfiguration struct {
 }
 
 func LoadConfig() {
-	utils.LoadGenericConfig(&Basic)
+	toolsConfig.LoadGenericConfig(&Basic)
 	postgresql.LoadConfig()
-	utils.ConfigureLogger()
+	toolsLogging.ConfigureLogger()
 }

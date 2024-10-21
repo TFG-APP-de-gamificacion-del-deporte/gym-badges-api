@@ -5,5 +5,5 @@ import (
 )
 
 type IUserDAO interface {
-	GetUser(user string, ctxLog *log.Entry) (*User, error)
+	GetUser(userID string, ctxLog *log.Entry) (*User, error)
 }
