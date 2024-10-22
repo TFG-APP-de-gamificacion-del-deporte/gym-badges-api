@@ -40,6 +40,42 @@ paths:
             description: Contains the operation error response object
 
 
+  /user/{user_id}:
+    get:
+      operationId: getUserInfo
+      summary: Find user by ID
+      tags:
+        - User
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: Username
+          required: true
+          type: string
+        - name: token
+          in: header
+          description: Session authentication token
+          required: true
+          type: string
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/get_user_info_response"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
+
 definitions:
 
   generic_response:
@@ -69,3 +105,24 @@ definitions:
     properties:
       token:
         type: string
+
+  get_user_info_response:
+    type: object
+    title: User info response
+    properties: 
+      image:
+        type: string
+      experience:
+        type: integer
+      streak:
+        type: integer
+      weight:
+        type: number
+      fat:
+        type: number
+      current_week:
+        type: array
+        items: 
+          type: boolean
+        
+    

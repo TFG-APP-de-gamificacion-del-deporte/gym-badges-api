@@ -5,10 +5,13 @@ package restapi
 import (
 	"crypto/tls"
 	loginHandler "gym-badges-api/internal/handler/login"
+	userHandler "gym-badges-api/internal/handler/user"
 	userDAO "gym-badges-api/internal/repository/user/postgresql"
 	loginService "gym-badges-api/internal/service/login"
+	userService "gym-badges-api/internal/service/user"
 	"gym-badges-api/restapi/operations"
 	"gym-badges-api/restapi/operations/login"
+	"gym-badges-api/restapi/operations/user"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -33,9 +36,11 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	// SERVICES
 	loginService := loginService.NewLoginService(userDAO)
+	userService := userService.NewUserService(userDAO)
 
 	// HANDLERS
 	loginHandler := loginHandler.NewLoginHandler(loginService)
+	userHandler := userHandler.NewUserHandler(userService)
 
 	api.ServeError = errors.ServeError
 
@@ -47,6 +52,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	api.LoginLoginHandler = login.LoginHandlerFunc(func(params login.LoginParams) middleware.Responder {
 		return loginHandler.Login(params)
+	})
+
+	api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams) middleware.Responder {
+		return userHandler.GetUser(params)
 	})
 
 	api.PreServerShutdown = func() {}
