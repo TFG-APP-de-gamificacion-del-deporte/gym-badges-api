@@ -112,17 +112,20 @@ definitions:
     properties: 
       image:
         type: string
+        format: byte
       experience:
         type: integer
+        format: int64
       streak:
         type: integer
+        format: int32
       weight:
         type: number
-      fat:
+        format: float
+      body_fat:
         type: number
+        format: float
       current_week:
         type: array
         items: 
           type: boolean
-        
-    

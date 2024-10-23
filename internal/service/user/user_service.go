@@ -17,6 +17,24 @@ type UserService struct {
 	UserDAO userDAO.IUserDAO
 }
 
-func (UserService) GetUser(userId string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
-	return nil, nil
+func (s UserService) GetUser(userId string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
+
+	ctxLog.Debugf("USER_SERVICE: Processing getUserInfo request for user: %s", userId)
+
+	user, err := s.UserDAO.GetUser(userId, ctxLog)
+
+	if err != nil {
+		return nil, err
+	}
+
+	response := models.GetUserInfoResponse{
+		CurrentWeek: user.CurrentWeek,
+		Experience:  user.Experience,
+		BodyFat:     user.BodyFat,
+		Image:       user.Image,
+		Streak:      user.Streak,
+		Weight:      user.Weight,
+	}
+
+	return &response, nil
 }

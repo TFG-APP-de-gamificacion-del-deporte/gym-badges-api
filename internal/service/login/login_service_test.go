@@ -58,7 +58,7 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 			user = userDAO.User{
 				UserID:      "admin",
 				BodyFat:     5,
-				CurrentWeek: "0000000",
+				CurrentWeek: []bool{true, true, false, true, false, false, false},
 				Email:       "admin@admin.com",
 				Experience:  100,
 				LastName:    "Wick",
