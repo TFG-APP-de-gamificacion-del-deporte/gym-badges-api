@@ -11,7 +11,9 @@ var (
 )
 
 type BasicConfiguration struct {
-	Port int `default:"8080" envconfig:"APP_PORT"`
+	Port            int    `default:"8080" envconfig:"APP_PORT"`
+	SessionDuration int    `default:"3600" envconfig:"SESSION_DURATION"`
+	JWTKey          string `default:"GymBadges" envconfig:"JWT_KEY"`
 }
 
 func LoadConfig() {
