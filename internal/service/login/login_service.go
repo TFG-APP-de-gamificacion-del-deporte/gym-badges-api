@@ -3,27 +3,29 @@ package login_service
 import (
 	customErrors "gym-badges-api/internal/custom-errors"
 	userDAO "gym-badges-api/internal/repository/user"
+	sessionService "gym-badges-api/internal/service/session"
 	"gym-badges-api/models"
 
-	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
-func NewLoginService(userDAO userDAO.IUserDAO) ILoginService {
+func NewLoginService(userDAO userDAO.IUserDAO, sessionService sessionService.ISessionService) ILoginService {
 	return &LoginService{
-		UserDAO: userDAO,
+		userDAO:        userDAO,
+		sessionService: sessionService,
 	}
 }
 
 type LoginService struct {
-	UserDAO userDAO.IUserDAO
+	userDAO        userDAO.IUserDAO
+	sessionService sessionService.ISessionService
 }
 
 func (s LoginService) Login(username, password string, ctxLog *log.Entry) (*models.LoginResponse, error) {
 
 	ctxLog.Debugf("LOGIN_SERVICE: Processing login request for user: %s", username)
 
-	user, err := s.UserDAO.GetUser(username, ctxLog)
+	user, err := s.userDAO.GetUser(username, ctxLog)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +34,13 @@ func (s LoginService) Login(username, password string, ctxLog *log.Entry) (*mode
 		return nil, customErrors.BuildUnauthorizedError("Invalid username or password")
 	}
 
+	token, err := s.sessionService.GenerateSession(username)
+	if err != nil {
+		return nil, err
+	}
+
 	response := models.LoginResponse{
-		Token: uuid.New().String(),
+		Token: token,
 	}
 
 	return &response, nil
