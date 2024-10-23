@@ -76,9 +76,13 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 				Times(1).
 				Return(&user, nil)
 
+			mockSessionService.EXPECT().GenerateSession(username).
+				Times(1).
+				Return("jwt-token", nil)
+
 			response, err := service.Login(username, password, ctxLogger)
 			Expect(err).To(BeNil())
-			Expect(response.Token).ToNot(BeEmpty())
+			Expect(response.Token).To(Equal("jwt-token"))
 		})
 
 		It("CASE: Login failed with invalid credentials", func() {
@@ -99,6 +103,21 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
 				Times(1).
 				Return(nil, errors.New("panic"))
+
+			response, err := service.Login(username, password, ctxLogger)
+			Expect(response).To(BeNil())
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("CASE: Login failed when processing a session service error", func() {
+
+			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
+				Times(1).
+				Return(&user, nil)
+
+			mockSessionService.EXPECT().GenerateSession(username).
+				Times(1).
+				Return("", errors.New("panic"))
 
 			response, err := service.Login(username, password, ctxLogger)
 			Expect(response).To(BeNil())
