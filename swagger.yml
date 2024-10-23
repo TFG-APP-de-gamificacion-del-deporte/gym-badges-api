@@ -55,13 +55,6 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the unauthorized error response object
 
-securityDefinitions:
-
-  jwt:
-    type: apiKey
-    in: header
-    name: token
-
   /user/{user_id}:
     get:
       operationId: getUserInfo
@@ -97,6 +90,12 @@ securityDefinitions:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+securityDefinitions:
+
+  jwt:
+    type: apiKey
+    in: header
+    name: token
 
 definitions:
 
@@ -131,7 +130,7 @@ definitions:
   get_user_info_response:
     type: object
     title: User info response
-    properties: 
+    properties:
       image:
         type: string
         format: byte
@@ -149,5 +148,5 @@ definitions:
         format: float
       current_week:
         type: array
-        items: 
+        items:
           type: boolean
