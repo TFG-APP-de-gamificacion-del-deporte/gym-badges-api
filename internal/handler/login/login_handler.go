@@ -37,13 +37,15 @@ type loginHandler struct {
 	loginService loginService.ILoginService
 }
 
-func (receiver loginHandler) Login(params op.LoginParams) middleware.Responder {
+func (h loginHandler) Login(params op.LoginParams) middleware.Responder {
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 
 	ctxLog.Infof("LOGIN_HANDLER: Login for user: %s", params.Input.User)
 
-	response, err := receiver.loginService.Login(params.Input.User, params.Input.Password, ctxLog)
+	// TODO User authentication with his token
+
+	response, err := h.loginService.Login(params.Input.User, params.Input.Password, ctxLog)
 	if err != nil {
 		switch {
 		case errors.As(err, &unauthorizedError):
