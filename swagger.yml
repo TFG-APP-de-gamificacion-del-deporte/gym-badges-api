@@ -44,6 +44,11 @@ paths:
       operationId: test
       produces:
         - application/json
+      parameters:
+        - name: username
+          in: header
+          required: true
+          type: string
       security:
         - jwt: [ ]
       responses:
