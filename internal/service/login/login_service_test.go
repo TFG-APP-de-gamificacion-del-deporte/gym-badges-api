@@ -4,7 +4,8 @@ import (
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
 	userDAO "gym-badges-api/internal/repository/user"
-	"gym-badges-api/mocks/dao"
+	mockDAO "gym-badges-api/mocks/dao"
+	mockService "gym-badges-api/mocks/service"
 	toolsLogging "gym-badges-api/tools/logging"
 	toolsTesting "gym-badges-api/tools/testing"
 	"testing"
@@ -22,21 +23,21 @@ func TestServiceLoginSuite(t *testing.T) {
 var _ = Describe("SERVICE: Login Test Suite", func() {
 
 	var (
-		mockCtrl    *gomock.Controller
-		mockUserDAO *dao.MockIUserDAO
-		service     ILoginService
+		mockCtrl           *gomock.Controller
+		mockUserDAO        *mockDAO.MockIUserDAO
+		mockSessionService *mockService.MockISessionService
+		service            ILoginService
 	)
 
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
-		mockUserDAO = dao.NewMockIUserDAO(mockCtrl)
-
-		service = NewLoginService(mockUserDAO)
+		mockUserDAO = mockDAO.NewMockIUserDAO(mockCtrl)
+		mockSessionService = mockService.NewMockISessionService(mockCtrl)
+		service = NewLoginService(mockUserDAO, mockSessionService)
 	})
 
 	AfterEach(func() {
 		defer mockCtrl.Finish()
-
 	})
 
 	Context("Login", func() {
@@ -75,9 +76,13 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 				Times(1).
 				Return(&user, nil)
 
+			mockSessionService.EXPECT().GenerateSession(username).
+				Times(1).
+				Return("jwt-token", nil)
+
 			response, err := service.Login(username, password, ctxLogger)
 			Expect(err).To(BeNil())
-			Expect(response.Token).ToNot(BeEmpty())
+			Expect(response.Token).To(Equal("jwt-token"))
 		})
 
 		It("CASE: Login failed with invalid credentials", func() {
@@ -98,6 +103,21 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
 				Times(1).
 				Return(nil, errors.New("panic"))
+
+			response, err := service.Login(username, password, ctxLogger)
+			Expect(response).To(BeNil())
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("CASE: Login failed when processing a session service error", func() {
+
+			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
+				Times(1).
+				Return(&user, nil)
+
+			mockSessionService.EXPECT().GenerateSession(username).
+				Times(1).
+				Return("", errors.New("panic"))
 
 			response, err := service.Login(username, password, ctxLogger)
 			Expect(response).To(BeNil())
