@@ -39,6 +39,28 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+  /test-authorization:
+    get:
+      operationId: test
+      produces:
+        - application/json
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+
+securityDefinitions:
+
+  jwt:
+    type: apiKey
+    in: header
+    name: token
 
   /user/{user_id}:
     get:

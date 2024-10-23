@@ -9,6 +9,7 @@ import (
 	userDAO "gym-badges-api/internal/repository/user/postgresql"
 	loginService "gym-badges-api/internal/service/login"
 	userService "gym-badges-api/internal/service/user"
+	sessionService "gym-badges-api/internal/service/session"
 	"gym-badges-api/restapi/operations"
 	"gym-badges-api/restapi/operations/login"
 	"gym-badges-api/restapi/operations/user"
@@ -17,9 +18,15 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/security"
 )
 
 //go:generate swagger generate server --target ../../gym-badges-api --name GymBadges --spec ../swagger.yml --principal interface{} --exclude-main
+
+const (
+	securityHeaderName = "token"
+	successMsg         = "SUCCESS"
+)
 
 func configureFlags(_ *operations.GymBadgesAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -35,8 +42,8 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	userDAO := userDAO.NewUserDAO()
 
 	// SERVICES
-	loginService := loginService.NewLoginService(userDAO)
-	userService := userService.NewUserService(userDAO)
+	sessionService := sessionService.NewSessionService()
+	loginService := loginService.NewLoginService(userDAO, sessionService)
 
 	// HANDLERS
 	loginHandler := loginHandler.NewLoginHandler(loginService)
@@ -57,6 +64,14 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams) middleware.Responder {
 		return userHandler.GetUser(params)
 	})
+
+	api.TestHandler = operations.TestHandlerFunc(func(params operations.TestParams, new interface{}) middleware.Responder {
+		return operations.NewTestOK()
+	})
+
+	api.APIKeyAuthenticator = func(_ string, _ string, authentication security.TokenAuthentication) runtime.Authenticator {
+		return Authenticator{sessionService: sessionService}
+	}
 
 	api.PreServerShutdown = func() {}
 
@@ -87,4 +102,21 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return handler
+}
+
+type Authenticator struct {
+	sessionService sessionService.ISessionService
+}
+
+func (a Authenticator) Authenticate(data interface{}) (bool, interface{}, error) {
+
+	authRequest := data.(*security.ScopedAuthRequest)
+
+	authHeader := authRequest.Request.Header.Get(securityHeaderName)
+
+	if err := a.sessionService.ValidateSession(authHeader); err != nil {
+		return false, nil, nil
+	}
+
+	return true, successMsg, nil
 }
