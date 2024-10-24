@@ -49,7 +49,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	userService := userService.NewUserService(userDAO)
 
 	// HANDLERS
-	loginHandler := loginHandler.NewLoginHandler(loginService, sessionService)
+	loginHandler := loginHandler.NewLoginHandler(loginService)
 	userHandler := userHandler.NewUserHandler(userService)
 
 	api.ServeError = errors.ServeError
@@ -64,16 +64,12 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return loginHandler.Login(params)
 	})
 
-	api.LoginWithTokenLoginWithTokenHandler = login_with_token.LoginWithTokenHandlerFunc(func(params login_with_token.LoginWithTokenParams) middleware.Responder {
-		return loginHandler.LoginWithToken(params)
-	})
-
 	api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams) middleware.Responder {
 		return userHandler.GetUser(params)
 	})
 
-	api.TestHandler = operations.TestHandlerFunc(func(params operations.TestParams, new interface{}) middleware.Responder {
-		return operations.NewTestOK()
+	api.LoginWithTokenLoginWithTokenHandler = login_with_token.LoginWithTokenHandlerFunc(func(params login_with_token.LoginWithTokenParams, new interface{}) middleware.Responder {
+		return login_with_token.NewLoginWithTokenOK()
 	})
 
 	// Authentication Middleware

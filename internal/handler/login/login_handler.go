@@ -5,10 +5,8 @@ import (
 	"fmt"
 	customErrors "gym-badges-api/internal/custom-errors"
 	loginService "gym-badges-api/internal/service/login"
-	sessionService "gym-badges-api/internal/service/session"
 	"gym-badges-api/models"
 	op "gym-badges-api/restapi/operations/login"
-	"gym-badges-api/restapi/operations/login_with_token"
 	toolsLogging "gym-badges-api/tools/logging"
 	"net/http"
 
@@ -29,16 +27,14 @@ var (
 	}
 )
 
-func NewLoginHandler(loginService loginService.ILoginService, sessionService sessionService.ISessionService) ILoginHandler {
+func NewLoginHandler(loginService loginService.ILoginService) ILoginHandler {
 	return &loginHandler{
-		loginService:   loginService,
-		sessionService: sessionService,
+		loginService: loginService,
 	}
 }
 
 type loginHandler struct {
-	loginService   loginService.ILoginService
-	sessionService sessionService.ISessionService
+	loginService loginService.ILoginService
 }
 
 func (h loginHandler) Login(params op.LoginParams) middleware.Responder {
@@ -58,20 +54,4 @@ func (h loginHandler) Login(params op.LoginParams) middleware.Responder {
 	}
 
 	return op.NewLoginOK().WithPayload(response)
-
-}
-
-func (h loginHandler) LoginWithToken(params login_with_token.LoginWithTokenParams) middleware.Responder {
-
-	username, err := h.sessionService.GetUserFromToken(params.Token)
-
-	if err != nil {
-		return login_with_token.NewLoginWithTokenUnauthorized().WithPayload(&unauthorizedErrorResponse)
-	}
-
-	response := models.LoginWithTokenResponse{
-		Username: username,
-	}
-
-	return login_with_token.NewLoginWithTokenOK().WithPayload(&response)
 }

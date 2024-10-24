@@ -47,30 +47,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: token
-          in: header
-          required: true
-          type: string
-      responses:
-        200:
-          description: Success Response
-          schema:
-            $ref: "#/definitions/login_with_token_response"
-            description: Contains the user's email given a token
-
-        401:
-          description: Unauthorized Error
-          schema:
-            $ref: "#/definitions/generic_response"
-            description: Contains the unauthorized error response object
-
-
-  /test-authorization:
-    get:
-      operationId: test
-      produces:
-        - application/json
-      parameters:
         - name: username
           in: header
           required: true
@@ -85,6 +61,7 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the unauthorized error response object
+          
 
   /user/{user_id}:
     get:
@@ -156,13 +133,6 @@ definitions:
     description: Describes the login response with the information necessary to maintain the session.
     properties:
       token:
-        type: string
-
-  login_with_token_response:
-    type: object
-    title: Token authentication response
-    properties: 
-      username:
         type: string
 
   get_user_info_response:
