@@ -5,4 +5,4 @@ COPY gym-badges-api /bin
 
 EXPOSE 8080
 
-CMD gym-badges-api
+CMD ls
