@@ -22,16 +22,17 @@ func TestHandlerLoginSuite(t *testing.T) {
 var _ = Describe("HANDLER: Login Test Suite", func() {
 
 	var (
-		mockCtrl         *gomock.Controller
-		mockLoginService *service.MockILoginService
-		handler          ILoginHandler
+		mockCtrl           *gomock.Controller
+		mockLoginService   *service.MockILoginService
+		mockSessionService *service.MockISessionService
+		handler            ILoginHandler
 	)
 
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockLoginService = service.NewMockILoginService(mockCtrl)
 
-		handler = NewLoginHandler(mockLoginService)
+		handler = NewLoginHandler(mockLoginService, mockSessionService)
 	})
 
 	AfterEach(func() {

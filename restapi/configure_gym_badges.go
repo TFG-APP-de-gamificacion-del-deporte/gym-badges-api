@@ -12,6 +12,7 @@ import (
 	userService "gym-badges-api/internal/service/user"
 	"gym-badges-api/restapi/operations"
 	"gym-badges-api/restapi/operations/login"
+	"gym-badges-api/restapi/operations/login_with_token"
 	"gym-badges-api/restapi/operations/user"
 	"net/http"
 
@@ -48,7 +49,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	userService := userService.NewUserService(userDAO)
 
 	// HANDLERS
-	loginHandler := loginHandler.NewLoginHandler(loginService)
+	loginHandler := loginHandler.NewLoginHandler(loginService, sessionService)
 	userHandler := userHandler.NewUserHandler(userService)
 
 	api.ServeError = errors.ServeError
@@ -63,6 +64,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return loginHandler.Login(params)
 	})
 
+	api.LoginWithTokenLoginWithTokenHandler = login_with_token.LoginWithTokenHandlerFunc(func(params login_with_token.LoginWithTokenParams) middleware.Responder {
+		return loginHandler.LoginWithToken(params)
+	})
+
 	api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams) middleware.Responder {
 		return userHandler.GetUser(params)
 	})
@@ -71,6 +76,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return operations.NewTestOK()
 	})
 
+	// Authentication Middleware
 	api.APIKeyAuthenticator = func(_ string, _ string, authentication security.TokenAuthentication) runtime.Authenticator {
 		return Authenticator{sessionService: sessionService}
 	}

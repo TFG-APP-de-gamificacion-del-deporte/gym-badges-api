@@ -40,17 +40,27 @@ func (sessionService) GenerateSession(username string) (string, error) {
 	return tokenString, nil
 }
 
-func (sessionService) ValidateSession(username string, sessionID string) error {
-
+func (sessionService) GetUserFromToken(token string) (string, error) {
 	var claims Claims
-	token, err := jwt.ParseWithClaims(sessionID, &claims, func(token *jwt.Token) (interface{}, error) {
+	tk, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(configs.Basic.JWTKey), nil
 	})
-	if err != nil || !token.Valid {
-		return customErrors.BuildUnauthorizedError("Invalid token")
+
+	if err != nil || !tk.Valid {
+		return "", customErrors.BuildUnauthorizedError("Invalid token")
 	}
 
-	if username != claims.Username {
+	return claims.Username, nil
+}
+
+func (s sessionService) ValidateSession(username string, sessionID string) error {
+	tokenUsername, err := s.GetUserFromToken(sessionID)
+
+	if err != nil {
+		return err
+	}
+
+	if username != tokenUsername {
 		return customErrors.BuildUnauthorizedError("Invalid token")
 	}
 
