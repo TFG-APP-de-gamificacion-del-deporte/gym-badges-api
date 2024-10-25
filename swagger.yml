@@ -39,9 +39,11 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
-  /test-authorization:
+  /login-with-token:
     get:
-      operationId: test
+      operationId: loginWithToken
+      tags:
+        - LoginWithToken
       produces:
         - application/json
       parameters:
@@ -59,6 +61,7 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the unauthorized error response object
+          
 
   /user/{user_id}:
     get:

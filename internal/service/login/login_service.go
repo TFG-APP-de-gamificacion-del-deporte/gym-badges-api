@@ -27,7 +27,7 @@ func (s LoginService) Login(username, password string, ctxLog *log.Entry) (*mode
 
 	user, err := s.userDAO.GetUser(username, ctxLog)
 	if err != nil {
-		return nil, err
+		return nil, err // FIXME Si el error es record not found, devolver BuildUnauthorizedError en vez de InternalServerError
 	}
 
 	if user.Password != password {

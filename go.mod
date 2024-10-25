@@ -6,10 +6,6 @@ require (
 	github.com/go-openapi/errors v0.22.0
 	github.com/go-openapi/loads v0.22.0
 	github.com/go-openapi/runtime v0.28.0
-	github.com/go-openapi/spec v0.21.0
-	github.com/go-openapi/strfmt v0.23.0
-	github.com/go-openapi/swag v0.23.0
-	github.com/go-openapi/validate v0.24.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jessevdk/go-flags v1.6.1
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -17,9 +13,16 @@ require (
 	github.com/onsi/gomega v1.34.2
 	github.com/sirupsen/logrus v1.9.3
 	go.uber.org/mock v0.5.0
-	golang.org/x/net v0.30.0
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
+)
+
+require (
+	github.com/go-openapi/spec v0.21.0
+	github.com/go-openapi/strfmt v0.23.0
+	github.com/go-openapi/swag v0.23.0
+	github.com/go-openapi/validate v0.24.0
+	golang.org/x/net v0.30.0
 )
 
 require (
@@ -40,7 +43,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/lib/pq v1.10.9
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect

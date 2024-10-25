@@ -43,8 +43,6 @@ func (h loginHandler) Login(params op.LoginParams) middleware.Responder {
 
 	ctxLog.Infof("LOGIN_HANDLER: Login for user: %s", params.Input.User)
 
-	// TODO User authentication with his token
-
 	response, err := h.loginService.Login(params.Input.User, params.Input.Password, ctxLog)
 	if err != nil {
 		switch {
@@ -56,5 +54,4 @@ func (h loginHandler) Login(params op.LoginParams) middleware.Responder {
 	}
 
 	return op.NewLoginOK().WithPayload(response)
-
 }
