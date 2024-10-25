@@ -1,6 +1,6 @@
 package session_service
 
 type ISessionService interface {
-	GenerateSession(username string) (string, error)
-	ValidateSession(username string, sessionID string) error
+	GenerateSession(userID string) (string, error)
+	ValidateSession(userID string, sessionID string) error
 }

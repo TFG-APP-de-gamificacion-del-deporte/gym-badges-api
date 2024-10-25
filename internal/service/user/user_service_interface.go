@@ -7,5 +7,5 @@ import (
 )
 
 type IUserService interface {
-	GetUser(userId string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error)
+	GetUser(userID string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error)
 }

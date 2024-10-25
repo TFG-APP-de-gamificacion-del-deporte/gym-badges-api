@@ -21,11 +21,11 @@ type LoginService struct {
 	sessionService sessionService.ISessionService
 }
 
-func (s LoginService) Login(username, password string, ctxLog *log.Entry) (*models.LoginResponse, error) {
+func (s LoginService) Login(userID, password string, ctxLog *log.Entry) (*models.LoginResponse, error) {
 
-	ctxLog.Debugf("LOGIN_SERVICE: Processing login request for user: %s", username)
+	ctxLog.Debugf("LOGIN_SERVICE: Processing login request for user: %s", userID)
 
-	user, err := s.userDAO.GetUser(username, ctxLog)
+	user, err := s.userDAO.GetUser(userID, ctxLog)
 	if err != nil {
 		return nil, err // FIXME Si el error es record not found, devolver BuildUnauthorizedError en vez de InternalServerError
 	}
@@ -34,7 +34,7 @@ func (s LoginService) Login(username, password string, ctxLog *log.Entry) (*mode
 		return nil, customErrors.BuildUnauthorizedError("Invalid username or password")
 	}
 
-	token, err := s.sessionService.GenerateSession(username)
+	token, err := s.sessionService.GenerateSession(userID)
 	if err != nil {
 		return nil, err
 	}

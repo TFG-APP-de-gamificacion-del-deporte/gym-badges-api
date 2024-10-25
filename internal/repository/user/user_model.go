@@ -4,7 +4,7 @@ type User struct {
 	UserID      string  `gorm:"primary_key;not null" json:"user_id"`
 	BodyFat     float32 `gorm:"null" json:"body_fat"`
 	CurrentWeek []bool  `gorm:"null;type:bool[]" json:"current_week"`
-	Email       string  `gorm:"null" json:"email"`
+	Email       string  `gorm:"not null;unique" json:"email"`
 	Experience  int64   `gorm:"null" json:"experience"`
 	Image       []byte  `gorm:"null" json:"image"`
 	LastName    string  `gorm:"null" json:"last_name"`

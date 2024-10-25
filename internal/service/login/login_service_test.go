@@ -45,7 +45,7 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 		var (
 			ctxLogger *log.Entry
 
-			username string
+			userID   string
 			password string
 			user     userDAO.User
 		)
@@ -53,7 +53,7 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 		BeforeEach(func() {
 			ctxLogger = toolsLogging.BuildLogger()
 
-			username = "admin"
+			userID = "admin"
 			password = "admin123"
 
 			user = userDAO.User{
@@ -72,15 +72,15 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 
 		It("CASE: Successful login with valid credentials", func() {
 
-			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
+			mockUserDAO.EXPECT().GetUser(userID, ctxLogger).
 				Times(1).
 				Return(&user, nil)
 
-			mockSessionService.EXPECT().GenerateSession(username).
+			mockSessionService.EXPECT().GenerateSession(userID).
 				Times(1).
 				Return("jwt-token", nil)
 
-			response, err := service.Login(username, password, ctxLogger)
+			response, err := service.Login(userID, password, ctxLogger)
 			Expect(err).To(BeNil())
 			Expect(response.Token).To(Equal("jwt-token"))
 		})
@@ -89,37 +89,37 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 
 			password = "invalid"
 
-			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
+			mockUserDAO.EXPECT().GetUser(userID, ctxLogger).
 				Times(1).
 				Return(&user, nil)
 
-			response, err := service.Login(username, password, ctxLogger)
+			response, err := service.Login(userID, password, ctxLogger)
 			Expect(response).To(BeNil())
 			Expect(err).To(BeAssignableToTypeOf(customErrors.UnauthorizedError{}))
 		})
 
 		It("CASE: Login failed when processing a database error", func() {
 
-			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
+			mockUserDAO.EXPECT().GetUser(userID, ctxLogger).
 				Times(1).
 				Return(nil, errors.New("panic"))
 
-			response, err := service.Login(username, password, ctxLogger)
+			response, err := service.Login(userID, password, ctxLogger)
 			Expect(response).To(BeNil())
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("CASE: Login failed when processing a session service error", func() {
 
-			mockUserDAO.EXPECT().GetUser(username, ctxLogger).
+			mockUserDAO.EXPECT().GetUser(userID, ctxLogger).
 				Times(1).
 				Return(&user, nil)
 
-			mockSessionService.EXPECT().GenerateSession(username).
+			mockSessionService.EXPECT().GenerateSession(userID).
 				Times(1).
 				Return("", errors.New("panic"))
 
-			response, err := service.Login(username, password, ctxLogger)
+			response, err := service.Login(userID, password, ctxLogger)
 			Expect(response).To(BeNil())
 			Expect(err).ToNot(BeNil())
 		})

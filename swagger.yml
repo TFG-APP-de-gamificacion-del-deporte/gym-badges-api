@@ -47,7 +47,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: username
+        - name: user_id
           in: header
           required: true
           type: string
@@ -122,7 +122,7 @@ definitions:
     title: Login Response
     description: Describes the login response with the information necessary to maintain the session.
     properties:
-      user:
+      user_id:
         type: string
       password:
         type: string
