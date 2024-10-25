@@ -24,7 +24,6 @@ func main() {
 
 	api := operations.NewGymBadgesAPI(swaggerSpec)
 	server := restapi.NewServer(api)
-	server.Port = configs.Basic.Port
 
 	defer func(server *restapi.Server) {
 		if err := server.Shutdown(); err != nil {
@@ -53,6 +52,9 @@ func main() {
 		}
 		os.Exit(code)
 	}
+
+	server.Host = "0.0.0.0"
+	server.Port = configs.Basic.Port
 
 	server.ConfigureAPI()
 
