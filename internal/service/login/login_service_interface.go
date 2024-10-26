@@ -7,5 +7,5 @@ import (
 )
 
 type ILoginService interface {
-	Login(username, password string, ctxLog *log.Entry) (*models.LoginResponse, error)
+	Login(userID, password string, ctxLog *log.Entry) (*models.LoginResponse, error)
 }

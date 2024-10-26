@@ -17,11 +17,11 @@ type UserService struct {
 	UserDAO userDAO.IUserDAO
 }
 
-func (s UserService) GetUser(userId string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
+func (s UserService) GetUser(userID string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
 
-	ctxLog.Debugf("USER_SERVICE: Processing getUserInfo request for user: %s", userId)
+	ctxLog.Debugf("USER_SERVICE: Processing getUserInfo request for user: %s", userID)
 
-	user, err := s.UserDAO.GetUser(userId, ctxLog)
+	user, err := s.UserDAO.GetUser(userID, ctxLog)
 
 	if err != nil {
 		return nil, err

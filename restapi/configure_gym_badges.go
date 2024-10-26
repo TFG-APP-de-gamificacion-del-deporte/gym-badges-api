@@ -26,7 +26,7 @@ import (
 
 const (
 	securityHeader = "token"
-	usernameHeader = "username"
+	userIDHeader   = "user_id"
 	successMsg     = "SUCCESS"
 )
 
@@ -117,9 +117,9 @@ func (a Authenticator) Authenticate(data interface{}) (bool, interface{}, error)
 	authRequest := data.(*security.ScopedAuthRequest)
 
 	sessionID := authRequest.Request.Header.Get(securityHeader)
-	username := authRequest.Request.Header.Get(usernameHeader)
+	userID := authRequest.Request.Header.Get(userIDHeader)
 
-	if err := a.sessionService.ValidateSession(username, sessionID); err != nil {
+	if err := a.sessionService.ValidateSession(userID, sessionID); err != nil {
 		return false, nil, nil
 	}
 

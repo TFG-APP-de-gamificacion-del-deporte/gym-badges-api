@@ -17,15 +17,15 @@ type sessionService struct {
 }
 
 type Claims struct {
-	Username string `json:"username"`
+	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
-func (sessionService) GenerateSession(username string) (string, error) {
+func (sessionService) GenerateSession(userID string) (string, error) {
 
 	expirationTime := time.Now().Add(time.Duration(configs.Basic.SessionDuration) * time.Second)
 	claims := &Claims{
-		Username: username,
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
@@ -40,7 +40,7 @@ func (sessionService) GenerateSession(username string) (string, error) {
 	return tokenString, nil
 }
 
-func (s sessionService) ValidateSession(username string, sessionID string) error {
+func (s sessionService) ValidateSession(userID string, sessionID string) error {
 	var claims Claims
 	token, err := jwt.ParseWithClaims(sessionID, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(configs.Basic.JWTKey), nil
@@ -50,7 +50,7 @@ func (s sessionService) ValidateSession(username string, sessionID string) error
 		return customErrors.BuildUnauthorizedError("Invalid token")
 	}
 
-	if username != claims.Username {
+	if userID != claims.UserID {
 		return customErrors.BuildUnauthorizedError("Invalid token")
 	}
 
