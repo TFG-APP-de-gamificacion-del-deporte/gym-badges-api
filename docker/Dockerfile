@@ -1,11 +1,13 @@
 FROM alpine:3.20
-RUN apk add --no-cache libc6-compat
 
-ARG BINARY_NAME=main
-ENV BINARY_NAME ${BINARY_NAME}
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+COPY gym-badges-api .
+
+RUN chmod +x gym-badges-api
 
 EXPOSE 8080
 
-COPY gym-badges-api /bin
-
-CMD gym-badges-api --port 8080
+CMD ["./gym-badges-api"]
