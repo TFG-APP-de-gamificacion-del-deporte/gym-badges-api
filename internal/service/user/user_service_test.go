@@ -55,7 +55,6 @@ var _ = Describe("SERVICE: User Test Suite", func() {
 
 			request = models.CreateUserRequest{
 				Email:    "tony@stark.com",
-				Image:    nil,
 				Lastname: "Stark",
 				Name:     "Tony",
 				Password: "jarvis3000",

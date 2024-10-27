@@ -69,7 +69,6 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 	newUser := userDAO.User{
 		UserID:   user.UserID,
 		Email:    user.Email,
-		Image:    user.Image,
 		LastName: user.Lastname,
 		Name:     user.Name,
 		Password: user.Password,
