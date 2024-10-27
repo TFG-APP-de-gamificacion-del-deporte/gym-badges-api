@@ -1,6 +1,7 @@
 package login_service
 
 import (
+	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
 	userDAO "gym-badges-api/internal/repository/user"
 	sessionService "gym-badges-api/internal/service/session"
@@ -27,7 +28,10 @@ func (s LoginService) Login(userID, password string, ctxLog *log.Entry) (*models
 
 	user, err := s.userDAO.GetUser(userID, ctxLog)
 	if err != nil {
-		return nil, err // FIXME Si el error es record not found, devolver BuildUnauthorizedError en vez de InternalServerError
+		if errors.As(err, &customErrors.NotFoundError{}) {
+			return nil, customErrors.BuildUnauthorizedError("Invalid username or password")
+		}
+		return nil, err
 	}
 
 	if user.Password != password {

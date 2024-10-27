@@ -85,13 +85,24 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 			Expect(response.Token).To(Equal("jwt-token"))
 		})
 
-		It("CASE: Login failed with invalid credentials", func() {
+		It("CASE: Login failed with invalid password", func() {
 
 			password = "invalid"
 
 			mockUserDAO.EXPECT().GetUser(userID, ctxLogger).
 				Times(1).
 				Return(&user, nil)
+
+			response, err := service.Login(userID, password, ctxLogger)
+			Expect(response).To(BeNil())
+			Expect(err).To(BeAssignableToTypeOf(customErrors.UnauthorizedError{}))
+		})
+
+		It("CASE: Login failed with invalid credentials - user not found", func() {
+
+			mockUserDAO.EXPECT().GetUser(userID, ctxLogger).
+				Times(1).
+				Return(nil, customErrors.BuildNotFoundError("not found"))
 
 			response, err := service.Login(userID, password, ctxLogger)
 			Expect(response).To(BeNil())
