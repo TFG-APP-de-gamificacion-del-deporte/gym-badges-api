@@ -15,6 +15,7 @@ import (
 
 var (
 	unauthorizedError customErrors.UnauthorizedError
+	conflictError     customErrors.ConflictError
 
 	unauthorizedErrorResponse = models.GenericResponse{
 		Code:    fmt.Sprint(http.StatusUnauthorized),
@@ -54,4 +55,26 @@ func (h userHandler) GetUser(params op.GetUserInfoParams) middleware.Responder {
 	}
 
 	return op.NewGetUserInfoOK().WithPayload(response)
+}
+
+func (h userHandler) CreateUser(params op.CreateUserParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("USER_HANDLER: Creating user: %s", params.Input.UserID)
+
+	response, err := h.userService.CreateUser(params.Input, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &conflictError):
+			return op.NewCreateUserConflict().WithPayload(&models.GenericResponse{
+				Code:    fmt.Sprint(http.StatusConflict),
+				Message: err.Error(),
+			})
+		default:
+			return op.NewGetUserInfoInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewCreateUserCreated().WithPayload(response)
 }

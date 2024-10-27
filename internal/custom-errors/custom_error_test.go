@@ -29,4 +29,32 @@ var _ = Describe("ERRORS: Custom Errors Test Suite", func() {
 
 	})
 
+	Context("Conflict Error", func() {
+
+		It("BuildConflictError", func() {
+			err := BuildConflictError("conflict")
+			Expect(err.Error()).To(Equal("conflict"))
+		})
+
+		It("BuildConflictError with parameters", func() {
+			err := BuildConflictError("conflict %d", http.StatusConflict)
+			Expect(err.Error()).To(Equal("conflict 409"))
+		})
+
+	})
+
+	Context("Not Found Error", func() {
+
+		It("BuildNotFoundError", func() {
+			err := BuildNotFoundError("not found")
+			Expect(err.Error()).To(Equal("not found"))
+		})
+
+		It("BuildNotFoundError with parameters", func() {
+			err := BuildNotFoundError("not found %d", http.StatusNotFound)
+			Expect(err.Error()).To(Equal("not found 404"))
+		})
+
+	})
+
 })

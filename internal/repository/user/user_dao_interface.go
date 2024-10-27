@@ -6,4 +6,6 @@ import (
 
 type IUserDAO interface {
 	GetUser(userID string, ctxLog *log.Entry) (*User, error)
+	GetUserByEmail(email string, ctxLog *log.Entry) (*User, error)
+	CreateUser(user *User, ctxLog *log.Entry) error
 }
