@@ -68,6 +68,8 @@ func OpenConnection() *gorm.DB {
 
 	if Config.GormLogging {
 		DbConnection.Config.Logger = gormLogger.Default.LogMode(gormLogger.Info)
+	} else {
+		DbConnection.Config.Logger = gormLogger.Default.LogMode(gormLogger.Silent)
 	}
 
 	sqlDB.SetMaxOpenConns(Config.GormMaxOpenConns)
