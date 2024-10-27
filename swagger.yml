@@ -61,7 +61,7 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the unauthorized error response object
-          
+
 
   /user/{user_id}:
     get:
@@ -97,6 +97,38 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
+
+  /user:
+    post:
+      operationId: createUser
+      summary: Create user
+      tags:
+        - User
+      produces:
+        - application/json
+      parameters:
+        - name: input
+          description: Data required for login
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/create_user_request"
+      responses:
+        201:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/login_response"
+        409:
+          description: Conflict Error
+          schema:
+            $ref: "#/definitions/generic_response"
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
+
 
 securityDefinitions:
 
@@ -158,3 +190,21 @@ definitions:
         type: array
         items:
           type: boolean
+
+  create_user_request:
+    type: object
+    title: Create user request
+    properties:
+      email:
+        type: string
+      image:
+        type: string
+        format: byte
+      lastname:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      user_id:
+        type: string
