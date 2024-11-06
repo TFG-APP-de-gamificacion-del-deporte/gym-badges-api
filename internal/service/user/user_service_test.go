@@ -55,7 +55,6 @@ var _ = Describe("SERVICE: User Test Suite", func() {
 
 			request = models.CreateUserRequest{
 				Email:    "tony@stark.com",
-				Lastname: "Stark",
 				Name:     "Tony",
 				Password: "jarvis3000",
 				UserID:   "ironman",
@@ -67,7 +66,6 @@ var _ = Describe("SERVICE: User Test Suite", func() {
 				CurrentWeek: []bool{true, true, false, true, false, false, false},
 				Email:       "admin@admin.com",
 				Experience:  100,
-				LastName:    "Wick",
 				Name:        "John",
 				Password:    "admin123",
 				Streak:      10,

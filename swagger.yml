@@ -197,8 +197,9 @@ definitions:
     properties:
       email:
         type: string
-      lastname:
+      image:
         type: string
+        format: byte
       name:
         type: string
       password:
