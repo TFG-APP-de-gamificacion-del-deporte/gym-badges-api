@@ -172,8 +172,7 @@ definitions:
     title: User info response
     properties:
       image:
-        type: string
-        format: byte
+        type: string  # url
       experience:
         type: integer
         format: int64
@@ -199,7 +198,6 @@ definitions:
         type: string
       image:
         type: string
-        format: byte
       name:
         type: string
       password:
