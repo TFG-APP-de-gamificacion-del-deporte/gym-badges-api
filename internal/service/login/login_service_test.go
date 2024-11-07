@@ -62,7 +62,6 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 				CurrentWeek: []bool{true, true, false, true, false, false, false},
 				Email:       "admin@admin.com",
 				Experience:  100,
-				LastName:    "Wick",
 				Name:        "John",
 				Password:    "admin123",
 				Streak:      10,

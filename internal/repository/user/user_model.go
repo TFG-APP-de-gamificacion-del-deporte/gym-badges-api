@@ -6,8 +6,7 @@ type User struct {
 	CurrentWeek []bool  `gorm:"null;type:bool[]" json:"current_week"`
 	Email       string  `gorm:"not null;unique" json:"email"`
 	Experience  int64   `gorm:"null" json:"experience"`
-	Image       []byte  `gorm:"null" json:"image"`
-	LastName    string  `gorm:"null" json:"last_name"`
+	Image       string  `gorm:"null" json:"image"`
 	Name        string  `gorm:"null" json:"name"`
 	Password    string  `gorm:"null" json:"password"`
 	Streak      int32   `gorm:"null" json:"streak"`
