@@ -93,6 +93,11 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
         500:
           description: Unexpected Error
           schema:
