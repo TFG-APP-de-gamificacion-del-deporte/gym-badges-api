@@ -47,7 +47,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: user_id
+        - name: auth_user_id
           in: header
           required: true
           type: string
@@ -72,11 +72,17 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: user_id
+        - name: user_id  # User's id you want to get.
           in: path
           description: Username
           required: true
           type: string
+        - name: auth_user_id  # Your own user id. For authentication.
+          in: header
+          required: true
+          type: string
+      security:
+        - jwt: [ ]
       responses:
         200:
           description: Success Response
