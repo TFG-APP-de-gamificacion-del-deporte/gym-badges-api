@@ -1,9 +1,14 @@
 package user
 
-import "github.com/lib/pq"
+import (
+	"time"
+
+	"github.com/lib/pq"
+	"gorm.io/gorm"
+)
 
 type User struct {
-	UserID      string       `gorm:"primary_key;not null" json:"user_id"`
+	ID          string       `gorm:"primary_key;not null" json:"user_id"`
 	BodyFat     float32      `gorm:"not null" json:"body_fat"`
 	CurrentWeek pq.BoolArray `gorm:"not null;type:bool[]" json:"current_week"`
 	Email       string       `gorm:"not null;unique" json:"email"`
@@ -13,6 +18,42 @@ type User struct {
 	Password    string       `gorm:"not null" json:"password"`
 	Streak      int32        `gorm:"not null" json:"streak"`
 	Weight      float32      `gorm:"not null" json:"weight"`
-	CreatedAt   string       `gorm:"null" json:"created_at"`
-	UpdatedAt   string       `gorm:"null" json:"updated_at"`
+
+	GymAttendances []GymAttendance
+	FatHistory     []FatHistory
+	WeightHistory  []WeightHistory
+	Friends        []*User  `gorm:"many2many:user_friends"`
+	Badges         []*Badge `gorm:"many2many:user_badges"`
+
+	CreatedAt time.Time `gorm:"null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
+}
+
+type GymAttendance struct {
+	gorm.Model
+	UserID string    `gorm:"not null"`
+	Date   time.Time `gorm:"not null"`
+}
+
+type FatHistory struct {
+	gorm.Model
+	UserID string    `gorm:"not null"`
+	Date   time.Time `gorm:"not null"`
+	Fat    float32   `gorm:"not null;type:decimal(5,2)"`
+}
+
+type WeightHistory struct {
+	gorm.Model
+	UserID string    `gorm:"not null"`
+	Date   time.Time `gorm:"not null"`
+	Weight float32   `gorm:"not null;type:decimal(5,2)"`
+}
+
+type Badge struct {
+	gorm.Model
+	Name          string `gorm:"not null"`
+	Description   string `gorm:"not null"`
+	Image         string `gorm:"not null"`
+	ParentBadgeID uint   `gorm:"not null"`
+	ParentBadge   *Badge `gorm:"not null"`
 }

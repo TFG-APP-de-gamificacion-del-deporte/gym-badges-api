@@ -33,7 +33,7 @@ func (s UserService) GetUser(userID string, ctxLog *log.Entry) (*models.GetUserI
 	}
 
 	response := models.GetUserInfoResponse{
-		UserID:      user.UserID,
+		UserID:      user.ID,
 		BodyFat:     user.BodyFat,
 		CurrentWeek: user.CurrentWeek,
 		Experience:  user.Experience,
@@ -69,7 +69,7 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 	}
 
 	newUser := userDAO.User{
-		UserID:      user.UserID,
+		ID:          user.UserID,
 		BodyFat:     0,
 		CurrentWeek: []bool{false, false, false, false, false, false, false},
 		Email:       user.Email,
@@ -85,7 +85,7 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 		return nil, err
 	}
 
-	token, err := s.sessionService.GenerateSession(newUser.UserID)
+	token, err := s.sessionService.GenerateSession(newUser.ID)
 	if err != nil {
 		return nil, err
 	}

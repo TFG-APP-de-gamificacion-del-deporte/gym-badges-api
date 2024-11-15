@@ -33,7 +33,7 @@ func (dao userDAO) GetUser(userID string, ctxLog *log.Entry) (*userModelDB.User,
 	var user userModelDB.User
 
 	queryResult := dao.connection.
-		Where("user_id = ?", userID).
+		Where("id = ?", userID).
 		First(&user)
 
 	if queryResult.Error != nil {
@@ -72,7 +72,7 @@ func (dao userDAO) GetUserByEmail(email string, ctxLog *log.Entry) (*userModelDB
 
 func (dao userDAO) CreateUser(user *userModelDB.User, ctxLog *log.Entry) error {
 
-	ctxLog.Debugf("USER_DAO: Creating user: %s", user.UserID)
+	ctxLog.Debugf("USER_DAO: Creating user: %s", user.ID)
 
 	if err := dao.connection.Error; err != nil {
 		return err
