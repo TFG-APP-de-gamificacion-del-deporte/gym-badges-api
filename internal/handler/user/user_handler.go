@@ -16,10 +16,16 @@ import (
 var (
 	unauthorizedError customErrors.UnauthorizedError
 	conflictError     customErrors.ConflictError
+	NotFoundError     customErrors.NotFoundError
 
 	unauthorizedErrorResponse = models.GenericResponse{
 		Code:    fmt.Sprint(http.StatusUnauthorized),
 		Message: http.StatusText(http.StatusUnauthorized),
+	}
+
+	notFoundErrorResponse = models.GenericResponse{
+		Code:    fmt.Sprint(http.StatusNotFound),
+		Message: http.StatusText(http.StatusNotFound),
 	}
 
 	internalServerErrorResponse = models.GenericResponse{
@@ -49,6 +55,8 @@ func (h userHandler) GetUser(params op.GetUserInfoParams) middleware.Responder {
 		switch {
 		case errors.As(err, &unauthorizedError):
 			return op.NewGetUserInfoUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &NotFoundError):
+			return op.NewGetUserInfoNotFound().WithPayload(&notFoundErrorResponse)
 		default:
 			return op.NewGetUserInfoInternalServerError().WithPayload(&internalServerErrorResponse)
 		}

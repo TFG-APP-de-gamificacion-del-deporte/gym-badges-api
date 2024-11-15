@@ -25,9 +25,9 @@ import (
 //go:generate swagger generate server --target ../../gym-badges-api --name GymBadges --spec ../swagger.yml --principal interface{} --exclude-main
 
 const (
-	securityHeader = "token"
-	userIDHeader   = "user_id"
-	successMsg     = "SUCCESS"
+	securityHeader   = "token"
+	authUserIDHeader = "auth_user_id"
+	successMsg       = "SUCCESS"
 )
 
 func configureFlags(_ *operations.GymBadgesAPI) {
@@ -68,7 +68,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return userHandler.CreateUser(params)
 	})
 
-	api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams) middleware.Responder {
+	api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams, new interface{}) middleware.Responder {
 		return userHandler.GetUser(params)
 	})
 
@@ -121,7 +121,7 @@ func (a Authenticator) Authenticate(data interface{}) (bool, interface{}, error)
 	authRequest := data.(*security.ScopedAuthRequest)
 
 	sessionID := authRequest.Request.Header.Get(securityHeader)
-	userID := authRequest.Request.Header.Get(userIDHeader)
+	userID := authRequest.Request.Header.Get(authUserIDHeader)
 
 	if err := a.sessionService.ValidateSession(userID, sessionID); err != nil {
 		return false, nil, nil

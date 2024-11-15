@@ -47,7 +47,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: user_id
+        - name: auth_user_id
           in: header
           required: true
           type: string
@@ -72,16 +72,17 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: user_id
+        - name: user_id  # User's id you want to get.
           in: path
           description: Username
           required: true
           type: string
-        - name: token
+        - name: auth_user_id  # Your own user id. For authentication.
           in: header
-          description: Session authentication token
           required: true
           type: string
+      security:
+        - jwt: [ ]
       responses:
         200:
           description: Success Response
@@ -92,6 +93,11 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
         500:
           description: Unexpected Error
           schema:
@@ -171,24 +177,36 @@ definitions:
     type: object
     title: User info response
     properties:
-      image:
-        type: string  # url
-      experience:
-        type: integer
-        format: int64
-      streak:
-        type: integer
-        format: int32
-      weight:
-        type: number
-        format: float
+      user_id:
+        type: string
+        x-omitempty: false
       body_fat:
         type: number
         format: float
+        x-omitempty: false
       current_week:
         type: array
         items:
           type: boolean
+        x-omitempty: false
+      experience:
+        type: integer
+        format: int64
+        x-omitempty: false
+      image:
+        type: string  # url
+        x-omitempty: false
+      name:
+        type: string
+        x-omitempty: false
+      streak:
+        type: integer
+        format: int32
+        x-omitempty: false
+      weight:
+        type: number
+        format: float
+        x-omitempty: false
 
   create_user_request:
     type: object
