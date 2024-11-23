@@ -1,4 +1,4 @@
-package friends
+package friends_service
 
 import (
 	"gym-badges-api/models"

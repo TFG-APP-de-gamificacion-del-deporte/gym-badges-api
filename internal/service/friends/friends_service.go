@@ -1,4 +1,4 @@
-package friends
+package friends_service
 
 import (
 	configs "gym-badges-api/config/gym-badges-server"
@@ -53,7 +53,7 @@ func (s friendsService) GetFriendsByUserID(userID string, page int32, ctxLog *lo
 
 func mapTopFeats(badges []*userDAO.Badge) []*models.Feat {
 
-	topFeats := make([]*models.Feat, 0, len(badges))
+	topFeats := make([]*models.Feat, len(badges))
 
 	for i, badge := range badges {
 		topFeats[i] = &models.Feat{
