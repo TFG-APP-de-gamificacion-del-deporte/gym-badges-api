@@ -187,6 +187,58 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+  /stats/fat/{user_id}:
+    get:
+      operationId: getFatHistoryByUserID
+      summary: Get fat history by user_id
+      tags:
+        - Stats
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: User's id you want to get.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: months
+          in: query
+          description: Number of months to be consulted. To return all use 0
+          required: true
+          type: integer
+          format: int32
+          enum:
+            - 0
+            - 3
+            - 6
+            - 12
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/measurement_history_response"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
 
 securityDefinitions:
 
