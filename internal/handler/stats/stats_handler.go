@@ -81,3 +81,25 @@ func (h statsHandler) GetFatHistory(params op.GetFatHistoryByUserIDParams) middl
 
 	return op.NewGetFatHistoryByUserIDOK().WithPayload(response)
 }
+
+func (h statsHandler) GetStreakCalendar(params op.GetStreakCalendarByUserIDParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("STATS_HANDLER: Getting streak calendar for user: %s in year: %d month: %d", params.UserID,
+		params.Year, params.Month)
+
+	response, err := h.statsService.GetStreakCalendarByYearAndMonth(params.UserID, params.Year, params.Month, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewGetStreakCalendarByUserIDUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewGetStreakCalendarByUserIDNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewGetStreakCalendarByUserIDInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewGetStreakCalendarByUserIDOK().WithPayload(response)
+}

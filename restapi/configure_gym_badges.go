@@ -89,6 +89,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return statsHandler.GetFatHistory(params)
 	})
 
+	api.StatsGetStreakCalendarByUserIDHandler = stats.GetStreakCalendarByUserIDHandlerFunc(func(params stats.GetStreakCalendarByUserIDParams, new interface{}) middleware.Responder {
+		return statsHandler.GetStreakCalendar(params)
+	})
+
 	// Authentication Middleware
 	api.APIKeyAuthenticator = func(_ string, _ string, authentication security.TokenAuthentication) runtime.Authenticator {
 		return Authenticator{sessionService: sessionService}
