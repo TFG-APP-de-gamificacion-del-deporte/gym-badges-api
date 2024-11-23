@@ -171,3 +171,39 @@ func (dao userDAO) GetUserWithAttendance(userID string, year int32, month int32,
 
 	return &user, nil
 }
+
+func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting friends for user: %s offset: %d size: %d", userID, offset, size)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	queryResult = dao.connection.
+		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
+		Where("user_friends.user_id = ? OR user_friends.friend_id = ?", userID, userID).
+		Where(`"user".id != ?`, userID).
+		Limit(int(size)).
+		Offset(int(offset)).
+		Find(&user.Friends)
+
+	if queryResult.Error != nil && errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+		return nil, queryResult.Error
+	}
+
+	return &user, nil
+}

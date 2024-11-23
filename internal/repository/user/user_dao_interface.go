@@ -11,4 +11,5 @@ type IUserDAO interface {
 	GetUserWithWeightHistory(userID string, months int32, ctxLog *log.Entry) (*User, error)
 	GetUserWithFatHistory(userID string, months int32, ctxLog *log.Entry) (*User, error)
 	GetUserWithAttendance(userID string, year int32, month int32, ctxLog *log.Entry) (*User, error)
+	GetUserWithFriends(userID string, offset int32, size int32, ctxLog *log.Entry) (*User, error)
 }
