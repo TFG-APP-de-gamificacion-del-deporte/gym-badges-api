@@ -7,5 +7,5 @@ import (
 )
 
 type IStatsService interface {
-	GetWeightHistory(userID string, months int32, ctxLog *log.Entry) (*models.GetWeightHistoryResponse, error)
+	GetWeightHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error)
 }

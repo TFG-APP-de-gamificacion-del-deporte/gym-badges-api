@@ -170,7 +170,7 @@ paths:
         200:
           description: Success Response
           schema:
-            $ref: "#/definitions/get_weight_history_response"
+            $ref: "#/definitions/measurement_history_response"
         401:
           description: Unauthorized Error
           schema:
@@ -260,18 +260,18 @@ definitions:
         format: float
         x-omitempty: false
 
-  get_weight_history_response:
+  measurement_history_response:
     type: object
-    title: Weight history response
+    title: Measurement history response
     properties:
       days:
         type: array
         items:
-          $ref: "#/definitions/weight_per_day"
+          $ref: "#/definitions/measurement_per_day"
 
-  weight_per_day:
+  measurement_per_day:
     type: object
-    title: User info response
+    title: Measurement pre day info
     properties:
       date:
         type: string

@@ -54,7 +54,7 @@ var _ = Describe("HANDLER: Stats Test Suite", func() {
 
 		type Params struct {
 			ExpectedResponse any
-			ServiceResponse  *models.GetWeightHistoryResponse
+			ServiceResponse  *models.MeasurementHistoryResponse
 			ServiceError     error
 		}
 
@@ -68,8 +68,8 @@ var _ = Describe("HANDLER: Stats Test Suite", func() {
 			Expect(response).To(BeEquivalentTo(input.ExpectedResponse))
 		},
 			Entry("CASE: Success Response (200)", Params{
-				ExpectedResponse: op.NewGetWeightHistoryByUserIDOK().WithPayload(&models.GetWeightHistoryResponse{
-					Days: []*models.WeightPerDay{
+				ExpectedResponse: op.NewGetWeightHistoryByUserIDOK().WithPayload(&models.MeasurementHistoryResponse{
+					Days: []*models.MeasurementPerDay{
 						{
 							Date:  "2024-11-01",
 							Value: 78.5,
@@ -84,8 +84,8 @@ var _ = Describe("HANDLER: Stats Test Suite", func() {
 						},
 					},
 				}),
-				ServiceResponse: &models.GetWeightHistoryResponse{
-					Days: []*models.WeightPerDay{
+				ServiceResponse: &models.MeasurementHistoryResponse{
+					Days: []*models.MeasurementPerDay{
 						{
 							Date:  "2024-11-01",
 							Value: 78.5,
