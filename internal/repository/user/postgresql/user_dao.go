@@ -4,6 +4,7 @@ import (
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
 	userModelDB "gym-badges-api/internal/repository/user"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -79,4 +80,35 @@ func (dao userDAO) CreateUser(user *userModelDB.User, ctxLog *log.Entry) error {
 	}
 
 	return dao.connection.Create(user).Error
+}
+
+func (dao userDAO) GetUserWithWeightHistory(userID string, months int32, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting weight history for user: %s, with weight history for last %d months", userID, months)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Preload("WeightHistory", func(db *gorm.DB) *gorm.DB {
+			if months > 0 {
+				startDate := time.Now().AddDate(0, -int(months), 0)
+				return db.Where("date >= ?", startDate).Order("date ASC")
+			}
+			return db.Order("date ASC")
+		}).
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	return &user, nil
 }

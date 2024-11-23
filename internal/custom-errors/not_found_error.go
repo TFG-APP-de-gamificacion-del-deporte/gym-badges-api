@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+var (
+	NotFound = NotFoundError{CustomError{Message: "Not Found"}}
+)
+
 type NotFoundError struct {
 	CustomError
 }

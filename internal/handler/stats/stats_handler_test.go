@@ -1,0 +1,125 @@
+package stats_handler
+
+import (
+	"errors"
+	customErrors "gym-badges-api/internal/custom-errors"
+	"gym-badges-api/mocks/service"
+	"gym-badges-api/models"
+	op "gym-badges-api/restapi/operations/stats"
+	toolsTesting "gym-badges-api/tools/testing"
+	"net/http"
+	"testing"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"go.uber.org/mock/gomock"
+)
+
+func TestHandlerStatsSuite(t *testing.T) {
+	toolsTesting.ConfigureTestSuite(t, "HANDLER: Stats Test Suite")
+}
+
+var _ = Describe("HANDLER: Stats Test Suite", func() {
+
+	var (
+		mockCtrl         *gomock.Controller
+		mockStatsService *service.MockIStatsService
+		handler          IStatsHandler
+	)
+
+	BeforeEach(func() {
+		mockCtrl = gomock.NewController(GinkgoT())
+		mockStatsService = service.NewMockIStatsService(mockCtrl)
+
+		handler = NewStatsHandler(mockStatsService)
+	})
+
+	AfterEach(func() {
+		defer mockCtrl.Finish()
+
+	})
+
+	Context("GET /stats/weight/{user_id}", func() {
+
+		var (
+			params op.GetWeightHistoryByUserIDParams
+		)
+
+		BeforeEach(func() {
+			params = op.NewGetWeightHistoryByUserIDParams()
+			params.HTTPRequest = new(http.Request)
+			params.Months = 3
+			params.UserID = "admin"
+		})
+
+		type Params struct {
+			ExpectedResponse any
+			ServiceResponse  *models.GetWeightHistoryResponse
+			ServiceError     error
+		}
+
+		DescribeTable("Checking get weight history handler cases", func(input Params) {
+
+			mockStatsService.EXPECT().GetWeightHistory(gomock.Any(), gomock.Any(), gomock.Any()).
+				Times(1).
+				Return(input.ServiceResponse, input.ServiceError)
+
+			response := handler.GetWeightHistory(params)
+			Expect(response).To(BeEquivalentTo(input.ExpectedResponse))
+		},
+			Entry("CASE: Success Response (200)", Params{
+				ExpectedResponse: op.NewGetWeightHistoryByUserIDOK().WithPayload(&models.GetWeightHistoryResponse{
+					Days: []*models.WeightPerDay{
+						{
+							Date:  "2024-11-01",
+							Value: 78.5,
+						},
+						{
+							Date:  "2024-11-07",
+							Value: 79,
+						},
+						{
+							Date:  "2024-11-14",
+							Value: 80,
+						},
+					},
+				}),
+				ServiceResponse: &models.GetWeightHistoryResponse{
+					Days: []*models.WeightPerDay{
+						{
+							Date:  "2024-11-01",
+							Value: 78.5,
+						},
+						{
+							Date:  "2024-11-07",
+							Value: 79,
+						},
+						{
+							Date:  "2024-11-14",
+							Value: 80,
+						},
+					},
+				},
+				ServiceError: nil,
+			}),
+			Entry("CASE: Not Found Error Response (404)", Params{
+				ExpectedResponse: op.NewGetWeightHistoryByUserIDNotFound().WithPayload(&models.GenericResponse{
+					Code:    "404",
+					Message: "Not Found",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    customErrors.BuildNotFoundError("user not found"),
+			}),
+			Entry("CASE: Internal Server Error Response (500)", Params{
+				ExpectedResponse: op.NewGetWeightHistoryByUserIDInternalServerError().WithPayload(&models.GenericResponse{
+					Code:    "500",
+					Message: "Internal Server Error",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    errors.New("panic"),
+			}),
+		)
+
+	})
+
+})

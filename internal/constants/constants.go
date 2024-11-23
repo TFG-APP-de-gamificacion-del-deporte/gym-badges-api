@@ -1,5 +1,6 @@
 package constants
 
 const (
-	EmptyString = ""
+	EmptyString   = ""
+	ISODateLayout = "2006-01-02"
 )

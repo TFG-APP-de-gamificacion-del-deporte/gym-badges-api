@@ -5,14 +5,17 @@ package restapi
 import (
 	"crypto/tls"
 	loginHandler "gym-badges-api/internal/handler/login"
+	statsHandler "gym-badges-api/internal/handler/stats"
 	userHandler "gym-badges-api/internal/handler/user"
 	userDAO "gym-badges-api/internal/repository/user/postgresql"
 	loginService "gym-badges-api/internal/service/login"
 	sessionService "gym-badges-api/internal/service/session"
+	statsService "gym-badges-api/internal/service/stats"
 	userService "gym-badges-api/internal/service/user"
 	"gym-badges-api/restapi/operations"
 	"gym-badges-api/restapi/operations/login"
 	"gym-badges-api/restapi/operations/login_with_token"
+	"gym-badges-api/restapi/operations/stats"
 	"gym-badges-api/restapi/operations/user"
 	"net/http"
 
@@ -47,10 +50,12 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	sessionService := sessionService.NewSessionService()
 	loginService := loginService.NewLoginService(userDAO, sessionService)
 	userService := userService.NewUserService(userDAO, sessionService)
+	statsService := statsService.NewStatsService(userDAO, sessionService)
 
 	// HANDLERS
 	loginHandler := loginHandler.NewLoginHandler(loginService)
 	userHandler := userHandler.NewUserHandler(userService)
+	statsHandler := statsHandler.NewStatsHandler(statsService)
 
 	api.ServeError = errors.ServeError
 
@@ -74,6 +79,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	api.LoginWithTokenLoginWithTokenHandler = login_with_token.LoginWithTokenHandlerFunc(func(params login_with_token.LoginWithTokenParams, new interface{}) middleware.Responder {
 		return login_with_token.NewLoginWithTokenOK()
+	})
+
+	api.StatsGetWeightHistoryByUserIDHandler = stats.GetWeightHistoryByUserIDHandlerFunc(func(params stats.GetWeightHistoryByUserIDParams, new interface{}) middleware.Responder {
+		return statsHandler.GetWeightHistory(params)
 	})
 
 	// Authentication Middleware

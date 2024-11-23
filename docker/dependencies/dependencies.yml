@@ -1,0 +1,24 @@
+services:
+
+  postgresql:
+    image: postgres:${POSTGRESQL_VERSION}
+    container_name: tfg-postgresql
+    restart: always
+    shm_size: 256mb
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD?err}
+      POSTGRES_USER: ${POSTGRESQL_USER?err}
+      POSTGRES_DB: ${POSTGRESQL_DB?err}
+
+  pgadmin:
+    image: dpage/pgadmin4:${PGADMIN_VERSION}
+    container_name: tfg-pgadmin
+    ports:
+      - 8090:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_LOGIN_BANNER:
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 10
