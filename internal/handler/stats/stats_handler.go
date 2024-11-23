@@ -60,3 +60,24 @@ func (h statsHandler) GetWeightHistory(params op.GetWeightHistoryByUserIDParams)
 
 	return op.NewGetWeightHistoryByUserIDOK().WithPayload(response)
 }
+
+func (h statsHandler) GetFatHistory(params op.GetFatHistoryByUserIDParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("STATS_HANDLER: Getting fat history for user: %s", params.UserID)
+
+	response, err := h.statsService.GetFatHistory(params.UserID, params.Months, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewGetFatHistoryByUserIDUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewGetFatHistoryByUserIDNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewGetFatHistoryByUserIDInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewGetFatHistoryByUserIDOK().WithPayload(response)
+}
