@@ -221,4 +221,84 @@ var _ = Describe("HANDLER: Stats Test Suite", func() {
 
 	})
 
+	Context("GET /stats/streak/{user_id}", func() {
+
+		var (
+			params op.GetStreakCalendarByUserIDParams
+		)
+
+		BeforeEach(func() {
+			params = op.NewGetStreakCalendarByUserIDParams()
+			params.HTTPRequest = new(http.Request)
+			params.Month = 11
+			params.Year = 2024
+			params.UserID = "admin"
+		})
+
+		type Params struct {
+			ExpectedResponse any
+			ServiceResponse  *models.StreakCalendarResponse
+			ServiceError     error
+		}
+
+		DescribeTable("Checking get streak calendar handler cases", func(input Params) {
+
+			mockStatsService.EXPECT().GetStreakCalendarByYearAndMonth(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Times(1).
+				Return(input.ServiceResponse, input.ServiceError)
+
+			response := handler.GetStreakCalendar(params)
+			Expect(response).To(BeEquivalentTo(input.ExpectedResponse))
+		},
+			Entry("CASE: Success Response (200)", Params{
+				ExpectedResponse: op.NewGetStreakCalendarByUserIDOK().WithPayload(&models.StreakCalendarResponse{
+					Days: []string{
+						"2024-11-01",
+						"2024-11-02",
+						"2024-11-05",
+						"2024-11-07",
+					},
+					Streak:     77,
+					WeeklyGoal: 3,
+				}),
+				ServiceResponse: &models.StreakCalendarResponse{
+					Days: []string{
+						"2024-11-01",
+						"2024-11-02",
+						"2024-11-05",
+						"2024-11-07",
+					},
+					Streak:     77,
+					WeeklyGoal: 3,
+				},
+				ServiceError: nil,
+			}),
+			Entry("CASE: Not Found Error Response (404)", Params{
+				ExpectedResponse: op.NewGetStreakCalendarByUserIDNotFound().WithPayload(&models.GenericResponse{
+					Code:    "404",
+					Message: "Not Found",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    customErrors.BuildNotFoundError("user not found"),
+			}),
+			Entry("CASE: Unauthorized Error Response (401)", Params{
+				ExpectedResponse: op.NewGetStreakCalendarByUserIDUnauthorized().WithPayload(&models.GenericResponse{
+					Code:    "401",
+					Message: "Unauthorized",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    customErrors.BuildUnauthorizedError("unauthorized"),
+			}),
+			Entry("CASE: Internal Server Error Response (500)", Params{
+				ExpectedResponse: op.NewGetStreakCalendarByUserIDInternalServerError().WithPayload(&models.GenericResponse{
+					Code:    "500",
+					Message: "Internal Server Error",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    errors.New("panic"),
+			}),
+		)
+
+	})
+
 })
