@@ -4,15 +4,18 @@ package restapi
 
 import (
 	"crypto/tls"
+	friendsHandler "gym-badges-api/internal/handler/friends"
 	loginHandler "gym-badges-api/internal/handler/login"
 	statsHandler "gym-badges-api/internal/handler/stats"
 	userHandler "gym-badges-api/internal/handler/user"
 	userDAO "gym-badges-api/internal/repository/user/postgresql"
+	friendsService "gym-badges-api/internal/service/friends"
 	loginService "gym-badges-api/internal/service/login"
 	sessionService "gym-badges-api/internal/service/session"
 	statsService "gym-badges-api/internal/service/stats"
 	userService "gym-badges-api/internal/service/user"
 	"gym-badges-api/restapi/operations"
+	"gym-badges-api/restapi/operations/friends"
 	"gym-badges-api/restapi/operations/login"
 	"gym-badges-api/restapi/operations/login_with_token"
 	"gym-badges-api/restapi/operations/stats"
@@ -51,11 +54,13 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	loginService := loginService.NewLoginService(userDAO, sessionService)
 	userService := userService.NewUserService(userDAO, sessionService)
 	statsService := statsService.NewStatsService(userDAO, sessionService)
+	friendsService := friendsService.NewFriendsService(userDAO)
 
 	// HANDLERS
 	loginHandler := loginHandler.NewLoginHandler(loginService)
 	userHandler := userHandler.NewUserHandler(userService)
 	statsHandler := statsHandler.NewStatsHandler(statsService)
+	friendsHandler := friendsHandler.NewFriendsHandler(friendsService)
 
 	api.ServeError = errors.ServeError
 
@@ -91,6 +96,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	api.StatsGetStreakCalendarByUserIDHandler = stats.GetStreakCalendarByUserIDHandlerFunc(func(params stats.GetStreakCalendarByUserIDParams, new interface{}) middleware.Responder {
 		return statsHandler.GetStreakCalendar(params)
+	})
+
+	api.FriendsGetFriendsByUserIDHandler = friends.GetFriendsByUserIDHandlerFunc(func(params friends.GetFriendsByUserIDParams, new interface{}) middleware.Responder {
+		return friendsHandler.GetFriendsByUserID(params)
 	})
 
 	// Authentication Middleware
