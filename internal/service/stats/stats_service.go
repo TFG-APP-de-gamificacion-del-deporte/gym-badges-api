@@ -66,3 +66,26 @@ func (s statService) GetFatHistory(userID string, months int32, ctxLog *log.Entr
 
 	return &response, nil
 }
+
+func (s statService) GetStreakCalendarByYearAndMonth(userID string, year int32, month int32,
+	ctxLog *log.Entry) (*models.StreakCalendarResponse, error) {
+
+	ctxLog.Debugf("STATS_SERVICE: Processing GetStreakCalendar request for user: %s", userID)
+
+	user, err := s.UserDAO.GetUserWithAttendance(userID, year, month, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	response := models.StreakCalendarResponse{
+		Days:       make([]string, 0, len(user.GymAttendance)),
+		Streak:     user.Streak,
+		WeeklyGoal: user.WeeklyGoal,
+	}
+
+	for _, at := range user.GymAttendance {
+		response.Days = append(response.Days, at.Date.Format(constants.ISODateLayout))
+	}
+
+	return &response, nil
+}

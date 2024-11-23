@@ -187,6 +187,60 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+  /stats/streak/{user_id}:
+    get:
+      operationId: getStreakCalendarByUserID
+      summary: Get streak calendar by user_id
+      tags:
+        - Stats
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: User's id you want to get.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: month
+          in: query
+          description: Month to be consulted.
+          required: true
+          type: integer
+          format: int32
+        - name: year
+          in: query
+          description: Year to be consulted.
+          required: true
+          type: integer
+          format: int32
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/streak_calendar_response"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
   /stats/fat/{user_id}:
     get:
       operationId: getFatHistoryByUserID
@@ -332,6 +386,23 @@ definitions:
         type: number
         format: float
         x-omitempty: false
+
+  streak_calendar_response:
+    type: object
+    title: Measurement pre day info
+    properties:
+      streak:
+        type: number
+        format: int32
+        x-omitempty: false
+      weekly_goal:
+        type: number
+        format: int32
+        x-omitempty: false
+      days:
+        type: array
+        items:
+          type: string
 
   create_user_request:
     type: object
