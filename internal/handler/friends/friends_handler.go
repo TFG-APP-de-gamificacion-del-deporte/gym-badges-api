@@ -1,4 +1,4 @@
-package friends
+package friends_handler
 
 import (
 	"errors"
