@@ -9,4 +9,5 @@ type IUserDAO interface {
 	GetUserByEmail(email string, ctxLog *log.Entry) (*User, error)
 	CreateUser(user *User, ctxLog *log.Entry) error
 	GetUserWithWeightHistory(userID string, months int32, ctxLog *log.Entry) (*User, error)
+	GetUserWithFatHistory(userID string, months int32, ctxLog *log.Entry) (*User, error)
 }

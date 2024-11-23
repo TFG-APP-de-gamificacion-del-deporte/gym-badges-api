@@ -85,6 +85,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return statsHandler.GetWeightHistory(params)
 	})
 
+	api.StatsGetFatHistoryByUserIDHandler = stats.GetFatHistoryByUserIDHandlerFunc(func(params stats.GetFatHistoryByUserIDParams, new interface{}) middleware.Responder {
+		return statsHandler.GetFatHistory(params)
+	})
+
 	// Authentication Middleware
 	api.APIKeyAuthenticator = func(_ string, _ string, authentication security.TokenAuthentication) runtime.Authenticator {
 		return Authenticator{sessionService: sessionService}
