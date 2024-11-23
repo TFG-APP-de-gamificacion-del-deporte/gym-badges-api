@@ -9,4 +9,5 @@ import (
 type IStatsService interface {
 	GetWeightHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error)
 	GetFatHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error)
+	GetStreakCalendarByYearAndMonth(userID string, year int32, month int32, ctxLog *log.Entry) (*models.StreakCalendarResponse, error)
 }
