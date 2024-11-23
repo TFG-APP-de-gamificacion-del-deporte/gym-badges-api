@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+var (
+	Unauthorized = UnauthorizedError{CustomError{Message: "Unauthorized"}}
+)
+
 type UnauthorizedError struct {
 	CustomError
 }

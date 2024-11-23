@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+var (
+	Conflict = ConflictError{CustomError{Message: "Conflict"}}
+)
+
 type ConflictError struct {
 	CustomError
 }
