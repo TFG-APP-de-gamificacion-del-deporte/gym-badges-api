@@ -17,13 +17,14 @@ type User struct {
 	Name        string       `gorm:"not null" json:"name"`
 	Password    string       `gorm:"not null" json:"password"`
 	Streak      int32        `gorm:"not null" json:"streak"`
+	WeeklyGoal  int32        `gorm:"not null" json:"weekly_goal"`
 	Weight      float32      `gorm:"not null" json:"weight"`
 
-	GymAttendances []GymAttendance
-	FatHistory     []FatHistory
-	WeightHistory  []WeightHistory
-	Friends        []*User  `gorm:"many2many:user_friends"`
-	Badges         []*Badge `gorm:"many2many:user_badges"`
+	GymAttendance []GymAttendance
+	FatHistory    []FatHistory
+	WeightHistory []WeightHistory
+	Friends       []*User  `gorm:"many2many:user_friends"`
+	Badges        []*Badge `gorm:"many2many:user_badges"`
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
