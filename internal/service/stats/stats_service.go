@@ -43,3 +43,26 @@ func (s statService) GetWeightHistory(userID string, months int32, ctxLog *log.E
 
 	return &response, nil
 }
+
+func (s statService) GetFatHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error) {
+
+	ctxLog.Debugf("STATS_SERVICE: Processing GetFatHistory request for user: %s", userID)
+
+	user, err := s.UserDAO.GetUserWithFatHistory(userID, months, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	response := models.MeasurementHistoryResponse{
+		Days: make([]*models.MeasurementPerDay, 0, len(user.FatHistory)),
+	}
+
+	for _, weight := range user.FatHistory {
+		response.Days = append(response.Days, &models.MeasurementPerDay{
+			Date:  weight.Date.Format(constants.ISODateLayout),
+			Value: weight.Fat,
+		})
+	}
+
+	return &response, nil
+}
