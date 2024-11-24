@@ -583,8 +583,8 @@ definitions:
     title: User badge list response
     properties:
       badges:
-        type: array
-        items:
+        type: object
+        additionalProperties:
           $ref: "#/definitions/badge"
 
   badge:
@@ -592,7 +592,7 @@ definitions:
     title: User badge
     properties:
       achieved:
-        type: string
+        type: boolean
       description:
         type: string
       image:
