@@ -4,6 +4,7 @@ import (
 	"fmt"
 	configs "gym-badges-api/config/gym-badges-server"
 	customErrors "gym-badges-api/internal/custom-errors"
+	badgeDAO "gym-badges-api/internal/repository/badge"
 	userDAO "gym-badges-api/internal/repository/user"
 	mockDAO "gym-badges-api/mocks/dao"
 	toolsLogging "gym-badges-api/tools/logging"
@@ -155,7 +156,7 @@ func buildFriends(num int) []*userDAO.User {
 			Name:       fmt.Sprintf("user-%d", i),
 			Streak:     int32(i) * 10,
 			Weight:     float32(i) * 1.5,
-			Badges: []*userDAO.Badge{
+			Badges: []*badgeDAO.Badge{
 				{
 					Name:        fmt.Sprintf("badge-%d", i),
 					Description: fmt.Sprintf("description-%d", i),

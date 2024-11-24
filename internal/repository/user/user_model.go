@@ -1,6 +1,7 @@
 package user
 
 import (
+	badgeModelDB "gym-badges-api/internal/repository/badge"
 	"time"
 
 	"github.com/lib/pq"
@@ -23,8 +24,8 @@ type User struct {
 	GymAttendance []GymAttendance
 	FatHistory    []FatHistory
 	WeightHistory []WeightHistory
-	Friends       []*User  `gorm:"many2many:user_friends"`
-	Badges        []*Badge `gorm:"many2many:user_badges"`
+	Friends       []*User               `gorm:"many2many:user_friends"`
+	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges"`
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
@@ -48,13 +49,4 @@ type WeightHistory struct {
 	UserID string    `gorm:"not null"`
 	Date   time.Time `gorm:"not null"`
 	Weight float32   `gorm:"not null;type:decimal(5,2)"`
-}
-
-type Badge struct {
-	gorm.Model
-	Name          string `gorm:"not null"`
-	Description   string `gorm:"not null"`
-	Image         string `gorm:"not null"`
-	ParentBadgeID uint   `gorm:"null"`
-	ParentBadge   *Badge `gorm:"null"`
 }
