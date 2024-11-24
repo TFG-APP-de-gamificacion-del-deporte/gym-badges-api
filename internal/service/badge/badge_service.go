@@ -56,7 +56,7 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (*mod
 		return nil, err
 	}
 
-	userBadgesMap := make(map[uint]bool)
+	userBadgesMap := make(map[uint16]bool)
 	for _, badge := range user.Badges {
 		userBadgesMap[badge.ID] = true
 	}

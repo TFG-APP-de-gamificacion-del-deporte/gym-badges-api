@@ -1,14 +1,10 @@
 package badge_dao
 
-import (
-	"gorm.io/gorm"
-)
-
 type Badge struct {
-	gorm.Model
+	ID            uint16 `gorm:"primaryKey"`
 	Name          string `gorm:"not null"`
 	Description   string `gorm:"not null"`
 	Image         string `gorm:"not null"`
-	ParentBadgeID uint   `gorm:"null"`
+	ParentBadgeID uint16 `gorm:"null"`
 	ParentBadge   *Badge `gorm:"null"`
 }
