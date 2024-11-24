@@ -3,6 +3,7 @@ package postgresql
 import (
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
+	"gym-badges-api/internal/repository/config/postgresql"
 	userModelDB "gym-badges-api/internal/repository/user"
 	"time"
 
@@ -19,7 +20,7 @@ type userDAO struct {
 }
 
 func NewUserDAO() userModelDB.IUserDAO {
-	connection := OpenConnection()
+	connection := postgresql.OpenConnection()
 	return &userDAO{connection: connection}
 }
 
@@ -202,6 +203,31 @@ func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, c
 		Find(&user.Friends)
 
 	if queryResult.Error != nil && errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+		return nil, queryResult.Error
+	}
+
+	return &user, nil
+}
+
+func (dao userDAO) GetUserWithBadges(userID string, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting badges for user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Preload("Badges").
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
 		return nil, queryResult.Error
 	}
 

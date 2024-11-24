@@ -134,6 +134,10 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+  # -----------------------------------------------------
+  # STATS
+  # -----------------------------------------------------
+
   /stats/weight/{user_id}:
     get:
       operationId: getWeightHistoryByUserID
@@ -294,6 +298,10 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+  # -----------------------------------------------------
+  # FRIENDS
+  # -----------------------------------------------------
+
   /friends/{user_id}:
     get:
       operationId: getFriendsByUserID
@@ -326,6 +334,52 @@ paths:
           description: Success Response
           schema:
             $ref: "#/definitions/friends_response"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
+  # -----------------------------------------------------
+  # BADGES
+  # -----------------------------------------------------
+
+  /badges/{user_id}:
+    get:
+      operationId: getBadgesByUserID
+      summary: Get badges info by user_id
+      tags:
+        - Badges
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: User's id you want to get.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/badges_by_user_response"
         401:
           description: Unauthorized Error
           schema:
@@ -522,4 +576,28 @@ definitions:
       password:
         type: string
       user_id:
+        type: string
+
+  badges_by_user_response:
+    type: object
+    title: User badge list response
+    properties:
+      badges:
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/badge"
+
+  badge:
+    type: object
+    title: User badge
+    properties:
+      achieved:
+        type: boolean
+      description:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      parent:
         type: string

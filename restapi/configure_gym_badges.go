@@ -4,17 +4,21 @@ package restapi
 
 import (
 	"crypto/tls"
+	badgeHandler "gym-badges-api/internal/handler/badge"
 	friendsHandler "gym-badges-api/internal/handler/friends"
 	loginHandler "gym-badges-api/internal/handler/login"
 	statsHandler "gym-badges-api/internal/handler/stats"
 	userHandler "gym-badges-api/internal/handler/user"
+	badgeDAO "gym-badges-api/internal/repository/badge/postgresql"
 	userDAO "gym-badges-api/internal/repository/user/postgresql"
+	badgeService "gym-badges-api/internal/service/badge"
 	friendsService "gym-badges-api/internal/service/friends"
 	loginService "gym-badges-api/internal/service/login"
 	sessionService "gym-badges-api/internal/service/session"
 	statsService "gym-badges-api/internal/service/stats"
 	userService "gym-badges-api/internal/service/user"
 	"gym-badges-api/restapi/operations"
+	"gym-badges-api/restapi/operations/badges"
 	"gym-badges-api/restapi/operations/friends"
 	"gym-badges-api/restapi/operations/login"
 	"gym-badges-api/restapi/operations/login_with_token"
@@ -48,6 +52,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	// DAO'S
 	userDAO := userDAO.NewUserDAO()
+	badgeDAO := badgeDAO.NewBadgeDAO()
 
 	// SERVICES
 	sessionService := sessionService.NewSessionService()
@@ -55,12 +60,14 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	userService := userService.NewUserService(userDAO, sessionService)
 	statsService := statsService.NewStatsService(userDAO, sessionService)
 	friendsService := friendsService.NewFriendsService(userDAO)
+	badgeService := badgeService.NewBadgeService(userDAO, badgeDAO)
 
 	// HANDLERS
 	loginHandler := loginHandler.NewLoginHandler(loginService)
 	userHandler := userHandler.NewUserHandler(userService)
 	statsHandler := statsHandler.NewStatsHandler(statsService)
 	friendsHandler := friendsHandler.NewFriendsHandler(friendsService)
+	badgeHandler := badgeHandler.NewBadgeHandler(badgeService)
 
 	api.ServeError = errors.ServeError
 
@@ -86,6 +93,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return login_with_token.NewLoginWithTokenOK()
 	})
 
+	// *******************************************************************
+	// STATS
+	// *******************************************************************
+
 	api.StatsGetWeightHistoryByUserIDHandler = stats.GetWeightHistoryByUserIDHandlerFunc(func(params stats.GetWeightHistoryByUserIDParams, new interface{}) middleware.Responder {
 		return statsHandler.GetWeightHistory(params)
 	})
@@ -98,8 +109,20 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return statsHandler.GetStreakCalendar(params)
 	})
 
+	// *******************************************************************
+	// FRIENDS
+	// *******************************************************************
+
 	api.FriendsGetFriendsByUserIDHandler = friends.GetFriendsByUserIDHandlerFunc(func(params friends.GetFriendsByUserIDParams, new interface{}) middleware.Responder {
 		return friendsHandler.GetFriendsByUserID(params)
+	})
+
+	// *******************************************************************
+	// BADGES
+	// *******************************************************************
+
+	api.BadgesGetBadgesByUserIDHandler = badges.GetBadgesByUserIDHandlerFunc(func(params badges.GetBadgesByUserIDParams, new interface{}) middleware.Responder {
+		return badgeHandler.GetBadgesByUserID(params)
 	})
 
 	// Authentication Middleware
