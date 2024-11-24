@@ -3,6 +3,7 @@ package postgresql
 import (
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
+	"gym-badges-api/internal/repository/config/postgresql"
 	userModelDB "gym-badges-api/internal/repository/user"
 	"time"
 
@@ -19,7 +20,7 @@ type userDAO struct {
 }
 
 func NewUserDAO() userModelDB.IUserDAO {
-	connection := OpenConnection()
+	connection := postgresql.OpenConnection()
 	return &userDAO{connection: connection}
 }
 

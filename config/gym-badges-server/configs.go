@@ -1,7 +1,7 @@
 package configs
 
 import (
-	"gym-badges-api/internal/repository/user/postgresql"
+	"gym-badges-api/internal/repository/config/postgresql"
 	toolsConfig "gym-badges-api/tools/config"
 	toolsLogging "gym-badges-api/tools/logging"
 )
