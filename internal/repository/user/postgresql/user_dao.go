@@ -207,3 +207,28 @@ func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, c
 
 	return &user, nil
 }
+
+func (dao userDAO) GetUserWithBadges(userID string, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting badges for user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Preload("Badges").
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	return &user, nil
+}

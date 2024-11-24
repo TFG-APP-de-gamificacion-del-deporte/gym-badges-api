@@ -55,6 +55,6 @@ type Badge struct {
 	Name          string `gorm:"not null"`
 	Description   string `gorm:"not null"`
 	Image         string `gorm:"not null"`
-	ParentBadgeID uint   `gorm:"not null"`
-	ParentBadge   *Badge `gorm:"not null"`
+	ParentBadgeID uint   `gorm:"null"`
+	ParentBadge   *Badge `gorm:"null"`
 }
