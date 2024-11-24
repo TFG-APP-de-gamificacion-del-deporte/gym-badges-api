@@ -31,7 +31,7 @@ var (
 	}
 )
 
-func NewBadgesHandler(badgeService badgeService.IBadgeService) IBadgeHandler {
+func NewBadgeHandler(badgeService badgeService.IBadgeService) IBadgeHandler {
 	return &badgesHandler{
 		badgeService: badgeService,
 	}
@@ -52,8 +52,6 @@ func (h badgesHandler) GetBadgesByUserID(params badges.GetBadgesByUserIDParams) 
 		switch {
 		case errors.As(err, &customErrors.Unauthorized):
 			return op.NewGetBadgesByUserIDUnauthorized().WithPayload(&unauthorizedErrorResponse)
-		case errors.As(err, &customErrors.NotFound):
-			return op.NewGetBadgesByUserIDNotFound().WithPayload(&notFoundErrorResponse)
 		default:
 			return op.NewGetBadgesByUserIDInternalServerError().WithPayload(&internalServerErrorResponse)
 		}

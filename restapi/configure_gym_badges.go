@@ -67,7 +67,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	userHandler := userHandler.NewUserHandler(userService)
 	statsHandler := statsHandler.NewStatsHandler(statsService)
 	friendsHandler := friendsHandler.NewFriendsHandler(friendsService)
-	badgeHandler := badgeHandler.NewBadgesHandler(badgeService)
+	badgeHandler := badgeHandler.NewBadgeHandler(badgeService)
 
 	api.ServeError = errors.ServeError
 
