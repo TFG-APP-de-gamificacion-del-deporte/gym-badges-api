@@ -593,7 +593,8 @@ definitions:
       description:
         type: string
       id:
-        type: string
+        type: number
+        format: int32
       image:
         type: string
       name:

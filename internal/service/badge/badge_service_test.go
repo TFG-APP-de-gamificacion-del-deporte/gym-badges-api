@@ -121,18 +121,18 @@ var _ = Describe("SERVICE: Badge Test Suite", func() {
 			Expect(err).To(BeNil())
 			Expect(len(response)).To(Equal(2))
 
-			Expect(response[0].ID).To(Equal("1"))
+			Expect(response[0].ID).To(Equal(int32(1)))
 			Expect(response[0].Achieved).To(Equal(true))
 			Expect(response[0].Description).To(Equal("Badge 1"))
 			Expect(response[0].Image).To(Equal("/image-1.jpg"))
 			Expect(response[0].Name).To(Equal("badge1"))
 
-			Expect(response[0].Children[0].ID).To(Equal("2"))
+			Expect(response[0].Children[0].ID).To(Equal(int32(2)))
 			Expect(response[0].Children[0].Achieved).To(Equal(true))
 			Expect(response[0].Children[0].Description).To(Equal("Badge 2"))
 			Expect(response[0].Children[0].Image).To(Equal("/image-2.jpg"))
 			Expect(response[0].Children[0].Name).To(Equal("badge2"))
-			Expect(response[0].Children[0].Children[0].ID).To(Equal("4"))
+			Expect(response[0].Children[0].Children[0].ID).To(Equal(int32(4)))
 			Expect(response[0].Children[0].Children[0].Achieved).To(Equal(false))
 			Expect(response[0].Children[0].Children[0].Description).To(Equal("Badge 4"))
 			Expect(response[0].Children[0].Children[0].Image).To(Equal("/image-4.jpg"))
@@ -143,13 +143,13 @@ var _ = Describe("SERVICE: Badge Test Suite", func() {
 			Expect(response[0].Children[1].Description).To(Equal("Badge 3"))
 			Expect(response[0].Children[1].Image).To(Equal("/image-3.jpg"))
 			Expect(response[0].Children[1].Name).To(Equal("badge3"))
-			Expect(response[0].Children[1].Children[0].ID).To(Equal("5"))
+			Expect(response[0].Children[1].Children[0].ID).To(Equal(int32(5)))
 			Expect(response[0].Children[1].Children[0].Description).To(Equal("Badge 5"))
 			Expect(response[0].Children[1].Children[0].Image).To(Equal("/image-5.jpg"))
 			Expect(response[0].Children[1].Children[0].Name).To(Equal("badge5"))
 			Expect(response[0].Children[1].Children[0].Children).To(BeNil())
 
-			Expect(response[1].ID).To(Equal("6"))
+			Expect(response[1].ID).To(Equal(int32(6)))
 			Expect(response[1].Achieved).To(Equal(false))
 			Expect(response[1].Description).To(Equal("Badge 6"))
 			Expect(response[1].Image).To(Equal("/image-6.jpg"))
@@ -173,22 +173,22 @@ var _ = Describe("SERVICE: Badge Test Suite", func() {
 			Expect(err).To(BeNil())
 			Expect(len(response)).To(Equal(2))
 
-			Expect(response[0].ID).To(Equal("1"))
+			Expect(response[0].ID).To(Equal(int32(1)))
 			Expect(response[0].Achieved).To(Equal(false))
 
-			Expect(response[0].Children[0].ID).To(Equal("2"))
+			Expect(response[0].Children[0].ID).To(Equal(int32(2)))
 			Expect(response[0].Children[0].Achieved).To(Equal(false))
 
-			Expect(response[0].Children[0].Children[0].ID).To(Equal("4"))
+			Expect(response[0].Children[0].Children[0].ID).To(Equal(int32(4)))
 			Expect(response[0].Children[0].Children[0].Achieved).To(Equal(false))
 
-			Expect(response[0].Children[1].ID).To(Equal("3"))
+			Expect(response[0].Children[1].ID).To(Equal(int32(3)))
 			Expect(response[0].Children[1].Achieved).To(Equal(false))
 
-			Expect(response[0].Children[1].Children[0].ID).To(Equal("5"))
+			Expect(response[0].Children[1].Children[0].ID).To(Equal(int32(5)))
 			Expect(response[0].Children[1].Children[0].Achieved).To(Equal(false))
 
-			Expect(response[1].ID).To(Equal("6"))
+			Expect(response[1].ID).To(Equal(int32(6)))
 			Expect(response[1].Achieved).To(Equal(false))
 		})
 

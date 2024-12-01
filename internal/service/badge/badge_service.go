@@ -1,7 +1,6 @@
 package badge_service
 
 import (
-	"fmt"
 	badgeDAO "gym-badges-api/internal/repository/badge"
 	userDAO "gym-badges-api/internal/repository/user"
 	"gym-badges-api/models"
@@ -63,14 +62,14 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 
 	response := make(models.BadgesByUserResponse, 0)
 
-	badgeMap := make(map[string][]*models.Badge)
+	badgeMap := make(map[int32][]*models.Badge)
 
 	for _, badge := range badges {
 
 		b := models.Badge{
 			Achieved:    userBadgesMap[badge.ID],
 			Description: badge.Description,
-			ID:          fmt.Sprint(badge.ID),
+			ID:          int32(badge.ID),
 			Image:       badge.Image,
 			Name:        badge.Name,
 		}
@@ -78,7 +77,7 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 		if badge.ParentBadgeID == 0 {
 			response = append(response, &b)
 		} else {
-			badgeMap[fmt.Sprint(badge.ParentBadgeID)] = append(badgeMap[fmt.Sprint(badge.ParentBadgeID)], &b)
+			badgeMap[int32(badge.ParentBadgeID)] = append(badgeMap[int32(badge.ParentBadgeID)], &b)
 		}
 	}
 
@@ -89,7 +88,7 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 	return response, nil
 }
 
-func addChildren(badge *models.Badge, auxMap map[string][]*models.Badge) {
+func addChildren(badge *models.Badge, auxMap map[int32][]*models.Badge) {
 
 	children := auxMap[badge.ID]
 
