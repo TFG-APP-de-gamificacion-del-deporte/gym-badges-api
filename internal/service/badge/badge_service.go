@@ -22,7 +22,7 @@ type badgesService struct {
 	badgeDAO badgeDAO.IBadgeDAO
 }
 
-func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (*models.BadgesByUserResponse, error) {
+func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (models.BadgesByUserResponse, error) {
 
 	ctxLog.Debugf("BADGES_SERVICE: Processing GetBadgesByUserID for user: %s", userID)
 
@@ -61,20 +61,41 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (*mod
 		userBadgesMap[badge.ID] = true
 	}
 
-	response := models.BadgesByUserResponse{
-		Badges: make(map[string]models.Badge),
-	}
+	response := make(models.BadgesByUserResponse, 0)
+
+	badgeMap := make(map[string][]*models.Badge)
 
 	for _, badge := range badges {
 
-		response.Badges[fmt.Sprint(badge.ID)] = models.Badge{
+		b := models.Badge{
 			Achieved:    userBadgesMap[badge.ID],
 			Description: badge.Description,
+			ID:          fmt.Sprint(badge.ID),
 			Image:       badge.Image,
 			Name:        badge.Name,
-			Parent:      fmt.Sprint(badge.ParentBadgeID),
+		}
+
+		if badge.ParentBadgeID == 0 {
+			response = append(response, &b)
+		} else {
+			badgeMap[fmt.Sprint(badge.ParentBadgeID)] = append(badgeMap[fmt.Sprint(badge.ParentBadgeID)], &b)
 		}
 	}
 
-	return &response, nil
+	for i := range response {
+		addChildren(response[i], badgeMap)
+	}
+
+	return response, nil
+}
+
+func addChildren(badge *models.Badge, auxMap map[string][]*models.Badge) {
+
+	children := auxMap[badge.ID]
+
+	for i := range children {
+		addChildren(children[i], auxMap)
+	}
+
+	badge.Children = children
 }

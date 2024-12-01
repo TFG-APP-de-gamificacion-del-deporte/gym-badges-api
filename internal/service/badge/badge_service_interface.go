@@ -7,5 +7,5 @@ import (
 )
 
 type IBadgeService interface {
-	GetBadgesByUserID(userID string, ctxLog *log.Entry) (*models.BadgesByUserResponse, error)
+	GetBadgesByUserID(userID string, ctxLog *log.Entry) (models.BadgesByUserResponse, error)
 }
