@@ -53,7 +53,7 @@ var _ = Describe("HANDLER: Badge Test Suite", func() {
 
 		type Params struct {
 			ExpectedResponse any
-			ServiceResponse  *models.BadgesByUserResponse
+			ServiceResponse  models.BadgesByUserResponse
 			ServiceError     error
 		}
 
@@ -67,54 +67,50 @@ var _ = Describe("HANDLER: Badge Test Suite", func() {
 			Expect(response).To(BeEquivalentTo(input.ExpectedResponse))
 		},
 			Entry("CASE: Success Response (200)", Params{
-				ExpectedResponse: op.NewGetBadgesByUserIDOK().WithPayload(&models.BadgesByUserResponse{
-					Badges: map[string]models.Badge{
-						"1": {
-							Achieved:    false,
-							Description: "Badge 1",
-							Image:       "/badge_1.jpg",
-							Name:        "Badge 1",
-							Parent:      "",
-						},
-						"2": {
-							Achieved:    false,
-							Description: "Badge 2",
-							Image:       "/badge_2.jpg",
-							Name:        "Badge 2",
-							Parent:      "1",
-						},
-						"3": {
-							Achieved:    false,
-							Description: "Badge 3",
-							Image:       "/badge_3.jpg",
-							Name:        "Badge 3",
-							Parent:      "1",
-						},
+				ExpectedResponse: op.NewGetBadgesByUserIDOK().WithPayload(models.BadgesByUserResponse{
+					{
+						Achieved:    false,
+						Description: "Badge 1",
+						ID:          1,
+						Image:       "/badge_1.jpg",
+						Name:        "Badge 1",
+					},
+					{
+						Achieved:    false,
+						Description: "Badge 2",
+						ID:          2,
+						Image:       "/badge_2.jpg",
+						Name:        "Badge 2",
+					},
+					{
+						Achieved:    false,
+						Description: "Badge 3",
+						ID:          3,
+						Image:       "/badge_3.jpg",
+						Name:        "Badge 3",
 					},
 				}),
-				ServiceResponse: &models.BadgesByUserResponse{
-					Badges: map[string]models.Badge{
-						"1": {
-							Achieved:    false,
-							Description: "Badge 1",
-							Image:       "/badge_1.jpg",
-							Name:        "Badge 1",
-							Parent:      "",
-						},
-						"2": {
-							Achieved:    false,
-							Description: "Badge 2",
-							Image:       "/badge_2.jpg",
-							Name:        "Badge 2",
-							Parent:      "1",
-						},
-						"3": {
-							Achieved:    false,
-							Description: "Badge 3",
-							Image:       "/badge_3.jpg",
-							Name:        "Badge 3",
-							Parent:      "1",
-						},
+				ServiceResponse: models.BadgesByUserResponse{
+					{
+						Achieved:    false,
+						Description: "Badge 1",
+						ID:          1,
+						Image:       "/badge_1.jpg",
+						Name:        "Badge 1",
+					},
+					{
+						Achieved:    false,
+						Description: "Badge 2",
+						ID:          2,
+						Image:       "/badge_2.jpg",
+						Name:        "Badge 2",
+					},
+					{
+						Achieved:    false,
+						Description: "Badge 3",
+						ID:          3,
+						Image:       "/badge_3.jpg",
+						Name:        "Badge 3",
 					},
 				},
 				ServiceError: nil,

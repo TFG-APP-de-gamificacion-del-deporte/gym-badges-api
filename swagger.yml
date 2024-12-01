@@ -579,13 +579,10 @@ definitions:
         type: string
 
   badges_by_user_response:
-    type: object
     title: User badge list response
-    properties:
-      badges:
-        type: object
-        additionalProperties:
-          $ref: "#/definitions/badge"
+    type: array
+    items:
+      $ref: "#/definitions/badge"
 
   badge:
     type: object
@@ -595,9 +592,14 @@ definitions:
         type: boolean
       description:
         type: string
+      id:
+        type: number
+        format: int32
       image:
         type: string
       name:
         type: string
-      parent:
-        type: string
+      children:
+        type: array
+        items:
+          $ref: "#/definitions/badge"
