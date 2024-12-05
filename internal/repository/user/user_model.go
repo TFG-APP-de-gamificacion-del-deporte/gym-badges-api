@@ -26,6 +26,7 @@ type User struct {
 	WeightHistory []WeightHistory
 	Friends       []*User               `gorm:"many2many:user_friends"`
 	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges"`
+	// TODO Add TopFeats
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
