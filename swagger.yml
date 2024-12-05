@@ -349,6 +349,52 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
+    post:
+      operationId: AddFriend
+      summary: Makes user_id and friend_id friends.
+      tags:
+        - Friends
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: User's id you want to get.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: input
+          description: Friend's user id
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/add_delete_friend_request" 
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/friend_info"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
 
   # -----------------------------------------------------
   # BADGES
@@ -603,3 +649,10 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/badge"
+
+  add_delete_friend_request:
+    type: object
+    title: Create user request
+    properties:
+      friend_id:
+        type: string
