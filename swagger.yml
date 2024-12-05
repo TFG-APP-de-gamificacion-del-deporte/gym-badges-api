@@ -425,8 +425,6 @@ paths:
       responses:
         200:
           description: Success Response
-          schema:
-            $ref: "#/definitions/generic_response"
         401:
           description: Unauthorized Error
           schema:

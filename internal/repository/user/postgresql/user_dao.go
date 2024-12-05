@@ -236,7 +236,7 @@ func (dao userDAO) GetUserWithBadges(userID string, ctxLog *log.Entry) (*userMod
 
 func (dao userDAO) AddFriend(userID string, friendID string, ctxLog *log.Entry) (*userModelDB.User, error) {
 
-	ctxLog.Debugf("FRIENDS_SERVICE: Making %s (user) and %s (friend) friends.", userID, friendID)
+	ctxLog.Debugf("USER_DAO: Making %s (user) and %s (friend) friends.", userID, friendID)
 
 	if err := dao.connection.Error; err != nil {
 		return nil, err
@@ -244,6 +244,7 @@ func (dao userDAO) AddFriend(userID string, friendID string, ctxLog *log.Entry) 
 
 	var user userModelDB.User
 
+	// TODO Añadir Friends en la query
 	queryResult := dao.connection.
 		Where("id = ?", userID).
 		First(&user)
@@ -272,4 +273,49 @@ func (dao userDAO) AddFriend(userID string, friendID string, ctxLog *log.Entry) 
 	dao.connection.Save(user)
 
 	return &friend, nil
+}
+
+func (dao userDAO) DeleteFriend(userID string, friendID string, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Making %s (user) and %s (friend) no longer friends.", userID, friendID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	var friend userModelDB.User
+
+	queryResult = dao.connection.
+		Where("id = ?", friendID).
+		First(&friend)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	// Try to delete from both users friends list (The friendship relation will only be in one of them)
+	if err := dao.connection.Model(&user).Association("Friends").Delete(&friend); err != nil {
+		return err
+	}
+	if err := dao.connection.Model(&friend).Association("Friends").Delete(&user); err != nil {
+		return err
+	}
+
+	return nil
 }
