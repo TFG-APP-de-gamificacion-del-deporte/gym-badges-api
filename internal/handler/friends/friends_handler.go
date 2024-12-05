@@ -87,3 +87,29 @@ func (h friendsHandler) AddFriend(params friends.AddFriendParams) middleware.Res
 
 	return op.NewAddFriendOK().WithPayload(response)
 }
+
+func (h friendsHandler) DeleteFriend(params friends.DeleteFriendParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("FRIENDS_HANDLER: Making %s (user) and %s (friend) no longer friends.", params.UserID, params.Input.FriendID)
+
+	// An user only can delete his own friends
+	if params.AuthUserID != params.UserID {
+		return op.NewAddFriendUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	err := h.friendsService.DeleteFriend(params.UserID, params.Input.FriendID, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewAddFriendUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewAddFriendNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewAddFriendInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewDeleteFriendOK()
+}
