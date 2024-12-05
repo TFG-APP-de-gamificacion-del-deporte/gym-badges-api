@@ -244,7 +244,6 @@ func (dao userDAO) AddFriend(userID string, friendID string, ctxLog *log.Entry) 
 
 	var user userModelDB.User
 
-	// TODO Añadir Friends en la query
 	queryResult := dao.connection.
 		Where("id = ?", userID).
 		First(&user)
