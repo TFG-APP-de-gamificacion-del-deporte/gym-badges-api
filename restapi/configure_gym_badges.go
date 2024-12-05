@@ -121,6 +121,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return friendsHandler.AddFriend(params)
 	})
 
+	api.FriendsDeleteFriendHandler = friends.DeleteFriendHandlerFunc(func(params friends.DeleteFriendParams, new interface{}) middleware.Responder {
+		return friendsHandler.DeleteFriend(params)
+	})
+
 	// *******************************************************************
 	// BADGES
 	// *******************************************************************

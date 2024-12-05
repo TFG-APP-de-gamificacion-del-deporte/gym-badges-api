@@ -359,7 +359,7 @@ paths:
       parameters:
         - name: user_id
           in: path
-          description: User's id you want to get.
+          description: Your own user id.
           required: true
           type: string
         - name: auth_user_id
@@ -368,7 +368,7 @@ paths:
           required: true
           type: string
         - name: input
-          description: Friend's user id
+          description: Friend's user id.
           in: body
           required: true
           schema:
@@ -380,6 +380,51 @@ paths:
           description: Success Response
           schema:
             $ref: "#/definitions/friend_info"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
+    delete:
+      operationId: DeleteFriend
+      summary: Makes user_id and friend_id no longer friends.
+      tags:
+        - Friends
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: Your own user id.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: input
+          description: Friend's user id.
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/add_delete_friend_request" 
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
         401:
           description: Unauthorized Error
           schema:
