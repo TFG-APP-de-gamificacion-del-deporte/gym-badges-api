@@ -117,6 +117,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return friendsHandler.GetFriendsByUserID(params)
 	})
 
+	api.FriendsAddFriendHandler = friends.AddFriendHandlerFunc(func(params friends.AddFriendParams, new interface{}) middleware.Responder {
+		return friendsHandler.AddFriend(params)
+	})
+
 	// *******************************************************************
 	// BADGES
 	// *******************************************************************

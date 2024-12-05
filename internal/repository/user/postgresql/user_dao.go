@@ -233,3 +233,43 @@ func (dao userDAO) GetUserWithBadges(userID string, ctxLog *log.Entry) (*userMod
 
 	return &user, nil
 }
+
+func (dao userDAO) AddFriend(userID string, friendID string, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("FRIENDS_SERVICE: Making %s (user) and %s (friend) friends.", userID, friendID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	var friend userModelDB.User
+
+	friendQueryResult := dao.connection.
+		Where("id = ?", friendID).
+		First(&friend)
+
+	if friendQueryResult.Error != nil {
+		if errors.Is(friendQueryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, friendQueryResult.Error
+	}
+
+	user.Friends = append(user.Friends, &friend)
+	dao.connection.Save(user)
+
+	return &friend, nil
+}

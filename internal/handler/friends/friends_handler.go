@@ -61,3 +61,29 @@ func (h friendsHandler) GetFriendsByUserID(params friends.GetFriendsByUserIDPara
 
 	return op.NewGetFriendsByUserIDOK().WithPayload(response)
 }
+
+func (h friendsHandler) AddFriend(params friends.AddFriendParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("FRIENDS_HANDLER: Making %s (user) and %s (friend) friends.", params.UserID, params.Input.FriendID)
+
+	// An user only can add friends to himself
+	if params.AuthUserID != params.UserID {
+		return op.NewAddFriendUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	response, err := h.friendsService.AddFriend(params.UserID, params.Input.FriendID, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewAddFriendUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewAddFriendNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewAddFriendInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewAddFriendOK().WithPayload(response)
+}

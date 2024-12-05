@@ -71,3 +71,26 @@ func calcLevel(experience int64) int32 {
 	// TODO: To be defined
 	return int32(experience / 100)
 }
+
+func (s friendsService) AddFriend(userID string, friendID string, ctxLog *log.Entry) (*models.FriendInfo, error) {
+
+	ctxLog.Debugf("FRIENDS_SERVICE: Making %s (user) and %s (friend) friends.", userID, friendID)
+
+	friend, err := s.UserDAO.AddFriend(userID, friendID, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	friendInfo := models.FriendInfo{
+		Fat:      friend.BodyFat,
+		Image:    friend.Image,
+		Level:    calcLevel(friend.Experience),
+		Name:     friend.Name,
+		Streak:   friend.Streak,
+		TopFeats: mapTopFeats(friend.Badges),
+		User:     friend.ID,
+		Weight:   friend.Weight,
+	}
+
+	return &friendInfo, nil
+}

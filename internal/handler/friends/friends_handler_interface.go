@@ -8,4 +8,5 @@ import (
 
 type IFriendsHandler interface {
 	GetFriendsByUserID(params friends.GetFriendsByUserIDParams) middleware.Responder
+	AddFriend(params friends.AddFriendParams) middleware.Responder
 }
