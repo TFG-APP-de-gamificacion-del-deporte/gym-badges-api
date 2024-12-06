@@ -180,6 +180,41 @@ func (dao userDAO) GetUserWithFatHistory(userID string, months int32, ctxLog *lo
 	return &user, nil
 }
 
+func (dao userDAO) AddBodyFat(userID string, fat float32, date time.Time, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding new body fat to user %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	user.BodyFat = fat
+	err := dao.connection.Unscoped().Model(&user).Association("FatHistory").Unscoped().Delete(&userModelDB.FatHistory{UserID: user.ID, Date: date})
+	if err != nil {
+		return err
+	}
+	err = dao.connection.Model(&user).Association("FatHistory").Replace(&userModelDB.FatHistory{Date: date, Fat: fat})
+	if err != nil {
+		return err
+	}
+	dao.connection.Save(&user)
+
+	return nil
+}
+
 func (dao userDAO) GetUserWithAttendance(userID string, year int32, month int32, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting attendance info for user: %s in year %d and month %d", userID, year, month)
