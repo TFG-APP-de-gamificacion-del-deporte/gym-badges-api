@@ -80,11 +80,11 @@ func (s statService) GetFatHistory(userID string, months int32, ctxLog *log.Entr
 	return &response, nil
 }
 
-func (s statService) AddBodyFat(userID string, fat float32, ctxLog *log.Entry) error {
+func (s statService) AddBodyFat(userID string, bodyFat float32, ctxLog *log.Entry) error {
 
 	ctxLog.Debugf("STATS_SERVICE: Processing AddBodyFat request for user: %s", userID)
 
-	err := s.UserDAO.AddBodyFat(userID, fat, time.Now().Truncate(time.Hour*24), ctxLog)
+	err := s.UserDAO.AddBodyFat(userID, bodyFat, time.Now().Truncate(time.Hour*24), ctxLog)
 	if err != nil {
 		return err
 	}

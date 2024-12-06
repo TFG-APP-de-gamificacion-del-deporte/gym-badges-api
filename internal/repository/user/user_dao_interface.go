@@ -13,7 +13,7 @@ type IUserDAO interface {
 	GetUserWithWeightHistory(userID string, months int32, ctxLog *log.Entry) (*User, error)
 	AddWeight(userID string, weight float32, date time.Time, ctxLog *log.Entry) error
 	GetUserWithFatHistory(userID string, months int32, ctxLog *log.Entry) (*User, error)
-	AddBodyFat(userID string, fat float32, date time.Time, ctxLog *log.Entry) error
+	AddBodyFat(userID string, bodyFat float32, date time.Time, ctxLog *log.Entry) error
 	GetUserWithAttendance(userID string, year int32, month int32, ctxLog *log.Entry) (*User, error)
 	GetUserWithFriends(userID string, offset int32, size int32, ctxLog *log.Entry) (*User, error)
 	GetUserWithBadges(userID string, ctxLog *log.Entry) (*User, error)

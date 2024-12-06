@@ -119,7 +119,7 @@ func (h statsHandler) AddBodyFat(params op.AddBodyFatParams) middleware.Responde
 		return op.NewAddBodyFatUnauthorized().WithPayload(&unauthorizedErrorResponse)
 	}
 
-	err := h.statsService.AddBodyFat(params.UserID, params.Input.Fat, ctxLog)
+	err := h.statsService.AddBodyFat(params.UserID, params.Input.BodyFat, ctxLog)
 	if err != nil {
 		switch {
 		case errors.As(err, &customErrors.Unauthorized):
