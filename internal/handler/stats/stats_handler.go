@@ -67,7 +67,7 @@ func (h statsHandler) AddWeight(params op.AddWeightParams) middleware.Responder 
 
 	ctxLog.Infof("STATS_HANDLER: Adding new weight to user: %s", params.UserID)
 
-	// An user can only delete his own friends
+	// An user can only add new weights to himself
 	if params.AuthUserID != params.UserID {
 		return op.NewAddWeightUnauthorized().WithPayload(&unauthorizedErrorResponse)
 	}
@@ -106,6 +106,32 @@ func (h statsHandler) GetFatHistory(params op.GetFatHistoryByUserIDParams) middl
 	}
 
 	return op.NewGetFatHistoryByUserIDOK().WithPayload(response)
+}
+
+func (h statsHandler) AddBodyFat(params op.AddBodyFatParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("STATS_HANDLER: Adding new body fat to user: %s", params.UserID)
+
+	// An user can only add new body fats to himself
+	if params.AuthUserID != params.UserID {
+		return op.NewAddBodyFatUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	err := h.statsService.AddBodyFat(params.UserID, params.Input.Fat, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewAddBodyFatUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewAddBodyFatNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewAddBodyFatInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewAddBodyFatOK()
 }
 
 func (h statsHandler) GetStreakCalendar(params op.GetStreakCalendarByUserIDParams) middleware.Responder {
