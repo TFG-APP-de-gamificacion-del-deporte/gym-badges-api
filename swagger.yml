@@ -805,6 +805,6 @@ definitions:
     type: object
     title: Add weight request
     properties:
-      fat:
+      body_fat:
         type: number
         format: float
