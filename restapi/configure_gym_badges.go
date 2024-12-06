@@ -109,6 +109,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return statsHandler.GetFatHistory(params)
 	})
 
+	api.StatsAddBodyFatHandler = stats.AddBodyFatHandlerFunc(func(params stats.AddBodyFatParams, new interface{}) middleware.Responder {
+		return statsHandler.AddBodyFat(params)
+	})
+
 	api.StatsGetStreakCalendarByUserIDHandler = stats.GetStreakCalendarByUserIDHandlerFunc(func(params stats.GetStreakCalendarByUserIDParams, new interface{}) middleware.Responder {
 		return statsHandler.GetStreakCalendar(params)
 	})

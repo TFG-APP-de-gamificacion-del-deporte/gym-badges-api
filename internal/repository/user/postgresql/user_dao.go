@@ -140,7 +140,7 @@ func (dao userDAO) AddWeight(userID string, weight float32, date time.Time, ctxL
 	if err != nil {
 		return err
 	}
-	err = dao.connection.Model(&user).Association("WeightHistory").Replace(&userModelDB.WeightHistory{Date: date, Weight: weight})
+	err = dao.connection.Model(&user).Association("WeightHistory").Append(&userModelDB.WeightHistory{Date: date, Weight: weight})
 	if err != nil {
 		return err
 	}
@@ -178,6 +178,41 @@ func (dao userDAO) GetUserWithFatHistory(userID string, months int32, ctxLog *lo
 	}
 
 	return &user, nil
+}
+
+func (dao userDAO) AddBodyFat(userID string, bodyFat float32, date time.Time, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding new body fat to user %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	user.BodyFat = bodyFat
+	err := dao.connection.Unscoped().Model(&user).Association("FatHistory").Unscoped().Delete(&userModelDB.FatHistory{UserID: user.ID, Date: date})
+	if err != nil {
+		return err
+	}
+	err = dao.connection.Model(&user).Association("FatHistory").Append(&userModelDB.FatHistory{Date: date, Fat: bodyFat})
+	if err != nil {
+		return err
+	}
+	dao.connection.Save(&user)
+
+	return nil
 }
 
 func (dao userDAO) GetUserWithAttendance(userID string, year int32, month int32, ctxLog *log.Entry) (*userModelDB.User, error) {
