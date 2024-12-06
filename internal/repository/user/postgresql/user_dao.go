@@ -114,6 +114,38 @@ func (dao userDAO) GetUserWithWeightHistory(userID string, months int32, ctxLog 
 	return &user, nil
 }
 
+func (dao userDAO) AddWeight(userID string, weight float32, date time.Time, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding new weight to user %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	user.Weight = weight
+	err := dao.connection.Model(&user).Association("WeightHistory").Append(&userModelDB.WeightHistory{Date: date, Weight: weight})
+	dao.connection.Save(&user)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (dao userDAO) GetUserWithFatHistory(userID string, months int32, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting fat history for user: %s for last %d months", userID, months)
