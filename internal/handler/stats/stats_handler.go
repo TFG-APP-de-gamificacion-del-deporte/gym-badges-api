@@ -79,7 +79,7 @@ func (h statsHandler) AddWeight(params op.AddWeightParams) middleware.Responder 
 		}
 	}
 
-	return nil
+	return op.NewAddWeightOK()
 }
 
 func (h statsHandler) GetFatHistory(params op.GetFatHistoryByUserIDParams) middleware.Responder {

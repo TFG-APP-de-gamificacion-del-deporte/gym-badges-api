@@ -136,12 +136,15 @@ func (dao userDAO) AddWeight(userID string, weight float32, date time.Time, ctxL
 	}
 
 	user.Weight = weight
-	err := dao.connection.Model(&user).Association("WeightHistory").Append(&userModelDB.WeightHistory{Date: date, Weight: weight})
-	dao.connection.Save(&user)
-
+	err := dao.connection.Unscoped().Model(&user).Association("WeightHistory").Unscoped().Delete(&userModelDB.WeightHistory{UserID: user.ID, Date: date})
 	if err != nil {
 		return err
 	}
+	err = dao.connection.Model(&user).Association("WeightHistory").Replace(&userModelDB.WeightHistory{Date: date, Weight: weight})
+	if err != nil {
+		return err
+	}
+	dao.connection.Save(&user)
 
 	return nil
 }

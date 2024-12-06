@@ -49,7 +49,7 @@ func (s statService) AddWeight(userID string, weight float32, ctxLog *log.Entry)
 
 	ctxLog.Debugf("STATS_SERVICE: Processing AddWeight request for user: %s", userID)
 
-	err := s.UserDAO.AddWeight(userID, weight, time.Now(), ctxLog)
+	err := s.UserDAO.AddWeight(userID, weight, time.Now().Truncate(time.Hour*24), ctxLog)
 	if err != nil {
 		return err
 	}

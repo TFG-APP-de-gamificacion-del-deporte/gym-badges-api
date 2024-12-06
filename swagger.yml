@@ -220,8 +220,6 @@ paths:
       responses:
         200:
           description: Success Response
-          schema:
-            $ref: "#/definitions/friend_info"
         401:
           description: Unauthorized Error
           schema:
