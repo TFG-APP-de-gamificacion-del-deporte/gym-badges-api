@@ -30,6 +30,7 @@ type User struct {
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
+	DeletedAt time.Time `gorm:"null" json:"deleted_at"`
 }
 
 type GymAttendance struct {
@@ -46,8 +47,11 @@ type FatHistory struct {
 }
 
 type WeightHistory struct {
-	gorm.Model
-	UserID string    `gorm:"not null"`
-	Date   time.Time `gorm:"not null"`
+	UserID string    `gorm:"primary_key;not null"`
+	Date   time.Time `gorm:"primary_key;not null"`
 	Weight float32   `gorm:"not null;type:decimal(5,2)"`
+
+	CreatedAt time.Time `gorm:"null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
+	DeletedAt time.Time `gorm:"null" json:"deleted_at"`
 }

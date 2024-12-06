@@ -61,6 +61,27 @@ func (h statsHandler) GetWeightHistory(params op.GetWeightHistoryByUserIDParams)
 	return op.NewGetWeightHistoryByUserIDOK().WithPayload(response)
 }
 
+func (h statsHandler) AddWeight(params op.AddWeightParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("STATS_HANDLER: Adding new weight to user: %s", params.UserID)
+
+	err := h.statsService.AddWeight(params.UserID, params.Input.Weight, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewAddWeightUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewAddWeightNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewAddWeightInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewAddWeightOK()
+}
+
 func (h statsHandler) GetFatHistory(params op.GetFatHistoryByUserIDParams) middleware.Responder {
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
