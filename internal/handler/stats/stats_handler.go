@@ -67,6 +67,11 @@ func (h statsHandler) AddWeight(params op.AddWeightParams) middleware.Responder 
 
 	ctxLog.Infof("STATS_HANDLER: Adding new weight to user: %s", params.UserID)
 
+	// An user can only delete his own friends
+	if params.AuthUserID != params.UserID {
+		return op.NewAddWeightUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
 	err := h.statsService.AddWeight(params.UserID, params.Input.Weight, ctxLog)
 	if err != nil {
 		switch {

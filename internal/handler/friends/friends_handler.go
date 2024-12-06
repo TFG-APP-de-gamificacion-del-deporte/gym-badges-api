@@ -68,7 +68,7 @@ func (h friendsHandler) AddFriend(params friends.AddFriendParams) middleware.Res
 
 	ctxLog.Infof("FRIENDS_HANDLER: Making %s (user) and %s (friend) friends.", params.UserID, params.Input.FriendID)
 
-	// An user only can add friends to himself
+	// An user can only add friends to himself
 	if params.AuthUserID != params.UserID {
 		return op.NewAddFriendUnauthorized().WithPayload(&unauthorizedErrorResponse)
 	}
@@ -94,7 +94,7 @@ func (h friendsHandler) DeleteFriend(params friends.DeleteFriendParams) middlewa
 
 	ctxLog.Infof("FRIENDS_HANDLER: Making %s (user) and %s (friend) no longer friends.", params.UserID, params.Input.FriendID)
 
-	// An user only can delete his own friends
+	// An user can only delete his own friends
 	if params.AuthUserID != params.UserID {
 		return op.NewAddFriendUnauthorized().WithPayload(&unauthorizedErrorResponse)
 	}
