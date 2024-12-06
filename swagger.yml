@@ -191,6 +191,53 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+    post:
+      operationId: AddWeight
+      summary: Adds a new weight with today's date.
+      tags:
+        - Stats
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: Your own user id.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: input
+          description: New weight.
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/add_weight_request"
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/friend_info"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
   /stats/streak/{user_id}:
     get:
       operationId: getStreakCalendarByUserID
@@ -349,6 +396,7 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
+
     post:
       operationId: AddFriend
       summary: Makes user_id and friend_id friends.
@@ -701,3 +749,11 @@ definitions:
     properties:
       friend_id:
         type: string
+  
+  add_weight_request:
+    type: object
+    title: Add weight request
+    properties:
+      weight:
+        type: number
+        format: float
