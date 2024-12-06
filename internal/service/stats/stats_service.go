@@ -5,6 +5,7 @@ import (
 	userDAO "gym-badges-api/internal/repository/user"
 	sessionService "gym-badges-api/internal/service/session"
 	"gym-badges-api/models"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -42,6 +43,18 @@ func (s statService) GetWeightHistory(userID string, months int32, ctxLog *log.E
 	}
 
 	return &response, nil
+}
+
+func (s statService) AddWeight(userID string, weight float32, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("STATS_SERVICE: Processing AddWeight request for user: %s", userID)
+
+	err := s.UserDAO.AddWeight(userID, weight, time.Now(), ctxLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s statService) GetFatHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error) {
