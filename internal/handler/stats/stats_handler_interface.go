@@ -15,4 +15,5 @@ type IStatsHandler interface {
 
 	GetStreakCalendar(params stats.GetStreakCalendarByUserIDParams) middleware.Responder
 	AddGymAttendance(params stats.AddGymAttendanceParams) middleware.Responder
+	DeleteGymAttendance(params stats.DeleteGymAttendanceParams) middleware.Responder
 }

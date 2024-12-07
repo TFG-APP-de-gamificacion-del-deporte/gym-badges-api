@@ -121,6 +121,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return statsHandler.AddGymAttendance(params)
 	})
 
+	api.StatsDeleteGymAttendanceHandler = stats.DeleteGymAttendanceHandlerFunc(func(params stats.DeleteGymAttendanceParams, new interface{}) middleware.Responder {
+		return statsHandler.DeleteGymAttendance(params)
+	})
+
 	// *******************************************************************
 	// FRIENDS
 	// *******************************************************************
