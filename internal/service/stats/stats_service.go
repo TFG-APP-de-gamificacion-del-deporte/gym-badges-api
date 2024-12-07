@@ -126,3 +126,15 @@ func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log
 
 	return nil
 }
+
+func (s statService) DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("STATS_SERVICE: Processing DeleteGymAttendance request for user: %s", userID)
+
+	err := s.UserDAO.DeleteGymAttendance(userID, date, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

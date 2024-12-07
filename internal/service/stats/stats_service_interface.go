@@ -16,4 +16,5 @@ type IStatsService interface {
 
 	GetStreakCalendarByYearAndMonth(userID string, year int32, month int32, ctxLog *log.Entry) (*models.StreakCalendarResponse, error)
 	AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error
+	DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error
 }
