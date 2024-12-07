@@ -313,7 +313,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: "#/definitions/add_day_to_streak_request"
+            $ref: "#/definitions/add_delete_day_to_streak_request"
       security:
         - jwt: [ ]
       responses:
@@ -324,6 +324,51 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the bad request error response object
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
+    delete:
+      operationId: DeleteGymAttendance
+      summary: Deletes a day as attended.
+      tags:
+        - Stats
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: Your own user id.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: input
+          description: Date to be deleted as attended.
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/add_delete_day_to_streak_request"
+      security:
+        - jwt: [ ]
+      responses:
+        200:
+          description: Success Response
         401:
           description: Unauthorized Error
           schema:
@@ -859,7 +904,7 @@ definitions:
         type: number
         format: float
 
-  add_day_to_streak_request:
+  add_delete_day_to_streak_request:
     type: object
     title: Add day to streak request
     properties:

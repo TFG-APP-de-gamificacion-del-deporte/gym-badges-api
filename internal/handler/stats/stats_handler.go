@@ -189,3 +189,29 @@ func (h statsHandler) AddGymAttendance(params op.AddGymAttendanceParams) middlew
 
 	return op.NewAddGymAttendanceOK()
 }
+
+func (h statsHandler) DeleteGymAttendance(params op.DeleteGymAttendanceParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("STATS_HANDLER: Deleting a gym attendance to user: %s", params.UserID)
+
+	// An user can only delete gym attendances to himself
+	if params.AuthUserID != params.UserID {
+		return op.NewDeleteGymAttendanceUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	err := h.statsService.DeleteGymAttendance(params.UserID, time.Time(params.Input.Date), ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewDeleteGymAttendanceUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewDeleteGymAttendanceNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewDeleteGymAttendanceInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewDeleteGymAttendanceOK()
+}

@@ -22,6 +22,10 @@ type statService struct {
 	sessionService sessionService.ISessionService
 }
 
+// *******************************************************************
+// WEIGHT
+// *******************************************************************
+
 func (s statService) GetWeightHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error) {
 
 	ctxLog.Debugf("STATS_SERVICE: Processing GetWeightHistory request for user: %s", userID)
@@ -56,6 +60,10 @@ func (s statService) AddWeight(userID string, weight float32, ctxLog *log.Entry)
 
 	return nil
 }
+
+// *******************************************************************
+// BODY FAT
+// *******************************************************************
 
 func (s statService) GetFatHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error) {
 
@@ -92,6 +100,10 @@ func (s statService) AddBodyFat(userID string, bodyFat float32, ctxLog *log.Entr
 	return nil
 }
 
+// *******************************************************************
+// GYM ATTENDANCES (STREAK)
+// *******************************************************************
+
 func (s statService) GetStreakCalendarByYearAndMonth(userID string, year int32, month int32,
 	ctxLog *log.Entry) (*models.StreakCalendarResponse, error) {
 
@@ -120,6 +132,18 @@ func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log
 	ctxLog.Debugf("STATS_SERVICE: Processing AddGymAttendance request for user: %s", userID)
 
 	err := s.UserDAO.AddGymAttendance(userID, date, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s statService) DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("STATS_SERVICE: Processing DeleteGymAttendance request for user: %s", userID)
+
+	err := s.UserDAO.DeleteGymAttendance(userID, date, ctxLog)
 	if err != nil {
 		return err
 	}
