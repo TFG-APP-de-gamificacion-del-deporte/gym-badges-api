@@ -319,6 +319,11 @@ paths:
       responses:
         200:
           description: Success Response
+        400:
+          description: Bad Request Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the bad request error response object
         401:
           description: Unauthorized Error
           schema:

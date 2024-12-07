@@ -168,6 +168,13 @@ func (h statsHandler) AddGymAttendance(params op.AddGymAttendanceParams) middlew
 		return op.NewAddGymAttendanceUnauthorized().WithPayload(&unauthorizedErrorResponse)
 	}
 
+	if time.Time(params.Input.Date).After(time.Now()) {
+		return op.NewAddGymAttendanceBadRequest().WithPayload(&models.GenericResponse{
+			Code:    fmt.Sprint(http.StatusBadRequest),
+			Message: "Date cannot be in the future.",
+		})
+	}
+
 	err := h.statsService.AddGymAttendance(params.UserID, time.Time(params.Input.Date), ctxLog)
 	if err != nil {
 		switch {
