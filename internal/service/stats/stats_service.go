@@ -114,3 +114,15 @@ func (s statService) GetStreakCalendarByYearAndMonth(userID string, year int32, 
 
 	return &response, nil
 }
+
+func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("STATS_SERVICE: Processing AddGymAttendance request for user: %s", userID)
+
+	err := s.UserDAO.AddGymAttendance(userID, date, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
