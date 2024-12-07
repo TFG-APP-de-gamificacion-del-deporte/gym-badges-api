@@ -9,6 +9,7 @@ import (
 	op "gym-badges-api/restapi/operations/stats"
 	toolsLogging "gym-badges-api/tools/logging"
 	"net/http"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 )
@@ -154,4 +155,37 @@ func (h statsHandler) GetStreakCalendar(params op.GetStreakCalendarByUserIDParam
 	}
 
 	return op.NewGetStreakCalendarByUserIDOK().WithPayload(response)
+}
+
+func (h statsHandler) AddGymAttendance(params op.AddGymAttendanceParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("STATS_HANDLER: Adding a gym attendance to user: %s", params.UserID)
+
+	// An user can only add new gym attendances to himself
+	if params.AuthUserID != params.UserID {
+		return op.NewAddGymAttendanceUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	if time.Time(params.Input.Date).After(time.Now()) {
+		return op.NewAddGymAttendanceBadRequest().WithPayload(&models.GenericResponse{
+			Code:    fmt.Sprint(http.StatusBadRequest),
+			Message: "Date cannot be in the future.",
+		})
+	}
+
+	err := h.statsService.AddGymAttendance(params.UserID, time.Time(params.Input.Date), ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewAddGymAttendanceUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewAddGymAttendanceNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewAddGymAttendanceInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewAddGymAttendanceOK()
 }

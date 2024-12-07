@@ -5,12 +5,11 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"gorm.io/gorm"
 )
 
 type User struct {
 	ID          string       `gorm:"primary_key;not null" json:"user_id"`
-	BodyFat     float32      `gorm:"not null" json:"body_fat"`
+	BodyFat     float32      `gorm:"not null;type:decimal(5,2)" json:"body_fat"`
 	CurrentWeek pq.BoolArray `gorm:"not null;type:bool[]" json:"current_week"`
 	Email       string       `gorm:"not null;unique" json:"email"`
 	Experience  int64        `gorm:"not null" json:"experience"`
@@ -19,13 +18,13 @@ type User struct {
 	Password    string       `gorm:"not null" json:"password"`
 	Streak      int32        `gorm:"not null" json:"streak"`
 	WeeklyGoal  int32        `gorm:"not null" json:"weekly_goal"`
-	Weight      float32      `gorm:"not null" json:"weight"`
+	Weight      float32      `gorm:"not null;type:decimal(5,2)" json:"weight"`
 
-	GymAttendance []GymAttendance
-	FatHistory    []FatHistory
-	WeightHistory []WeightHistory
-	Friends       []*User               `gorm:"many2many:user_friends"`
-	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges"`
+	GymAttendance []GymAttendance       `gorm:"constraint:OnDelete:CASCADE"`
+	FatHistory    []FatHistory          `gorm:"constraint:OnDelete:CASCADE"`
+	WeightHistory []WeightHistory       `gorm:"constraint:OnDelete:CASCADE"`
+	Friends       []*User               `gorm:"many2many:user_friends;constraint:OnDelete:CASCADE"`
+	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges;constraint:OnDelete:CASCADE"`
 	// TODO Add TopFeats
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
@@ -34,9 +33,12 @@ type User struct {
 }
 
 type GymAttendance struct {
-	gorm.Model
-	UserID string    `gorm:"not null"`
-	Date   time.Time `gorm:"not null"`
+	UserID string    `gorm:"primary_key;not null"`
+	Date   time.Time `gorm:"primary_key;not null"`
+
+	CreatedAt time.Time `gorm:"null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
+	DeletedAt time.Time `gorm:"null" json:"deleted_at"`
 }
 
 type FatHistory struct {

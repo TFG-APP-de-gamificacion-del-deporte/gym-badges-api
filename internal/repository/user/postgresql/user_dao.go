@@ -243,6 +243,36 @@ func (dao userDAO) GetUserWithAttendance(userID string, year int32, month int32,
 	return &user, nil
 }
 
+func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding a gym attendance to user %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	err := dao.connection.Model(&user).Association("GymAttendance").Append(&userModelDB.GymAttendance{Date: date})
+	if err != nil {
+		return err
+	}
+	dao.connection.Save(&user)
+
+	return nil
+}
+
 func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting friends for user: %s offset: %d size: %d", userID, offset, size)

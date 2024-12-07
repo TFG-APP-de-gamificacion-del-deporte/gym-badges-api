@@ -117,6 +117,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return statsHandler.GetStreakCalendar(params)
 	})
 
+	api.StatsAddGymAttendanceHandler = stats.AddGymAttendanceHandlerFunc(func(params stats.AddGymAttendanceParams, new interface{}) middleware.Responder {
+		return statsHandler.AddGymAttendance(params)
+	})
+
 	// *******************************************************************
 	// FRIENDS
 	// *******************************************************************
