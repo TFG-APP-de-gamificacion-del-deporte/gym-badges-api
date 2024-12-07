@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -34,9 +33,12 @@ type User struct {
 }
 
 type GymAttendance struct {
-	gorm.Model
-	UserID string    `gorm:"not null"`
-	Date   time.Time `gorm:"not null"`
+	UserID string    `gorm:"primary_key;not null"`
+	Date   time.Time `gorm:"primary_key;not null"`
+
+	CreatedAt time.Time `gorm:"null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
+	DeletedAt time.Time `gorm:"null" json:"deleted_at"`
 }
 
 type FatHistory struct {
