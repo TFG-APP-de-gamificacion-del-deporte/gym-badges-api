@@ -22,6 +22,10 @@ type statService struct {
 	sessionService sessionService.ISessionService
 }
 
+// *******************************************************************
+// WEIGHT
+// *******************************************************************
+
 func (s statService) GetWeightHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error) {
 
 	ctxLog.Debugf("STATS_SERVICE: Processing GetWeightHistory request for user: %s", userID)
@@ -57,6 +61,10 @@ func (s statService) AddWeight(userID string, weight float32, ctxLog *log.Entry)
 	return nil
 }
 
+// *******************************************************************
+// BODY FAT
+// *******************************************************************
+
 func (s statService) GetFatHistory(userID string, months int32, ctxLog *log.Entry) (*models.MeasurementHistoryResponse, error) {
 
 	ctxLog.Debugf("STATS_SERVICE: Processing GetFatHistory request for user: %s", userID)
@@ -91,6 +99,10 @@ func (s statService) AddBodyFat(userID string, bodyFat float32, ctxLog *log.Entr
 
 	return nil
 }
+
+// *******************************************************************
+// GYM ATTENDANCES (STREAK)
+// *******************************************************************
 
 func (s statService) GetStreakCalendarByYearAndMonth(userID string, year int32, month int32,
 	ctxLog *log.Entry) (*models.StreakCalendarResponse, error) {
