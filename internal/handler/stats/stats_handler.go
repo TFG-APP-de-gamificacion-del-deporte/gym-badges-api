@@ -163,7 +163,7 @@ func (h statsHandler) AddGymAttendance(params op.AddGymAttendanceParams) middlew
 
 	ctxLog.Infof("STATS_HANDLER: Adding a gym attendance to user: %s", params.UserID)
 
-	// An user can only add new body fats to himself
+	// An user can only add new gym attendances to himself
 	if params.AuthUserID != params.UserID {
 		return op.NewAddGymAttendanceUnauthorized().WithPayload(&unauthorizedErrorResponse)
 	}
