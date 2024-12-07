@@ -24,6 +24,10 @@ func NewUserDAO() userModelDB.IUserDAO {
 	return &userDAO{connection: connection}
 }
 
+// *******************************************************************
+// GET USER
+// *******************************************************************
+
 func (dao userDAO) GetUser(userID string, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting user: %s", userID)
@@ -72,6 +76,10 @@ func (dao userDAO) GetUserByEmail(email string, ctxLog *log.Entry) (*userModelDB
 	return &user, nil
 }
 
+// *******************************************************************
+// CREATE USER
+// *******************************************************************
+
 func (dao userDAO) CreateUser(user *userModelDB.User, ctxLog *log.Entry) error {
 
 	ctxLog.Debugf("USER_DAO: Creating user: %s", user.ID)
@@ -82,6 +90,10 @@ func (dao userDAO) CreateUser(user *userModelDB.User, ctxLog *log.Entry) error {
 
 	return dao.connection.Create(user).Error
 }
+
+// *******************************************************************
+// WEIGHT
+// *******************************************************************
 
 func (dao userDAO) GetUserWithWeightHistory(userID string, months int32, ctxLog *log.Entry) (*userModelDB.User, error) {
 
@@ -149,6 +161,10 @@ func (dao userDAO) AddWeight(userID string, weight float32, date time.Time, ctxL
 	return nil
 }
 
+// *******************************************************************
+// BODY FAT
+// *******************************************************************
+
 func (dao userDAO) GetUserWithFatHistory(userID string, months int32, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting fat history for user: %s for last %d months", userID, months)
@@ -214,6 +230,10 @@ func (dao userDAO) AddBodyFat(userID string, bodyFat float32, date time.Time, ct
 
 	return nil
 }
+
+// *******************************************************************
+// GYM ATTENDANCES (STREAK)
+// *******************************************************************
 
 func (dao userDAO) GetUserWithAttendance(userID string, year int32, month int32, ctxLog *log.Entry) (*userModelDB.User, error) {
 
@@ -306,6 +326,10 @@ func (dao userDAO) DeleteGymAttendance(userID string, date time.Time, ctxLog *lo
 	return nil
 }
 
+// *******************************************************************
+// FRIENDS
+// *******************************************************************
+
 func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting friends for user: %s offset: %d size: %d", userID, offset, size)
@@ -336,31 +360,6 @@ func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, c
 		Find(&user.Friends)
 
 	if queryResult.Error != nil && errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
-		return nil, queryResult.Error
-	}
-
-	return &user, nil
-}
-
-func (dao userDAO) GetUserWithBadges(userID string, ctxLog *log.Entry) (*userModelDB.User, error) {
-
-	ctxLog.Debugf("USER_DAO: Getting badges for user: %s", userID)
-
-	if err := dao.connection.Error; err != nil {
-		return nil, err
-	}
-
-	var user userModelDB.User
-
-	queryResult := dao.connection.
-		Preload("Badges").
-		Where("id = ?", userID).
-		First(&user)
-
-	if queryResult.Error != nil {
-		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
-			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
-		}
 		return nil, queryResult.Error
 	}
 
@@ -450,4 +449,33 @@ func (dao userDAO) DeleteFriend(userID string, friendID string, ctxLog *log.Entr
 	}
 
 	return nil
+}
+
+// *******************************************************************
+// BADGES
+// *******************************************************************
+
+func (dao userDAO) GetUserWithBadges(userID string, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting badges for user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Preload("Badges").
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	return &user, nil
 }
