@@ -291,7 +291,7 @@ paths:
             description: Contains the operation error response object
     
     post:
-      operationId: AddDayToStreak
+      operationId: AddGymAttendance
       summary: Adds a day as attended.
       tags:
         - Stats
