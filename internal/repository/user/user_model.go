@@ -20,11 +20,11 @@ type User struct {
 	WeeklyGoal  int32        `gorm:"not null" json:"weekly_goal"`
 	Weight      float32      `gorm:"not null;type:decimal(5,2)" json:"weight"`
 
-	GymAttendance []GymAttendance
-	FatHistory    []FatHistory
-	WeightHistory []WeightHistory
-	Friends       []*User               `gorm:"many2many:user_friends"`
-	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges"`
+	GymAttendance []GymAttendance       `gorm:"constraint:OnDelete:CASCADE"`
+	FatHistory    []FatHistory          `gorm:"constraint:OnDelete:CASCADE"`
+	WeightHistory []WeightHistory       `gorm:"constraint:OnDelete:CASCADE"`
+	Friends       []*User               `gorm:"many2many:user_friends;constraint:OnDelete:CASCADE"`
+	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges;constraint:OnDelete:CASCADE"`
 	// TODO Add TopFeats
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
