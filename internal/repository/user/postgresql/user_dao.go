@@ -25,7 +25,7 @@ func NewUserDAO() userModelDB.IUserDAO {
 }
 
 // *******************************************************************
-// GET USER
+// USER
 // *******************************************************************
 
 func (dao userDAO) GetUser(userID string, ctxLog *log.Entry) (*userModelDB.User, error) {
@@ -79,10 +79,6 @@ func (dao userDAO) GetUserByEmail(email string, ctxLog *log.Entry) (*userModelDB
 	return &user, nil
 }
 
-// *******************************************************************
-// CREATE USER
-// *******************************************************************
-
 func (dao userDAO) CreateUser(user *userModelDB.User, ctxLog *log.Entry) error {
 
 	ctxLog.Debugf("USER_DAO: Creating user: %s", user.ID)
@@ -92,6 +88,67 @@ func (dao userDAO) CreateUser(user *userModelDB.User, ctxLog *log.Entry) error {
 	}
 
 	return dao.connection.Create(user).Error
+}
+
+func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Editing information of user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	if newUserInfo.Email != "" {
+		user.Email = newUserInfo.Email
+	}
+	if newUserInfo.Name != "" {
+		user.Name = newUserInfo.Name
+	}
+	if newUserInfo.Image != "" {
+		user.Image = newUserInfo.Image
+	}
+	if newUserInfo.WeeklyGoal >= 1 && newUserInfo.WeeklyGoal <= 7 {
+		user.WeeklyGoal = newUserInfo.WeeklyGoal
+	}
+
+	// Update top feats
+	if len(newUserInfo.TopFeats) > 0 {
+		if err := dao.connection.Model(&user).Association("TopFeats").Clear(); err != nil {
+			return nil, err
+		}
+		if err := dao.connection.Model(&user).Association("TopFeats").Append(newUserInfo.TopFeats); err != nil {
+			return nil, err
+		}
+	}
+
+	// Update preferences
+	if err := dao.connection.Unscoped().Model(&user).Association("Preferences").Unscoped().Delete(newUserInfo.Preferences); err != nil {
+		return nil, err
+	}
+	if err := dao.connection.Model(&user).Association("Preferences").Append(newUserInfo.Preferences); err != nil {
+		return nil, err
+	}
+
+	if err := dao.connection.Save(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Preferences = newUserInfo.Preferences
+
+	return &user, nil
 }
 
 // *******************************************************************
@@ -159,9 +216,8 @@ func (dao userDAO) AddWeight(userID string, weight float32, date time.Time, ctxL
 	if err != nil {
 		return err
 	}
-	dao.connection.Save(&user)
 
-	return nil
+	return dao.connection.Save(&user).Error
 }
 
 // *******************************************************************
@@ -229,9 +285,8 @@ func (dao userDAO) AddBodyFat(userID string, bodyFat float32, date time.Time, ct
 	if err != nil {
 		return err
 	}
-	dao.connection.Save(&user)
 
-	return nil
+	return dao.connection.Save(&user).Error
 }
 
 // *******************************************************************
@@ -291,9 +346,8 @@ func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.E
 	if err != nil {
 		return err
 	}
-	dao.connection.Save(&user)
 
-	return nil
+	return dao.connection.Save(&user).Error
 }
 
 func (dao userDAO) DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
@@ -324,9 +378,8 @@ func (dao userDAO) DeleteGymAttendance(userID string, date time.Time, ctxLog *lo
 	if err != nil {
 		return err
 	}
-	dao.connection.Save(&user)
 
-	return nil
+	return dao.connection.Save(&user).Error
 }
 
 // *******************************************************************
@@ -407,7 +460,9 @@ func (dao userDAO) AddFriend(userID string, friendID string, ctxLog *log.Entry) 
 	}
 
 	user.Friends = append(user.Friends, &friend)
-	dao.connection.Save(user)
+	if err := dao.connection.Save(user).Error; err != nil {
+		return nil, err
+	}
 
 	return &friend, nil
 }

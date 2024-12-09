@@ -77,9 +77,21 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	// *******************************************************************
+	// AUTHENTICATION
+	// *******************************************************************
+
 	api.LoginLoginHandler = login.LoginHandlerFunc(func(params login.LoginParams) middleware.Responder {
 		return loginHandler.Login(params)
 	})
+
+	api.LoginWithTokenLoginWithTokenHandler = login_with_token.LoginWithTokenHandlerFunc(func(params login_with_token.LoginWithTokenParams, new interface{}) middleware.Responder {
+		return login_with_token.NewLoginWithTokenOK()
+	})
+
+	// *******************************************************************
+	// USERS
+	// *******************************************************************
 
 	api.UserCreateUserHandler = user.CreateUserHandlerFunc(func(params user.CreateUserParams) middleware.Responder {
 		return userHandler.CreateUser(params)
@@ -89,8 +101,8 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return userHandler.GetUser(params)
 	})
 
-	api.LoginWithTokenLoginWithTokenHandler = login_with_token.LoginWithTokenHandlerFunc(func(params login_with_token.LoginWithTokenParams, new interface{}) middleware.Responder {
-		return login_with_token.NewLoginWithTokenOK()
+	api.UserEditUserInfoHandler = user.EditUserInfoHandlerFunc(func(params user.EditUserInfoParams, new interface{}) middleware.Responder {
+		return userHandler.EditUserInfo(params)
 	})
 
 	// *******************************************************************

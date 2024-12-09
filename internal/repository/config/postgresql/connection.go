@@ -85,7 +85,7 @@ func OpenConnection() *gorm.DB {
 		ctxLogger.Info("postgres-gorm connection successfully established")
 	}
 
-	if err = DbConnection.AutoMigrate(&user.User{}, &user.GymAttendance{}, &user.FatHistory{}, &user.WeightHistory{}); err != nil {
+	if err = DbConnection.AutoMigrate(&user.User{}, &user.GymAttendance{}, &user.FatHistory{}, &user.WeightHistory{}, &user.Preference{}); err != nil {
 		ctxLogger.Errorf("postgres-gorm migration failed: %s", err)
 		return nil
 	}

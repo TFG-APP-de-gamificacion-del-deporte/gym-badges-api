@@ -26,6 +26,7 @@ type User struct {
 	Friends       []*User               `gorm:"many2many:user_friends;constraint:OnDelete:CASCADE"`
 	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges;constraint:OnDelete:CASCADE"`
 	TopFeats      []*badgeModelDB.Badge `gorm:"many2many:user_top_feats;constraint:OnDelete:CASCADE"`
+	Preferences   []Preference          `gorm:"constraint:OnDelete:CASCADE"`
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
@@ -55,6 +56,16 @@ type WeightHistory struct {
 	UserID string    `gorm:"primary_key;not null"`
 	Date   time.Time `gorm:"primary_key;not null"`
 	Weight float32   `gorm:"not null;type:decimal(5,2)"`
+
+	CreatedAt time.Time `gorm:"null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
+	DeletedAt time.Time `gorm:"null" json:"deleted_at"`
+}
+
+type Preference struct {
+	UserID string `gorm:"primary_key;not null"`
+	ID     uint   `gorm:"primary_key;not null"`
+	On     bool   `gorm:"not null"`
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
