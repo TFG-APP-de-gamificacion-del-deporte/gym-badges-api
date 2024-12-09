@@ -43,7 +43,7 @@ func (s friendsService) GetFriendsByUserID(userID string, page int32, ctxLog *lo
 			Level:    calcLevel(friend.Experience),
 			Name:     friend.Name,
 			Streak:   friend.Streak,
-			TopFeats: mapTopFeats(friend.Badges),
+			TopFeats: mapTopFeats(friend.TopFeats),
 			User:     friend.ID,
 			Weight:   friend.Weight,
 		}
