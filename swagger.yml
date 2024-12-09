@@ -800,13 +800,12 @@ definitions:
         items:
           $ref: "#/definitions/feat"
         x-omitempty: false
-      weight:
-        type: number
-        format: float
-        x-omitempty: false
       weekly_goal:
         type: number
         format: int32
+      weight:
+        type: number
+        format: float
         x-omitempty: false
 
   edit_user_info_request:

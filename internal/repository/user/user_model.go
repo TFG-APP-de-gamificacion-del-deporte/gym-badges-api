@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -26,6 +27,7 @@ type User struct {
 	Friends       []*User               `gorm:"many2many:user_friends;constraint:OnDelete:CASCADE"`
 	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges;constraint:OnDelete:CASCADE"`
 	TopFeats      []*badgeModelDB.Badge `gorm:"many2many:user_top_feats;constraint:OnDelete:CASCADE"`
+	Preferences   []Preference          `gorm:"constraint:OnDelete:CASCADE"`
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
@@ -59,4 +61,20 @@ type WeightHistory struct {
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
 	DeletedAt time.Time `gorm:"null" json:"deleted_at"`
+}
+
+type Preference struct {
+	gorm.Model
+	PreferenceInfo PreferenceInfo `gorm:"not null"`
+	On             bool           `gorm:"not null"`
+
+	UserID string `gorm:"not null"`
+}
+
+type PreferenceInfo struct {
+	gorm.Model
+	Name        string `gorm:"not null"`
+	Description string `gorm:"not null"`
+
+	PreferenceID uint `gorm:"not null"`
 }
