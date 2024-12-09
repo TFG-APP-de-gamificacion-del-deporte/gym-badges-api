@@ -8,6 +8,7 @@ import (
 	"gym-badges-api/models"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func NewLoginService(userDAO userDAO.IUserDAO, sessionService sessionService.ISessionService) ILoginService {
@@ -34,7 +35,9 @@ func (s LoginService) Login(userID, password string, ctxLog *log.Entry) (*models
 		return nil, err
 	}
 
-	if user.Password != password {
+	// Compare password
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
 		return nil, customErrors.BuildUnauthorizedError("Invalid username or password")
 	}
 

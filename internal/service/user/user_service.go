@@ -9,6 +9,7 @@ import (
 	"gym-badges-api/models"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func NewUserService(userDAO userDAO.IUserDAO, sessionService sessionService.ISessionService) IUserService {
@@ -86,6 +87,13 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 		return nil, customErrors.BuildConflictError("email %s already exists", user.Email)
 	}
 
+	// Encrypt password
+	bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	if err != nil {
+		return nil, err
+	}
+	hash := string(bytes)
+
 	newUser := userDAO.User{
 		ID:          user.UserID,
 		BodyFat:     0,
@@ -94,7 +102,7 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 		Experience:  0,
 		Image:       user.Image,
 		Name:        user.Name,
-		Password:    user.Password,
+		Password:    hash,
 		Streak:      0,
 		Weight:      0,
 	}
