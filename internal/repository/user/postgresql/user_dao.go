@@ -116,12 +116,12 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	user.WeeklyGoal = newUserInfo.WeeklyGoal
 
 	// Update top feats
-	// if err := dao.connection.Model(&user).Association("TopFeats").Clear(); err != nil {
-	// 	return nil, err
-	// }
-	// if err := dao.connection.Model(&user).Association("TopFeats").Append(newUserInfo.TopFeats); err != nil {
-	// 	return nil, err
-	// }
+	if err := dao.connection.Model(&user).Association("TopFeats").Clear(); err != nil {
+		return nil, err
+	}
+	if err := dao.connection.Model(&user).Association("TopFeats").Append(newUserInfo.TopFeats); err != nil {
+		return nil, err
+	}
 
 	// Update preferences
 	if err := dao.connection.Unscoped().Model(&user).Association("Preferences").Unscoped().Delete(newUserInfo.Preferences); err != nil {
