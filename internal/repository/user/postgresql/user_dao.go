@@ -111,17 +111,27 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 		return nil, queryResult.Error
 	}
 
-	user.Email = newUserInfo.Email
-	user.Name = newUserInfo.Name
-	user.Image = newUserInfo.Image
-	user.WeeklyGoal = newUserInfo.WeeklyGoal
+	if newUserInfo.Email != "" {
+		user.Email = newUserInfo.Email
+	}
+	if newUserInfo.Name != "" {
+		user.Name = newUserInfo.Name
+	}
+	if newUserInfo.Image != "" {
+		user.Image = newUserInfo.Image
+	}
+	if newUserInfo.WeeklyGoal >= 1 && newUserInfo.WeeklyGoal <= 7 {
+		user.WeeklyGoal = newUserInfo.WeeklyGoal
+	}
 
 	// Update top feats
-	if err := dao.connection.Model(&user).Association("TopFeats").Clear(); err != nil {
-		return nil, err
-	}
-	if err := dao.connection.Model(&user).Association("TopFeats").Append(newUserInfo.TopFeats); err != nil {
-		return nil, err
+	if len(newUserInfo.TopFeats) > 0 {
+		if err := dao.connection.Model(&user).Association("TopFeats").Clear(); err != nil {
+			return nil, err
+		}
+		if err := dao.connection.Model(&user).Association("TopFeats").Append(newUserInfo.TopFeats); err != nil {
+			return nil, err
+		}
 	}
 
 	// Update preferences
