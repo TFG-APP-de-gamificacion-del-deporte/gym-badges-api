@@ -39,6 +39,9 @@ func (dao userDAO) GetUser(userID string, ctxLog *log.Entry) (*userModelDB.User,
 	var user userModelDB.User
 
 	queryResult := dao.connection.
+		Preload("TopFeats", func(db *gorm.DB) *gorm.DB {
+			return db.Limit(3)
+		}).
 		Where("id = ?", userID).
 		First(&user)
 

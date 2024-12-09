@@ -25,7 +25,7 @@ type User struct {
 	WeightHistory []WeightHistory       `gorm:"constraint:OnDelete:CASCADE"`
 	Friends       []*User               `gorm:"many2many:user_friends;constraint:OnDelete:CASCADE"`
 	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges;constraint:OnDelete:CASCADE"`
-	// TODO Add TopFeats
+	TopFeats      []*badgeModelDB.Badge `gorm:"many2many:user_top_feats;constraint:OnDelete:CASCADE"`
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`

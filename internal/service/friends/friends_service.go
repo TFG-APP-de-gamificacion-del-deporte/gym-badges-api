@@ -58,6 +58,7 @@ func mapTopFeats(badges []*badgeDAO.Badge) []*models.Feat {
 
 	for i, badge := range badges {
 		topFeats[i] = &models.Feat{
+			ID:          int32(badge.ID),
 			Description: badge.Description,
 			Image:       badge.Image,
 			Name:        badge.Name,
