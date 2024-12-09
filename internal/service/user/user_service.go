@@ -105,6 +105,11 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 		Password:    hash,
 		Streak:      0,
 		Weight:      0,
+		WeeklyGoal:  3,
+		Preferences: []userDAO.Preference{
+			{ID: 1, On: false, UserID: user.UserID}, // Private account
+			{ID: 2, On: false, UserID: user.UserID}, // Hide weight and fat
+		},
 	}
 
 	if err = s.UserDAO.CreateUser(&newUser, ctxLog); err != nil {
@@ -121,4 +126,56 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 	}
 
 	return &response, nil
+}
+
+func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoRequest, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
+
+	ctxLog.Debugf("USER_SERVICE: Editing information of user: %s", userID)
+
+	var newUserInfo userDAO.User
+
+	newUserInfo.Name = request.Name
+	newUserInfo.Image = request.Image
+	newUserInfo.WeeklyGoal = request.WeeklyGoal
+	// Top feats
+	for _, badgeID := range request.TopFeats {
+		newUserInfo.TopFeats = append(newUserInfo.TopFeats, &badgeDAO.Badge{ID: uint16(badgeID)})
+	}
+	// Preferences
+	for _, p := range request.Preferences {
+		newUserInfo.Preferences = append(newUserInfo.Preferences, userDAO.Preference{UserID: userID, ID: uint(p.PreferenceID), On: p.On})
+	}
+
+	user, err := s.UserDAO.EditUserInfo(userID, &newUserInfo, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	response := models.GetUserInfoResponse{
+		UserID:      user.ID,
+		BodyFat:     user.BodyFat,
+		CurrentWeek: user.CurrentWeek,
+		Experience:  user.Experience,
+		Image:       user.Image,
+		Name:        user.Name,
+		Streak:      user.Streak,
+		Weight:      user.Weight,
+		TopFeats:    mapTopFeats(user.TopFeats),
+		Preferences: mapPreferences(user.Preferences),
+	}
+
+	return &response, nil
+}
+
+func mapPreferences(dbPreferences []userDAO.Preference) []*models.Preference {
+	preferences := make([]*models.Preference, len(dbPreferences))
+
+	for i, p := range dbPreferences {
+		preferences[i] = &models.Preference{
+			PreferenceID: int32(p.ID),
+			On:           p.On,
+		}
+	}
+
+	return preferences
 }

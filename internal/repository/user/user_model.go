@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -64,17 +63,11 @@ type WeightHistory struct {
 }
 
 type Preference struct {
-	gorm.Model
-	PreferenceInfo PreferenceInfo `gorm:"not null"`
-	On             bool           `gorm:"not null"`
+	UserID string `gorm:"primary_key;not null"`
+	ID     uint   `gorm:"primary_key;not null"`
+	On     bool   `gorm:"not null"`
 
-	UserID string `gorm:"not null"`
-}
-
-type PreferenceInfo struct {
-	gorm.Model
-	Name        string `gorm:"not null"`
-	Description string `gorm:"not null"`
-
-	PreferenceID uint `gorm:"not null"`
+	CreatedAt time.Time `gorm:"null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
+	DeletedAt time.Time `gorm:"null" json:"deleted_at"`
 }

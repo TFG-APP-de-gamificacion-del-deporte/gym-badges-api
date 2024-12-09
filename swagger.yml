@@ -67,7 +67,7 @@ paths:
             description: Contains the unauthorized error response object
 
   # -----------------------------------------------------
-  # USER
+  # USERS
   # -----------------------------------------------------
 
   /user/{user_id}:
@@ -791,6 +791,10 @@ definitions:
       name:
         type: string
         x-omitempty: false
+      preferences:
+        type: array
+        items:
+          $ref: "#/definitions/preference"
       streak:
         type: integer
         format: int32
@@ -812,18 +816,16 @@ definitions:
     type: object
     title: Edit user information request
     properties:
-      name:
-        type: string
-        x-omitempty: false
-      user_id:
-        type: string
-        x-omitempty: false
       image:
         type: string
         x-omitempty: false
-      weekly_goal:
-        type: number
-        format: int32
+      name:
+        type: string
+        x-omitempty: false
+      preferences:
+        type: array
+        items:
+          $ref: "#/definitions/preference"
         x-omitempty: false
       top_feats:
         type: array
@@ -831,10 +833,9 @@ definitions:
           type: number
           format: int32
         x-omitempty: false
-      preferences:
-        type: array
-        items:
-          $ref: "#/definitions/preference"
+      weekly_goal:
+        type: number
+        format: int32
         x-omitempty: false
 
   preference:

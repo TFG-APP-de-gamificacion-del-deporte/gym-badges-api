@@ -86,3 +86,29 @@ func (h userHandler) CreateUser(params op.CreateUserParams) middleware.Responder
 
 	return op.NewCreateUserCreated().WithPayload(response)
 }
+
+func (h userHandler) EditUserInfo(params op.EditUserInfoParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("USER_HANDLER: Editing user: %s", params.UserID)
+
+	// An user can only edit his own info
+	if params.AuthUserID != params.UserID {
+		return op.NewEditUserInfoUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	response, err := h.userService.EditUserInfo(params.UserID, params.Input, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &unauthorizedError):
+			return op.NewEditUserInfoUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &NotFoundError):
+			return op.NewEditUserInfoNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewEditUserInfoInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewEditUserInfoOK().WithPayload(response)
+}
