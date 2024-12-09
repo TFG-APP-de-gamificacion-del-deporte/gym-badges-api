@@ -134,6 +134,7 @@ func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoReq
 
 	var newUserInfo userDAO.User
 
+	newUserInfo.Email = request.Email
 	newUserInfo.Name = request.Name
 	newUserInfo.Image = request.Image
 	newUserInfo.WeeklyGoal = request.WeeklyGoal

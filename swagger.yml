@@ -816,6 +816,9 @@ definitions:
     type: object
     title: Edit user information request
     properties:
+      email:
+        type: string
+        x-omitempty: false
       image:
         type: string
         x-omitempty: false

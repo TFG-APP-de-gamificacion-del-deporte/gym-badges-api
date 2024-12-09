@@ -111,6 +111,7 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 		return nil, queryResult.Error
 	}
 
+	user.Email = newUserInfo.Email
 	user.Name = newUserInfo.Name
 	user.Image = newUserInfo.Image
 	user.WeeklyGoal = newUserInfo.WeeklyGoal
