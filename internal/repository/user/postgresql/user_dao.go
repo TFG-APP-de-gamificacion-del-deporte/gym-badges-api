@@ -39,6 +39,9 @@ func (dao userDAO) GetUser(userID string, ctxLog *log.Entry) (*userModelDB.User,
 	var user userModelDB.User
 
 	queryResult := dao.connection.
+		Preload("TopFeats", func(db *gorm.DB) *gorm.DB {
+			return db.Limit(3)
+		}).
 		Where("id = ?", userID).
 		First(&user)
 
@@ -352,6 +355,9 @@ func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, c
 	}
 
 	queryResult = dao.connection.
+		Preload("TopFeats", func(db *gorm.DB) *gorm.DB {
+			return db.Limit(3)
+		}).
 		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
 		Where("user_friends.user_id = ? OR user_friends.friend_id = ?", userID, userID).
 		Where(`"user".id != ?`, userID).

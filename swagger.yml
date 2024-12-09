@@ -731,7 +731,7 @@ definitions:
         format: int64
         x-omitempty: false
       image:
-        type: string  # url
+        type: string
         x-omitempty: false
       name:
         type: string
@@ -740,6 +740,10 @@ definitions:
         type: integer
         format: int32
         x-omitempty: false
+      top_feats:
+        type: array
+        items:
+          $ref: "#/definitions/feat"
       weight:
         type: number
         format: float
@@ -830,6 +834,10 @@ definitions:
     type: object
     title: Create user request
     properties:
+      id:
+        type: number
+        format: int32
+        x-omitempty: false
       name:
         type: string
         x-omitempty: false

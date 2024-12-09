@@ -43,7 +43,7 @@ func (s friendsService) GetFriendsByUserID(userID string, page int32, ctxLog *lo
 			Level:    calcLevel(friend.Experience),
 			Name:     friend.Name,
 			Streak:   friend.Streak,
-			TopFeats: mapTopFeats(friend.Badges),
+			TopFeats: mapTopFeats(friend.TopFeats),
 			User:     friend.ID,
 			Weight:   friend.Weight,
 		}
@@ -58,6 +58,7 @@ func mapTopFeats(badges []*badgeDAO.Badge) []*models.Feat {
 
 	for i, badge := range badges {
 		topFeats[i] = &models.Feat{
+			ID:          int32(badge.ID),
 			Description: badge.Description,
 			Image:       badge.Image,
 			Name:        badge.Name,

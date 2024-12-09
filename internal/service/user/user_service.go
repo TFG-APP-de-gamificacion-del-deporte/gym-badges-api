@@ -3,6 +3,7 @@ package user_service
 import (
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
+	badgeDAO "gym-badges-api/internal/repository/badge"
 	userDAO "gym-badges-api/internal/repository/user"
 	sessionService "gym-badges-api/internal/service/session"
 	"gym-badges-api/models"
@@ -41,9 +42,26 @@ func (s UserService) GetUser(userID string, ctxLog *log.Entry) (*models.GetUserI
 		Name:        user.Name,
 		Streak:      user.Streak,
 		Weight:      user.Weight,
+		TopFeats:    mapTopFeats(user.TopFeats),
 	}
 
 	return &response, nil
+}
+
+func mapTopFeats(dbTopFeats []*badgeDAO.Badge) []*models.Feat {
+
+	topFeats := make([]*models.Feat, len(dbTopFeats))
+
+	for i, badge := range dbTopFeats {
+		topFeats[i] = &models.Feat{
+			ID:          int32(badge.ID),
+			Description: badge.Description,
+			Image:       badge.Image,
+			Name:        badge.Name,
+		}
+	}
+
+	return topFeats
 }
 
 func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entry) (*models.LoginResponse, error) {
