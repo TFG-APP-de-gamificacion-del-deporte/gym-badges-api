@@ -156,7 +156,7 @@ func buildFriends(num int) []*userDAO.User {
 			Name:       fmt.Sprintf("user-%d", i),
 			Streak:     int32(i) * 10,
 			Weight:     float32(i) * 1.5,
-			Badges: []*badgeDAO.Badge{
+			TopFeats: []*badgeDAO.Badge{
 				{
 					Name:        fmt.Sprintf("badge-%d", i),
 					Description: fmt.Sprintf("description-%d", i),

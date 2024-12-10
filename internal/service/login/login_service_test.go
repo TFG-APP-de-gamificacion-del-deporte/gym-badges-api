@@ -63,7 +63,7 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 				Email:       "admin@admin.com",
 				Experience:  100,
 				Name:        "John",
-				Password:    "admin123",
+				Password:    "$2a$14$7/H9mmj3KGcOA4gQ96raTOdNL1Hm9o9tbi1oqk0UmN4GEVqp1Q7dS",
 				Streak:      10,
 				Weight:      80,
 			}
