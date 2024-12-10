@@ -137,7 +137,7 @@ var _ = Describe("SERVICE: Badge Test Suite", func() {
 			Expect(response[0].Children[0].Children[0].Description).To(Equal("Badge 4"))
 			Expect(response[0].Children[0].Children[0].Image).To(Equal("/image-4.jpg"))
 			Expect(response[0].Children[0].Children[0].Name).To(Equal("badge4"))
-			Expect(response[0].Children[0].Children[0].Children).To(BeNil())
+			Expect(response[0].Children[0].Children[0].Children).To(BeEmpty())
 
 			Expect(response[0].Children[1].Achieved).To(Equal(false))
 			Expect(response[0].Children[1].Description).To(Equal("Badge 3"))
@@ -147,14 +147,14 @@ var _ = Describe("SERVICE: Badge Test Suite", func() {
 			Expect(response[0].Children[1].Children[0].Description).To(Equal("Badge 5"))
 			Expect(response[0].Children[1].Children[0].Image).To(Equal("/image-5.jpg"))
 			Expect(response[0].Children[1].Children[0].Name).To(Equal("badge5"))
-			Expect(response[0].Children[1].Children[0].Children).To(BeNil())
+			Expect(response[0].Children[1].Children[0].Children).To(BeEmpty())
 
 			Expect(response[1].ID).To(Equal(int32(6)))
 			Expect(response[1].Achieved).To(Equal(false))
 			Expect(response[1].Description).To(Equal("Badge 6"))
 			Expect(response[1].Image).To(Equal("/image-6.jpg"))
 			Expect(response[1].Name).To(Equal("badge6"))
-			Expect(response[1].Children).To(BeNil())
+			Expect(response[1].Children).To(BeEmpty())
 		})
 
 		It("CASE: Successful retrieval for user without badges", func() {

@@ -96,5 +96,9 @@ func addChildren(badge *models.Badge, auxMap map[int32][]*models.Badge) {
 		addChildren(children[i], auxMap)
 	}
 
-	badge.Children = children
+	if children == nil {
+		badge.Children = make([]*models.Badge, 0)
+	} else {
+		badge.Children = children
+	}
 }
