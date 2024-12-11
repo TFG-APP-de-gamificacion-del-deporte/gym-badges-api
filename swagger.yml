@@ -8,7 +8,6 @@ tags:
     description: Endpoints responsible for login operations.
 
 paths:
-
   # -----------------------------------------------------
   # AUTHENTICATION
   # -----------------------------------------------------
@@ -56,7 +55,7 @@ paths:
           required: true
           type: string
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -90,7 +89,7 @@ paths:
           required: true
           type: string
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -137,7 +136,7 @@ paths:
           schema:
             $ref: "#/definitions/edit_user_info_request"
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -224,7 +223,7 @@ paths:
             - 6
             - 12
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -271,7 +270,7 @@ paths:
           schema:
             $ref: "#/definitions/add_weight_request"
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -323,7 +322,7 @@ paths:
           type: integer
           format: int32
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -344,7 +343,7 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
-    
+
     post:
       operationId: AddGymAttendance
       summary: Adds a day as attended.
@@ -370,7 +369,7 @@ paths:
           schema:
             $ref: "#/definitions/add_delete_day_to_streak_request"
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -420,7 +419,7 @@ paths:
           schema:
             $ref: "#/definitions/add_delete_day_to_streak_request"
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -471,7 +470,7 @@ paths:
             - 6
             - 12
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -518,7 +517,7 @@ paths:
           schema:
             $ref: "#/definitions/add_body_fat_request"
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -568,7 +567,7 @@ paths:
           type: integer
           format: int32
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -613,9 +612,9 @@ paths:
           in: body
           required: true
           schema:
-            $ref: "#/definitions/add_delete_friend_request" 
+            $ref: "#/definitions/add_delete_friend_request"
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -660,9 +659,9 @@ paths:
           in: body
           required: true
           schema:
-            $ref: "#/definitions/add_delete_friend_request" 
+            $ref: "#/definitions/add_delete_friend_request"
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -706,7 +705,7 @@ paths:
           required: true
           type: string
       security:
-        - jwt: [ ]
+        - jwt: []
       responses:
         200:
           description: Success Response
@@ -729,14 +728,12 @@ paths:
             description: Contains the operation error response object
 
 securityDefinitions:
-
   jwt:
     type: apiKey
     in: header
     name: token
 
 definitions:
-
   generic_response:
     type: object
     title: Generic Operation Response
@@ -795,6 +792,7 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/preference"
+        x-omitempty: false
       streak:
         type: integer
         format: int32
@@ -807,6 +805,7 @@ definitions:
       weekly_goal:
         type: number
         format: int32
+        x-omitempty: false
       weight:
         type: number
         format: float
@@ -844,12 +843,14 @@ definitions:
   preference:
     type: object
     title: User preference
-    properties: 
+    properties:
       preference_id:
         type: number
         format: int32
+        x-omitempty: false
       on:
         type: boolean
+        x-omitempty: false
 
   measurement_history_response:
     type: object
@@ -997,7 +998,7 @@ definitions:
     properties:
       friend_id:
         type: string
-  
+
   add_weight_request:
     type: object
     title: Add weight request

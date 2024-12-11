@@ -43,10 +43,27 @@ func (s UserService) GetUser(userID string, ctxLog *log.Entry) (*models.GetUserI
 		Name:        user.Name,
 		Streak:      user.Streak,
 		Weight:      user.Weight,
+		WeeklyGoal:  user.WeeklyGoal,
 		TopFeats:    mapTopFeats(user.TopFeats),
+		Preferences: mapPreferences(user.Preferences),
 	}
 
 	return &response, nil
+}
+
+func mapPreferences(dbPreferences []userDAO.Preference) []*models.Preference {
+	preferences := make([]*models.Preference, len(dbPreferences))
+
+	for i, p := range dbPreferences {
+		preferences[i] = &models.Preference{
+			PreferenceID: int32(p.ID),
+			On:           p.On,
+		}
+	}
+
+	log.Print("======", preferences[0].On)
+
+	return preferences
 }
 
 func mapTopFeats(dbTopFeats []*badgeDAO.Badge) []*models.Feat {
@@ -169,17 +186,4 @@ func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoReq
 	}
 
 	return &response, nil
-}
-
-func mapPreferences(dbPreferences []userDAO.Preference) []*models.Preference {
-	preferences := make([]*models.Preference, len(dbPreferences))
-
-	for i, p := range dbPreferences {
-		preferences[i] = &models.Preference{
-			PreferenceID: int32(p.ID),
-			On:           p.On,
-		}
-	}
-
-	return preferences
 }
