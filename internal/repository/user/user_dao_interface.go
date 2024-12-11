@@ -21,7 +21,7 @@ type IUserDAO interface {
 	AddBodyFat(userID string, bodyFat float32, date time.Time, ctxLog *log.Entry) error
 
 	GetUserWithAttendance(userID string, year int32, month int32, ctxLog *log.Entry) (*User, error)
-	AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) (*User, error)
+	AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error
 	DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error
 
 	GetUserWithFriends(userID string, offset int32, size int32, ctxLog *log.Entry) (*User, error)

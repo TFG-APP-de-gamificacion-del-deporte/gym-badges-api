@@ -154,7 +154,7 @@ func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log
 
 	// ===== Update gym attendances =====
 
-	_, err := s.UserDAO.AddGymAttendance(userID, date, ctxLog)
+	err := s.UserDAO.AddGymAttendance(userID, date, ctxLog)
 	if err != nil {
 		return err
 	}

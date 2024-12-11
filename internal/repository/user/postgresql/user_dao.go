@@ -356,12 +356,12 @@ func (dao userDAO) GetUserWithAttendance(userID string, year int32, month int32,
 	return &user, nil
 }
 
-func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) (*userModelDB.User, error) {
+func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
 
 	ctxLog.Debugf("USER_DAO: Adding a gym attendance to user %s", userID)
 
 	if err := dao.connection.Error; err != nil {
-		return nil, err
+		return err
 	}
 
 	var user userModelDB.User
@@ -373,17 +373,14 @@ func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.E
 
 	if queryResult.Error != nil {
 		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
-			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
 		}
-		return nil, queryResult.Error
+		return queryResult.Error
 	}
 
 	user.GymAttendance = append(user.GymAttendance, userModelDB.GymAttendance{Date: date})
-	if err := dao.connection.Save(&user).Error; err != nil {
-		return nil, err
-	}
 
-	return &user, nil
+	return dao.connection.Save(&user).Error
 }
 
 func (dao userDAO) DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
