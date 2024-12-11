@@ -182,6 +182,10 @@ func (dao userDAO) AddDayToCurrentWeek(userID string, dayIndex int, ctxLog *log.
 	return dao.setDayToCurrentWeek(userID, dayIndex, true, ctxLog)
 }
 
+func (dao userDAO) DeleteDayFromCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error {
+	return dao.setDayToCurrentWeek(userID, dayIndex, false, ctxLog)
+}
+
 // *******************************************************************
 // WEIGHT
 // *******************************************************************
