@@ -152,6 +152,40 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	return &user, nil
 }
 
+func (dao userDAO) setDayToCurrentWeek(userID string, dayIndex int, marked bool, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding a day to current week of user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	user.CurrentWeek[dayIndex] = marked
+
+	return dao.connection.Save(&user).Error
+}
+
+func (dao userDAO) AddDayToCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error {
+	return dao.setDayToCurrentWeek(userID, dayIndex, true, ctxLog)
+}
+
+func (dao userDAO) DeleteDayFromCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error {
+	return dao.setDayToCurrentWeek(userID, dayIndex, false, ctxLog)
+}
+
 // *******************************************************************
 // WEIGHT
 // *******************************************************************
@@ -333,6 +367,7 @@ func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.E
 	var user userModelDB.User
 
 	queryResult := dao.connection.
+		Preload("GymAttendance").
 		Where("id = ?", userID).
 		First(&user)
 
@@ -343,10 +378,7 @@ func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.E
 		return queryResult.Error
 	}
 
-	err := dao.connection.Model(&user).Association("GymAttendance").Append(&userModelDB.GymAttendance{Date: date})
-	if err != nil {
-		return err
-	}
+	user.GymAttendance = append(user.GymAttendance, userModelDB.GymAttendance{Date: date})
 
 	return dao.connection.Save(&user).Error
 }

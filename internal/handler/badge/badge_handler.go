@@ -6,7 +6,6 @@ import (
 	customErrors "gym-badges-api/internal/custom-errors"
 	badgeService "gym-badges-api/internal/service/badge"
 	"gym-badges-api/models"
-	"gym-badges-api/restapi/operations/badges"
 	op "gym-badges-api/restapi/operations/badges"
 	toolsLogging "gym-badges-api/tools/logging"
 	"net/http"
@@ -41,7 +40,7 @@ type badgesHandler struct {
 	badgeService badgeService.IBadgeService
 }
 
-func (h badgesHandler) GetBadgesByUserID(params badges.GetBadgesByUserIDParams) middleware.Responder {
+func (h badgesHandler) GetBadgesByUserID(params op.GetBadgesByUserIDParams) middleware.Responder {
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 

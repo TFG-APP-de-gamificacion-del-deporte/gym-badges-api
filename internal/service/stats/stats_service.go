@@ -127,9 +127,32 @@ func (s statService) GetStreakCalendarByYearAndMonth(userID string, year int32, 
 	return &response, nil
 }
 
+func monday() time.Time {
+	today := time.Now()
+	todayIndex := int(today.Weekday())
+	if todayIndex == 0 { // Sunday is 0 in Weekday(), make it equivalent to 7 for easier math
+		todayIndex = 7
+	}
+	monday := today.AddDate(0, 0, -todayIndex+1).Truncate(24 * time.Hour).Add(-1) // Offset to Monday
+
+	return monday
+}
+
 func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
 
 	ctxLog.Debugf("STATS_SERVICE: Processing AddGymAttendance request for user: %s", userID)
+
+	// ===== Update current week =====
+
+	monday := monday()
+
+	// Calculate distantce to monday to know if date is in the current week
+	if date.After(monday) {
+		dateIndex := int(date.Sub(monday).Hours() / 24)
+		s.UserDAO.AddDayToCurrentWeek(userID, dateIndex, ctxLog)
+	}
+
+	// ===== Update gym attendances =====
 
 	err := s.UserDAO.AddGymAttendance(userID, date, ctxLog)
 	if err != nil {
@@ -142,6 +165,18 @@ func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log
 func (s statService) DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
 
 	ctxLog.Debugf("STATS_SERVICE: Processing DeleteGymAttendance request for user: %s", userID)
+
+	// ===== Update current week =====
+
+	monday := monday()
+
+	// Calculate distantce to monday to know if date is in the current week
+	if date.After(monday) {
+		dateIndex := int(date.Sub(monday).Hours() / 24)
+		s.UserDAO.DeleteDayFromCurrentWeek(userID, dateIndex, ctxLog)
+	}
+
+	// ===== Update gym attendances =====
 
 	err := s.UserDAO.DeleteGymAttendance(userID, date, ctxLog)
 	if err != nil {

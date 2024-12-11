@@ -11,6 +11,8 @@ type IUserDAO interface {
 	GetUserByEmail(email string, ctxLog *log.Entry) (*User, error)
 	CreateUser(user *User, ctxLog *log.Entry) error
 	EditUserInfo(userID string, newUserInfo *User, ctxLog *log.Entry) (*User, error)
+	AddDayToCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error
+	DeleteDayFromCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error
 
 	GetUserWithWeightHistory(userID string, months int32, ctxLog *log.Entry) (*User, error)
 	AddWeight(userID string, weight float32, date time.Time, ctxLog *log.Entry) error
