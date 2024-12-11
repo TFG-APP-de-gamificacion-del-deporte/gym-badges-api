@@ -61,8 +61,6 @@ func mapPreferences(dbPreferences []userDAO.Preference) []*models.Preference {
 		}
 	}
 
-	log.Print("======", preferences[0].On)
-
 	return preferences
 }
 

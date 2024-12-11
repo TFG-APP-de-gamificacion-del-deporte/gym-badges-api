@@ -168,6 +168,7 @@ func (h statsHandler) AddGymAttendance(params op.AddGymAttendanceParams) middlew
 		return op.NewAddGymAttendanceUnauthorized().WithPayload(&unauthorizedErrorResponse)
 	}
 
+	// Check date is not in the future
 	if time.Time(params.Input.Date).After(time.Now()) {
 		return op.NewAddGymAttendanceBadRequest().WithPayload(&models.GenericResponse{
 			Code:    fmt.Sprint(http.StatusBadRequest),

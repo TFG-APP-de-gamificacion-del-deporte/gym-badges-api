@@ -152,6 +152,36 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	return &user, nil
 }
 
+func (dao userDAO) setDayToCurrentWeek(userID string, dayIndex int, marked bool, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding a day to current week of user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	user.CurrentWeek[dayIndex] = marked
+
+	return dao.connection.Save(&user).Error
+}
+
+func (dao userDAO) AddDayToCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error {
+	return dao.setDayToCurrentWeek(userID, dayIndex, true, ctxLog)
+}
+
 // *******************************************************************
 // WEIGHT
 // *******************************************************************
@@ -322,33 +352,34 @@ func (dao userDAO) GetUserWithAttendance(userID string, year int32, month int32,
 	return &user, nil
 }
 
-func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
+func (dao userDAO) AddGymAttendance(userID string, date time.Time, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Adding a gym attendance to user %s", userID)
 
 	if err := dao.connection.Error; err != nil {
-		return err
+		return nil, err
 	}
 
 	var user userModelDB.User
 
 	queryResult := dao.connection.
+		Preload("GymAttendance").
 		Where("id = ?", userID).
 		First(&user)
 
 	if queryResult.Error != nil {
 		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
-			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
 		}
-		return queryResult.Error
+		return nil, queryResult.Error
 	}
 
-	err := dao.connection.Model(&user).Association("GymAttendance").Append(&userModelDB.GymAttendance{Date: date})
-	if err != nil {
-		return err
+	user.GymAttendance = append(user.GymAttendance, userModelDB.GymAttendance{Date: date})
+	if err := dao.connection.Save(&user).Error; err != nil {
+		return nil, err
 	}
 
-	return dao.connection.Save(&user).Error
+	return &user, nil
 }
 
 func (dao userDAO) DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
