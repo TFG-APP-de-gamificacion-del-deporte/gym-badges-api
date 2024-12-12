@@ -981,13 +981,17 @@ definitions:
         x-omitempty: false
       description:
         type: string
+        x-omitempty: false
       id:
         type: number
         format: int32
+        x-omitempty: false
       image:
         type: string
+        x-omitempty: false
       name:
         type: string
+        x-omitempty: false
       children:
         type: array
         items:
