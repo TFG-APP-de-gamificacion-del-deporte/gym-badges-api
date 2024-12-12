@@ -149,7 +149,8 @@ func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log
 	// Calculate distantce to monday to know if date is in the current week
 	if date.After(monday) {
 		dateIndex := int(date.Sub(monday).Hours() / 24)
-		s.UserDAO.AddDayToCurrentWeek(userID, dateIndex, ctxLog)
+		err := s.UserDAO.AddDayToCurrentWeek(userID, dateIndex, ctxLog)
+		return err
 	}
 
 	// ===== Update gym attendances =====
@@ -173,7 +174,8 @@ func (s statService) DeleteGymAttendance(userID string, date time.Time, ctxLog *
 	// Calculate distantce to monday to know if date is in the current week
 	if date.After(monday) {
 		dateIndex := int(date.Sub(monday).Hours() / 24)
-		s.UserDAO.DeleteDayFromCurrentWeek(userID, dateIndex, ctxLog)
+		err := s.UserDAO.DeleteDayFromCurrentWeek(userID, dateIndex, ctxLog)
+		return err
 	}
 
 	// ===== Update gym attendances =====

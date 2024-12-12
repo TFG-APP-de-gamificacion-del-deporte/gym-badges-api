@@ -55,7 +55,7 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 		return nil, err
 	}
 
-	userBadgesMap := make(map[uint16]bool)
+	userBadgesMap := make(map[int16]bool)
 	for _, badge := range user.Badges {
 		userBadgesMap[badge.ID] = true
 	}
@@ -96,5 +96,9 @@ func addChildren(badge *models.Badge, auxMap map[int32][]*models.Badge) {
 		addChildren(children[i], auxMap)
 	}
 
-	badge.Children = children
+	if children == nil {
+		badge.Children = make([]*models.Badge, 0)
+	} else {
+		badge.Children = children
+	}
 }
