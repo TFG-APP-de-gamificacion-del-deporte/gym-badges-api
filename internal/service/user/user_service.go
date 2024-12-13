@@ -154,11 +154,13 @@ func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoReq
 	newUserInfo.Image = request.Image
 	newUserInfo.WeeklyGoal = request.WeeklyGoal
 
-	// TODO Get top feats badges from database to append them to newUserInfo.TopFeats
 	// Top feats
-	// for _, badgeID := range request.TopFeats {
-	// 	newUserInfo.TopFeats = append(newUserInfo.TopFeats, &badgeDAO.Badge{ID: uint16(badgeID)})
-	// }
+	n := min(len(request.TopFeats), 3)
+	newTopFeats := make([]*badgeDAO.Badge, n)
+	for i := 0; i < n; i++ {
+		newTopFeats[i] = &badgeDAO.Badge{ID: int16(request.TopFeats[i])}
+	}
+	newUserInfo.TopFeats = newTopFeats
 
 	// Preferences
 	for _, p := range request.Preferences {

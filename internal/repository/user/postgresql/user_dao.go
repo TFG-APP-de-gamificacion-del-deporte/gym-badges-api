@@ -126,7 +126,7 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	}
 
 	// Update top feats
-	if len(newUserInfo.TopFeats) > 0 {
+	if newUserInfo.TopFeats != nil {
 		if err := dao.connection.Model(&user).Association("TopFeats").Clear(); err != nil {
 			return nil, err
 		}
