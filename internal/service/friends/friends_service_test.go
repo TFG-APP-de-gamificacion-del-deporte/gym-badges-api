@@ -9,6 +9,7 @@ import (
 	mockDAO "gym-badges-api/mocks/dao"
 	toolsLogging "gym-badges-api/tools/logging"
 	toolsTesting "gym-badges-api/tools/testing"
+	"gym-badges-api/tools/utils"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -149,13 +150,13 @@ func buildFriends(num int) []*userDAO.User {
 
 		friends[i] = &userDAO.User{
 			ID:         fmt.Sprintf("user-%d", i),
-			BodyFat:    1.0 * float32(i),
+			BodyFat:    utils.NewFloat32(1.0 * float32(i)),
 			Email:      fmt.Sprintf("user-%d@local.com", i),
 			Experience: int64(i) * 1000,
 			Image:      fmt.Sprintf("/image-%d.jpg", i),
 			Name:       fmt.Sprintf("user-%d", i),
 			Streak:     int32(i) * 10,
-			Weight:     float32(i) * 1.5,
+			Weight:     utils.NewFloat32(float32(i) * 1.5),
 			TopFeats: []*badgeDAO.Badge{
 				{
 					Name:        fmt.Sprintf("badge-%d", i),

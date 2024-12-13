@@ -7,6 +7,7 @@ import (
 	"gym-badges-api/models"
 	op "gym-badges-api/restapi/operations/friends"
 	toolsTesting "gym-badges-api/tools/testing"
+	"gym-badges-api/tools/utils"
 	"net/http"
 	"testing"
 
@@ -71,7 +72,7 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 				ExpectedResponse: op.NewGetFriendsByUserIDOK().WithPayload(&models.FriendsResponse{
 					Friends: []*models.FriendInfo{
 						{
-							Fat:    5.5,
+							Fat:    utils.NewFloat32(5.5),
 							Image:  "/friend1.jpg",
 							Level:  10,
 							Name:   "Friend 1",
@@ -84,10 +85,10 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 								},
 							},
 							User:   "friend1",
-							Weight: 80.5,
+							Weight: utils.NewFloat32(80.5),
 						},
 						{
-							Fat:    0.5,
+							Fat:    utils.NewFloat32(0.5),
 							Image:  "/friend2.jpg",
 							Level:  20,
 							Name:   "Friend 2",
@@ -100,14 +101,14 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 								},
 							},
 							User:   "friend2",
-							Weight: 70.5,
+							Weight: utils.NewFloat32(70.5),
 						},
 					},
 				}),
 				ServiceResponse: &models.FriendsResponse{
 					Friends: []*models.FriendInfo{
 						{
-							Fat:    5.5,
+							Fat:    utils.NewFloat32(5.5),
 							Image:  "/friend1.jpg",
 							Level:  10,
 							Name:   "Friend 1",
@@ -120,10 +121,10 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 								},
 							},
 							User:   "friend1",
-							Weight: 80.5,
+							Weight: utils.NewFloat32(80.5),
 						},
 						{
-							Fat:    0.5,
+							Fat:    utils.NewFloat32(0.5),
 							Image:  "/friend2.jpg",
 							Level:  20,
 							Name:   "Friend 2",
@@ -136,7 +137,7 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 								},
 							},
 							User:   "friend2",
-							Weight: 70.5,
+							Weight: utils.NewFloat32(70.5),
 						},
 					},
 				},

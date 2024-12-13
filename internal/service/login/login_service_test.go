@@ -8,6 +8,7 @@ import (
 	mockService "gym-badges-api/mocks/service"
 	toolsLogging "gym-badges-api/tools/logging"
 	toolsTesting "gym-badges-api/tools/testing"
+	"gym-badges-api/tools/utils"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -58,14 +59,14 @@ var _ = Describe("SERVICE: Login Test Suite", func() {
 
 			user = userDAO.User{
 				ID:          "admin",
-				BodyFat:     5,
+				BodyFat:     utils.NewFloat32(5),
 				CurrentWeek: []bool{true, true, false, true, false, false, false},
 				Email:       "admin@admin.com",
 				Experience:  100,
 				Name:        "John",
 				Password:    "$2a$14$7/H9mmj3KGcOA4gQ96raTOdNL1Hm9o9tbi1oqk0UmN4GEVqp1Q7dS",
 				Streak:      10,
-				Weight:      80,
+				Weight:      utils.NewFloat32(80),
 			}
 		})
 
