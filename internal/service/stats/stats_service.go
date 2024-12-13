@@ -143,24 +143,18 @@ func (s statService) AddGymAttendance(userID string, date time.Time, ctxLog *log
 	ctxLog.Debugf("STATS_SERVICE: Processing AddGymAttendance request for user: %s", userID)
 
 	// ===== Update current week =====
-
 	monday := monday()
 
 	// Calculate distantce to monday to know if date is in the current week
 	if date.After(monday) {
 		dateIndex := int(date.Sub(monday).Hours() / 24)
-		err := s.UserDAO.AddDayToCurrentWeek(userID, dateIndex, ctxLog)
-		return err
+		if err := s.UserDAO.AddDayToCurrentWeek(userID, dateIndex, ctxLog); err != nil {
+			return err
+		}
 	}
 
 	// ===== Update gym attendances =====
-
-	err := s.UserDAO.AddGymAttendance(userID, date, ctxLog)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return s.UserDAO.AddGymAttendance(userID, date, ctxLog)
 }
 
 func (s statService) DeleteGymAttendance(userID string, date time.Time, ctxLog *log.Entry) error {
@@ -168,22 +162,16 @@ func (s statService) DeleteGymAttendance(userID string, date time.Time, ctxLog *
 	ctxLog.Debugf("STATS_SERVICE: Processing DeleteGymAttendance request for user: %s", userID)
 
 	// ===== Update current week =====
-
 	monday := monday()
 
 	// Calculate distantce to monday to know if date is in the current week
 	if date.After(monday) {
 		dateIndex := int(date.Sub(monday).Hours() / 24)
-		err := s.UserDAO.DeleteDayFromCurrentWeek(userID, dateIndex, ctxLog)
-		return err
+		if err := s.UserDAO.DeleteDayFromCurrentWeek(userID, dateIndex, ctxLog); err != nil {
+			return err
+		}
 	}
 
 	// ===== Update gym attendances =====
-
-	err := s.UserDAO.DeleteGymAttendance(userID, date, ctxLog)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return s.UserDAO.DeleteGymAttendance(userID, date, ctxLog)
 }
