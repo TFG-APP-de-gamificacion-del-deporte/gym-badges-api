@@ -111,7 +111,7 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 
 	newUser := userDAO.User{
 		ID:          user.UserID,
-		BodyFat:     0,
+		BodyFat:     nil,
 		CurrentWeek: []bool{false, false, false, false, false, false, false},
 		Email:       user.Email,
 		Experience:  0,
@@ -119,7 +119,7 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 		Name:        user.Name,
 		Password:    hash,
 		Streak:      0,
-		Weight:      0,
+		Weight:      nil,
 		WeeklyGoal:  3,
 		Preferences: []userDAO.Preference{
 			{ID: 1, On: false, UserID: user.UserID}, // Private account

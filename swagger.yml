@@ -772,6 +772,7 @@ definitions:
       body_fat:
         type: number
         format: float
+        x-nullable: true
         x-omitempty: false
       current_week:
         type: array
@@ -809,6 +810,7 @@ definitions:
       weight:
         type: number
         format: float
+        x-nullable: true
         x-omitempty: false
 
   edit_user_info_request:
@@ -923,10 +925,12 @@ definitions:
       weight:
         type: number
         format: float
+        x-nullable: true
         x-omitempty: false
       fat:
         type: number
         format: float
+        x-nullable: true
         x-omitempty: false
       top_feats:
         type: array

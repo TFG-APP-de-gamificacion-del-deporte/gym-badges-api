@@ -9,7 +9,7 @@ import (
 
 type User struct {
 	ID          string       `gorm:"primary_key;not null" json:"user_id"`
-	BodyFat     float32      `gorm:"not null;type:decimal(5,2)" json:"body_fat"`
+	BodyFat     *float32     `gorm:"null;type:decimal(5,2)" json:"body_fat"`
 	CurrentWeek pq.BoolArray `gorm:"not null;type:bool[]" json:"current_week"`
 	Email       string       `gorm:"not null;unique" json:"email"`
 	Experience  int64        `gorm:"not null" json:"experience"`
@@ -18,7 +18,7 @@ type User struct {
 	Password    string       `gorm:"not null" json:"password"`
 	Streak      int32        `gorm:"not null" json:"streak"`
 	WeeklyGoal  int32        `gorm:"not null" json:"weekly_goal"`
-	Weight      float32      `gorm:"not null;type:decimal(5,2)" json:"weight"`
+	Weight      *float32     `gorm:"null;type:decimal(5,2)" json:"weight"`
 
 	GymAttendance []GymAttendance       `gorm:"constraint:OnDelete:CASCADE"`
 	FatHistory    []FatHistory          `gorm:"constraint:OnDelete:CASCADE"`

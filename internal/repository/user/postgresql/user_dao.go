@@ -244,7 +244,7 @@ func (dao userDAO) AddWeight(userID string, weight float32, date time.Time, ctxL
 		return queryResult.Error
 	}
 
-	user.Weight = weight
+	user.Weight = &weight
 	err := dao.connection.Unscoped().Model(&user).Association("WeightHistory").Unscoped().Delete(&userModelDB.WeightHistory{UserID: user.ID, Date: date})
 	if err != nil {
 		return err
@@ -313,7 +313,7 @@ func (dao userDAO) AddBodyFat(userID string, bodyFat float32, date time.Time, ct
 		return queryResult.Error
 	}
 
-	user.BodyFat = bodyFat
+	user.BodyFat = &bodyFat
 	err := dao.connection.Unscoped().Model(&user).Association("FatHistory").Unscoped().Delete(&userModelDB.FatHistory{UserID: user.ID, Date: date})
 	if err != nil {
 		return err
@@ -443,6 +443,9 @@ func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, c
 	}
 
 	queryResult = dao.connection.
+		Preload("Preferences", func(db *gorm.DB) *gorm.DB {
+			return db.Order("preference.id")
+		}).
 		Preload("TopFeats", func(db *gorm.DB) *gorm.DB {
 			return db.Limit(3)
 		}).
@@ -455,6 +458,14 @@ func (dao userDAO) GetUserWithFriends(userID string, offset int32, size int32, c
 
 	if queryResult.Error != nil && errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
 		return nil, queryResult.Error
+	}
+
+	const HIDE_STATS_ID = 1
+	for _, f := range user.Friends {
+		if f.Preferences[HIDE_STATS_ID].On {
+			f.Weight = nil
+			f.BodyFat = nil
+		}
 	}
 
 	return &user, nil
