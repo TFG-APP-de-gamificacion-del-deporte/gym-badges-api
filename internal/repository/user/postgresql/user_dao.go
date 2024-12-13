@@ -154,12 +154,12 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	return &user, nil
 }
 
-func (dao userDAO) setDayToCurrentWeek(userID string, dayIndex int, marked bool, ctxLog *log.Entry) error {
+func (dao userDAO) setDayToCurrentWeek(userID string, dayIndex int, marked bool, ctxLog *log.Entry) (*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Adding a day to current week of user: %s", userID)
 
 	if err := dao.connection.Error; err != nil {
-		return err
+		return nil, err
 	}
 
 	var user userModelDB.User
@@ -170,22 +170,62 @@ func (dao userDAO) setDayToCurrentWeek(userID string, dayIndex int, marked bool,
 
 	if queryResult.Error != nil {
 		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
-			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
 		}
-		return queryResult.Error
+		return nil, queryResult.Error
 	}
 
 	user.CurrentWeek[dayIndex] = marked
 
-	return dao.connection.Save(&user).Error
+	if err := dao.connection.Save(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func countDays(list []bool) int32 {
+	var count int32 = 0
+	for _, b := range list {
+		if b {
+			count++
+		}
+	}
+	return count
 }
 
 func (dao userDAO) AddDayToCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error {
-	return dao.setDayToCurrentWeek(userID, dayIndex, true, ctxLog)
+	user, err := dao.setDayToCurrentWeek(userID, dayIndex, true, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	// Update streak
+	if countDays(user.CurrentWeek) == user.WeeklyGoal {
+		user.Streak += 1
+		if err := dao.connection.Save(&user).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (dao userDAO) DeleteDayFromCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error {
-	return dao.setDayToCurrentWeek(userID, dayIndex, false, ctxLog)
+	user, err := dao.setDayToCurrentWeek(userID, dayIndex, false, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	// Update streak
+	if countDays(user.CurrentWeek) == user.WeeklyGoal-1 {
+		user.Streak -= 1
+		if err := dao.connection.Save(&user).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // *******************************************************************
