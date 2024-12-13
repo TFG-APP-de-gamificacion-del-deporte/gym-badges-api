@@ -836,6 +836,7 @@ definitions:
         items:
           type: number
           format: int32
+        x-nullable: true
         x-omitempty: false
       weekly_goal:
         type: number

@@ -155,12 +155,15 @@ func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoReq
 	newUserInfo.WeeklyGoal = request.WeeklyGoal
 
 	// Top feats
-	n := min(len(request.TopFeats), 3)
-	newTopFeats := make([]*badgeDAO.Badge, n)
-	for i := 0; i < n; i++ {
-		newTopFeats[i] = &badgeDAO.Badge{ID: int16(request.TopFeats[i])}
+	if request.TopFeats != nil {
+		// Limit length to 3
+		n := min(len(request.TopFeats), 3)
+		newTopFeats := make([]*badgeDAO.Badge, n)
+		for i := 0; i < n; i++ {
+			newTopFeats[i] = &badgeDAO.Badge{ID: int16(request.TopFeats[i])}
+		}
+		newUserInfo.TopFeats = newTopFeats
 	}
-	newUserInfo.TopFeats = newTopFeats
 
 	// Preferences
 	for _, p := range request.Preferences {
