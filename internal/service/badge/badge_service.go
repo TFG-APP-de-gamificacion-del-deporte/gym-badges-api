@@ -72,6 +72,7 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 			ID:          int32(badge.ID),
 			Image:       badge.Image,
 			Name:        badge.Name,
+			Exp:         badge.Exp,
 		}
 
 		if badge.ParentBadgeID == 0 {

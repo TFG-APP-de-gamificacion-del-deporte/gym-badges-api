@@ -987,6 +987,10 @@ definitions:
       description:
         type: string
         x-omitempty: false
+      exp:
+        type: number
+        format: int64
+        x-omitempty: false
       id:
         type: number
         format: int32

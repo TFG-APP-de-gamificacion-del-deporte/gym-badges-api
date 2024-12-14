@@ -5,6 +5,7 @@ type Badge struct {
 	Name          string `gorm:"not null"`
 	Description   string `gorm:"not null"`
 	Image         string `gorm:"not null"`
+	Exp           int64  `gorm:"not null"`
 	ParentBadgeID int16  `gorm:"null"`
 	ParentBadge   *Badge `gorm:"null"`
 }
