@@ -4,21 +4,22 @@ import (
 	badgeModelDB "gym-badges-api/internal/repository/badge"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/lib/pq"
 )
 
 type User struct {
-	ID          string       `gorm:"primary_key;not null" json:"user_id"`
-	BodyFat     *float32     `gorm:"null;type:decimal(5,2)" json:"body_fat"`
-	CurrentWeek pq.BoolArray `gorm:"not null;type:bool[]" json:"current_week"`
-	Email       string       `gorm:"not null;unique" json:"email"`
-	Experience  int64        `gorm:"not null" json:"experience"`
-	Image       string       `gorm:"null" json:"image"`
-	Name        string       `gorm:"not null" json:"name"`
-	Password    string       `gorm:"not null" json:"password"`
-	Streak      int32        `gorm:"not null" json:"streak"`
-	WeeklyGoal  int32        `gorm:"not null" json:"weekly_goal"`
-	Weight      *float32     `gorm:"null;type:decimal(5,2)" json:"weight"`
+	ID          string        `gorm:"primary_key;not null" json:"user_id"`
+	BodyFat     *float32      `gorm:"null;type:decimal(5,2)" json:"body_fat"`
+	CurrentWeek pq.BoolArray  `gorm:"not null;type:bool[]" json:"current_week"`
+	Email       string        `gorm:"not null;unique" json:"email"`
+	Experience  int64         `gorm:"not null" json:"experience"`
+	Image       strfmt.Base64 `gorm:"null" json:"image"`
+	Name        string        `gorm:"not null" json:"name"`
+	Password    string        `gorm:"not null" json:"password"`
+	Streak      int32         `gorm:"not null" json:"streak"`
+	WeeklyGoal  int32         `gorm:"not null" json:"weekly_goal"`
+	Weight      *float32      `gorm:"null;type:decimal(5,2)" json:"weight"`
 
 	GymAttendance []GymAttendance       `gorm:"constraint:OnDelete:CASCADE"`
 	FatHistory    []FatHistory          `gorm:"constraint:OnDelete:CASCADE"`
