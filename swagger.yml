@@ -785,6 +785,7 @@ definitions:
         x-omitempty: false
       image:
         type: string
+        format: byte
         x-omitempty: false
       name:
         type: string
@@ -822,6 +823,7 @@ definitions:
         x-omitempty: false
       image:
         type: string
+        format: byte
         x-omitempty: false
       name:
         type: string
@@ -914,6 +916,7 @@ definitions:
         x-omitempty: false
       image:
         type: string
+        format: byte
         x-omitempty: false
       level:
         type: number
@@ -940,7 +943,7 @@ definitions:
 
   feat:
     type: object
-    title: Create user request
+    title: Top Feat info
     properties:
       id:
         type: number
@@ -964,6 +967,7 @@ definitions:
         type: string
       image:
         type: string
+        format: byte
       name:
         type: string
       password:

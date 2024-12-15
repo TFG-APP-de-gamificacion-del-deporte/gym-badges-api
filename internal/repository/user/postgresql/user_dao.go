@@ -120,7 +120,7 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	if newUserInfo.Name != "" {
 		user.Name = newUserInfo.Name
 	}
-	if newUserInfo.Image != "" {
+	if newUserInfo.Image != nil {
 		user.Image = newUserInfo.Image
 	}
 	if newUserInfo.WeeklyGoal >= 1 && newUserInfo.WeeklyGoal <= 7 {
