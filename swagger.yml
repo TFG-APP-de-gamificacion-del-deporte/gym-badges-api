@@ -727,6 +727,56 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+    post:
+      operationId: AddBadge
+      summary: Marks a badge as achieved.
+      tags:
+        - Badges
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: Your own user id.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: input
+          description: Badge to mark as achieved.
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/add_badge_request"
+      security:
+        - jwt: []
+      responses:
+        200:
+          description: Success Response
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        403:
+          description: Forbidden error. Returned when user doesn't have the parent badge.
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the forbidden error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
 securityDefinitions:
   jwt:
     type: apiKey
@@ -1040,3 +1090,11 @@ definitions:
       date:
         type: string
         format: date
+
+  add_badge_request:
+    type: object
+    title: Badge top be marked as achieved.
+    properties:
+      badge_id:
+        type: number
+        format: int32

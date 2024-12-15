@@ -125,6 +125,15 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 			{ID: 1, On: false, UserID: user.UserID}, // Private account
 			{ID: 2, On: false, UserID: user.UserID}, // Hide weight and fat
 		},
+		Badges: []*badgeDAO.Badge{ // Base category badges
+			{ID: -1},
+			{ID: -2},
+			{ID: -3},
+			{ID: -4},
+			{ID: -5},
+			{ID: -6},
+			{ID: -7},
+		},
 	}
 
 	if err = s.UserDAO.CreateUser(&newUser, ctxLog); err != nil {

@@ -28,4 +28,6 @@ type IUserDAO interface {
 	GetUserWithBadges(userID string, ctxLog *log.Entry) (*User, error)
 	AddFriend(userID string, friendID string, ctxLog *log.Entry) (*User, error)
 	DeleteFriend(userID string, friendID string, ctxLog *log.Entry) error
+
+	AddExperience(userID string, exp int64, ctxLog *log.Entry) error
 }
