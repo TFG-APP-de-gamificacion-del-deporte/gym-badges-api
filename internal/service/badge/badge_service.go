@@ -1,6 +1,7 @@
 package badge_service
 
 import (
+	customErrors "gym-badges-api/internal/custom-errors"
 	badgeDAO "gym-badges-api/internal/repository/badge"
 	userDAO "gym-badges-api/internal/repository/user"
 	"gym-badges-api/models"
@@ -102,4 +103,34 @@ func addChildren(badge *models.Badge, auxMap map[int32][]*models.Badge) {
 	} else {
 		badge.Children = children
 	}
+}
+
+func (s badgesService) AddBadge(userID string, badgeID int16, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("BADGES_SERVICE: Processing AddBadge for user: %s", userID)
+
+	user, err := s.userDAO.GetUserWithBadges(userID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	badge, err := s.badgeDAO.GetBadge(badgeID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	// Check user already has badge's parent
+	hasParent := false
+	for _, b := range user.Badges {
+		if b.ID == badge.ParentBadgeID {
+			hasParent = true
+			break
+		}
+	}
+
+	if !hasParent {
+		return customErrors.BuildForbiddenError("Parent Badge %d is needed first to mark badge %d as completed.", badge.ParentBadgeID, badge.ID)
+	}
+
+	return s.badgeDAO.AddBadge(userID, badgeID, ctxLog)
 }
