@@ -132,5 +132,11 @@ func (s badgesService) AddBadge(userID string, badgeID int16, ctxLog *log.Entry)
 		return customErrors.BuildForbiddenError("Parent Badge %d is needed first to mark badge %d as completed.", badge.ParentBadgeID, badge.ID)
 	}
 
-	return s.badgeDAO.AddBadge(userID, badgeID, ctxLog)
+	err = s.badgeDAO.AddBadge(userID, badgeID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	// Add exp to user
+	return s.userDAO.AddExperience(userID, badge.Exp, ctxLog)
 }

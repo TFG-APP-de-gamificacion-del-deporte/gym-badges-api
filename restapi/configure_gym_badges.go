@@ -161,6 +161,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return badgeHandler.GetBadgesByUserID(params)
 	})
 
+	api.BadgesAddBadgeHandler = badges.AddBadgeHandlerFunc(func(params badges.AddBadgeParams, new interface{}) middleware.Responder {
+		return badgeHandler.AddBadge(params)
+	})
+
 	// Authentication Middleware
 	api.APIKeyAuthenticator = func(_ string, _ string, authentication security.TokenAuthentication) runtime.Authenticator {
 		return Authenticator{sessionService: sessionService}

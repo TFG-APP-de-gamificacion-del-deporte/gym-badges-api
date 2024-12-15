@@ -626,3 +626,36 @@ func (dao userDAO) GetUserWithBadges(userID string, ctxLog *log.Entry) (*userMod
 
 	return &user, nil
 }
+
+// *******************************************************************
+// EXPERIENCE
+// *******************************************************************
+
+func (dao userDAO) AddExperience(userID string, exp int64, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding experience to user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	user.Experience += exp
+
+	// Exp cannot get negative
+	user.Experience = max(user.Experience, 0)
+
+	return dao.connection.Save(&user).Error
+}
