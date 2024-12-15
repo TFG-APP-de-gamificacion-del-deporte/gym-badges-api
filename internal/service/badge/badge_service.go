@@ -140,3 +140,39 @@ func (s badgesService) AddBadge(userID string, badgeID int16, ctxLog *log.Entry)
 	// Add exp to user
 	return s.userDAO.AddExperience(userID, badge.Exp, ctxLog)
 }
+
+func (s badgesService) DeleteBadge(userID string, badgeID int16, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("BADGES_SERVICE: Processing DeleteBadge for user: %s", userID)
+
+	user, err := s.userDAO.GetUserWithBadges(userID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	badge, err := s.badgeDAO.GetBadge(badgeID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	// Check user doesn't have children of the badge
+	hasChildren := false
+	for _, b := range user.Badges {
+		if b.ParentBadgeID == badge.ID {
+			hasChildren = true
+			break
+		}
+	}
+
+	if hasChildren {
+		return customErrors.BuildForbiddenError("Cannot delete badge %d because user has children badges.", badge.ID)
+	}
+
+	err = s.badgeDAO.DeleteBadge(userID, badgeID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	// Add exp to user
+	return s.userDAO.AddExperience(userID, -badge.Exp, ctxLog)
+}

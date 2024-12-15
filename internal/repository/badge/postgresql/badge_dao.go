@@ -94,3 +94,27 @@ func (dao badgeDAO) AddBadge(userID string, badgeID int16, ctxLog *log.Entry) er
 
 	return dao.connection.Save(user).Error
 }
+
+func (dao badgeDAO) DeleteBadge(userID string, badgeID int16, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("BADGE_DAO: Adding badge %d to user %s", badgeID, userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	return dao.connection.Unscoped().Model(&user).Association("Badges").Unscoped().Delete(badgeModelDB.Badge{ID: badgeID})
+}

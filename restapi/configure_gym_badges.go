@@ -165,6 +165,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return badgeHandler.AddBadge(params)
 	})
 
+	api.BadgesDeleteBadgeHandler = badges.DeleteBadgeHandlerFunc(func(params badges.DeleteBadgeParams, new interface{}) middleware.Responder {
+		return badgeHandler.DeleteBadge(params)
+	})
+
 	// Authentication Middleware
 	api.APIKeyAuthenticator = func(_ string, _ string, authentication security.TokenAuthentication) runtime.Authenticator {
 		return Authenticator{sessionService: sessionService}

@@ -91,3 +91,31 @@ func (h badgesHandler) AddBadge(params op.AddBadgeParams) middleware.Responder {
 
 	return op.NewAddBadgeOK()
 }
+
+func (h badgesHandler) DeleteBadge(params op.DeleteBadgeParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("BADGES_HANDLER: Deleting badge %d to user %s", params.Input.BadgeID, params.UserID)
+
+	// An user can only edit his own info
+	if params.AuthUserID != params.UserID {
+		return op.NewAddBadgeUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	err := h.badgeService.DeleteBadge(params.UserID, int16(params.Input.BadgeID), ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewDeleteBadgeUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewDeleteBadgeNotFound().WithPayload(&notFoundErrorResponse)
+		case errors.As(err, &customErrors.Forbidden):
+			return op.NewDeleteBadgeForbidden().WithPayload(&forbiddenErrorResponse)
+		default:
+			return op.NewDeleteBadgeInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewDeleteBadgeOK()
+}

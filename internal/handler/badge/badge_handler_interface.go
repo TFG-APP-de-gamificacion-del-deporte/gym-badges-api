@@ -9,4 +9,5 @@ import (
 type IBadgeHandler interface {
 	GetBadgesByUserID(params badges.GetBadgesByUserIDParams) middleware.Responder
 	AddBadge(params badges.AddBadgeParams) middleware.Responder
+	DeleteBadge(params badges.DeleteBadgeParams) middleware.Responder
 }
