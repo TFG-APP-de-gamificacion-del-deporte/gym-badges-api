@@ -11,11 +11,12 @@ var (
 )
 
 type BasicConfiguration struct {
-	Port            int    `default:"8080" envconfig:"APP_PORT"`
-	SessionDuration int    `default:"3600" envconfig:"SESSION_DURATION"` // TODO Cambiar duración a un año
-	JWTKey          string `default:"GymBadges" envconfig:"JWT_KEY"`
-	LogLevel        string `default:"DEBUG" envconfig:"LOG_LEVEL"`
-	FriendsPageSize int32  `default:"3" envconfig:"FRIENDS_PAGE_SIZE"`
+	Port             int    `default:"8080" envconfig:"APP_PORT"`
+	SessionDuration  int    `default:"3600" envconfig:"SESSION_DURATION"` // TODO Cambiar duración a un año
+	JWTKey           string `default:"GymBadges" envconfig:"JWT_KEY"`
+	LogLevel         string `default:"DEBUG" envconfig:"LOG_LEVEL"`
+	FriendsPageSize  int32  `default:"3" envconfig:"FRIENDS_PAGE_SIZE"`
+	RankingsPageSize int32  `default:"10" envconfig:"RANKINGS_PAGE_SIZE"`
 }
 
 func LoadConfig() {

@@ -72,8 +72,8 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 				ExpectedResponse: op.NewGetFriendsByUserIDOK().WithPayload(&models.FriendsResponse{
 					Friends: []*models.FriendInfo{
 						{
-							Fat:    utils.NewFloat32(5.5),
-							Image:  "/friend1.jpg",
+							Fat: utils.NewFloat32(5.5),
+							// Image:  "/friend1.jpg",
 							Level:  10,
 							Name:   "Friend 1",
 							Streak: 10,
@@ -88,8 +88,8 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 							Weight: utils.NewFloat32(80.5),
 						},
 						{
-							Fat:    utils.NewFloat32(0.5),
-							Image:  "/friend2.jpg",
+							Fat: utils.NewFloat32(0.5),
+							// Image:  "/friend2.jpg",
 							Level:  20,
 							Name:   "Friend 2",
 							Streak: 20,
@@ -108,8 +108,8 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 				ServiceResponse: &models.FriendsResponse{
 					Friends: []*models.FriendInfo{
 						{
-							Fat:    utils.NewFloat32(5.5),
-							Image:  "/friend1.jpg",
+							Fat: utils.NewFloat32(5.5),
+							// Image:  "/friend1.jpg",
 							Level:  10,
 							Name:   "Friend 1",
 							Streak: 10,
@@ -124,8 +124,8 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 							Weight: utils.NewFloat32(80.5),
 						},
 						{
-							Fat:    utils.NewFloat32(0.5),
-							Image:  "/friend2.jpg",
+							Fat: utils.NewFloat32(0.5),
+							// Image:  "/friend2.jpg",
 							Level:  20,
 							Name:   "Friend 2",
 							Streak: 20,

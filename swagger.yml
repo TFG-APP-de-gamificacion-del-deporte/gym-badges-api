@@ -562,7 +562,7 @@ paths:
           type: string
         - name: page
           in: query
-          description: Friends list pagination.
+          description: Friends list pagination (1-based).
           required: true
           type: integer
           format: int32
@@ -816,6 +816,58 @@ paths:
           schema:
             $ref: "#/definitions/generic_response"
             description: Contains the forbidden error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
+  # -----------------------------------------------------
+  # RANKINGS
+  # -----------------------------------------------------
+
+  /rankings/global/{user_id}:
+    get:
+      operationId: getGlobalRanking
+      summary: Get global ranking.
+      tags:
+        - Rankings
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: User's id you want to get.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+        - name: page
+          in: query
+          description: Page number for pagination (1-based).
+          required: true
+          type: integer
+          format: int32
+      security:
+        - jwt: []
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/get_ranking_response"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
         404:
           description: Not Found Error
           schema:
@@ -1148,3 +1200,42 @@ definitions:
       badge_id:
         type: number
         format: int32
+
+  get_ranking_response:
+    type: object
+    title: Ranking response
+    properties:
+      yourself:
+        $ref: "#/definitions/raking_user"
+      ranking:
+        type: array
+        x-omitempty: false
+        items:
+          $ref: "#/definitions/raking_user"
+
+  raking_user:
+    type: object
+    title: User info in a ranking.
+    properties:
+      user_id:
+        type: string
+        x-omitempty: false
+      name:
+        type: string
+        x-omitempty: false
+      image:
+        type: string
+        format: byte
+        x-omitempty: false
+      level:
+        type: number
+        format: int64
+        x-omitempty: false
+      rank:
+        type: number
+        format: int64
+        x-omitempty: false
+      streak:
+        type: number
+        format: int32
+        x-omitempty: false
