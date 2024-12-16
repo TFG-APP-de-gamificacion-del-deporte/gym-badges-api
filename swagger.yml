@@ -562,7 +562,7 @@ paths:
           type: string
         - name: page
           in: query
-          description: Friends list pagination.
+          description: Friends list pagination (1-based).
           required: true
           type: integer
           format: int32
@@ -852,7 +852,7 @@ paths:
           type: string
         - name: page
           in: query
-          description: Page number for pagination.
+          description: Page number for pagination (1-based).
           required: true
           type: integer
           format: int64
