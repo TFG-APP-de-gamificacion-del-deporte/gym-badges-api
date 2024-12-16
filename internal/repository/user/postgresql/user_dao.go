@@ -664,6 +664,65 @@ func (dao userDAO) AddExperience(userID string, exp int64, ctxLog *log.Entry) er
 // RANKINGS
 // *******************************************************************
 
-func (dao *userDAO) GetUsersOrderedByExp(offset int32, size int32, ctxLog *log.Entry) (*[]userModelDB.User, error) {
-	panic("unimplemented")
+func (dao *userDAO) GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*userModelDB.User, int64, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting user: %s with his global rank", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, -1, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, -1, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, -1, queryResult.Error
+	}
+
+	var rank int64
+	queryResult = dao.connection.
+		Raw(`
+			SELECT rank 
+			FROM (
+				SELECT id, ROW_NUMBER() OVER (ORDER BY experience DESC) AS rank
+				FROM "user"
+			)
+			WHERE "id" = ?
+		`, userID).
+		Scan(&rank)
+
+	if queryResult.Error != nil {
+		return nil, -1, queryResult.Error
+	}
+
+	return &user, rank, nil
+}
+
+func (dao *userDAO) GetUsersOrderedByExp(offset int32, size int32, ctxLog *log.Entry) ([]*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting global ranking offset: %d size: %d", offset, size)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var users = make([]*userModelDB.User, 0)
+
+	queryResult := dao.connection.
+		Order("experience DESC, streak DESC, weekly_goal DESC, id").
+		Limit(int(size)).
+		Offset(int(offset)).
+		Find(&users)
+
+	if queryResult.Error != nil {
+		return nil, queryResult.Error
+	}
+
+	return users, nil
 }

@@ -40,5 +40,6 @@ type IUserDAO interface {
 	AddExperience(userID string, exp int64, ctxLog *log.Entry) error
 
 	// Rankings
-	GetUsersOrderedByExp(offset int32, size int32, ctxLog *log.Entry) (*[]User, error)
+	GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*User, int64, error)
+	GetUsersOrderedByExp(offset int32, size int32, ctxLog *log.Entry) ([]*User, error)
 }
