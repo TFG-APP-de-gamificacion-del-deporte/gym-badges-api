@@ -47,7 +47,7 @@ func (r *rankingsService) GetGlobalRanking(userID string, page int32, ctxLog *lo
 		response.Yourself = &models.RakingUser{
 			UserID: userID,
 			Name:   user.Name,
-			// Image:  user.Image,
+			Image:  user.Image,
 			Level:  int64(utils.CalcLevel(user.Experience)),
 			Rank:   selfRank,
 			Streak: user.Streak,
@@ -65,7 +65,7 @@ func mapRanking(users []*userDAO.User, firstRank int64) []*models.RakingUser {
 		ranking[i] = &models.RakingUser{
 			UserID: u.ID,
 			Name:   u.Name,
-			// Image:  u.Image,
+			Image:  u.Image,
 			Level:  int64(utils.CalcLevel(u.Experience)),
 			Rank:   firstRank + int64(i),
 			Streak: u.Streak,
