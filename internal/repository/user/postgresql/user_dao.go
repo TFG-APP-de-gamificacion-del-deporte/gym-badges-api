@@ -664,6 +664,29 @@ func (dao userDAO) AddExperience(userID string, exp int64, ctxLog *log.Entry) er
 // RANKINGS
 // *******************************************************************
 
+func (dao *userDAO) GetUsersOrderedByExp(offset int64, size int32, ctxLog *log.Entry) ([]*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting global ranking offset: %d size: %d", offset, size)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var users = make([]*userModelDB.User, 0)
+
+	queryResult := dao.connection.
+		Order("experience DESC, streak DESC, weekly_goal DESC, id").
+		Limit(int(size)).
+		Offset(int(offset)).
+		Find(&users)
+
+	if queryResult.Error != nil {
+		return nil, queryResult.Error
+	}
+
+	return users, nil
+}
+
 func (dao *userDAO) GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*userModelDB.User, int64, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting user: %s with his global rank", userID)
@@ -704,25 +727,100 @@ func (dao *userDAO) GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*us
 	return &user, rank, nil
 }
 
-func (dao *userDAO) GetUsersOrderedByExp(offset int64, size int32, ctxLog *log.Entry) ([]*userModelDB.User, error) {
+func (dao *userDAO) GetFriendsOrderedByExp(userID string, offset int64, size int32, ctxLog *log.Entry) ([]*userModelDB.User, error) {
 
-	ctxLog.Debugf("USER_DAO: Getting global ranking offset: %d size: %d", offset, size)
+	ctxLog.Debugf("USER_DAO: Getting friends ranking for user: %s offset: %d size: %d", userID, offset, size)
 
 	if err := dao.connection.Error; err != nil {
 		return nil, err
 	}
 
-	var users = make([]*userModelDB.User, 0)
+	var user userModelDB.User
 
 	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	var friends = make([]*userModelDB.User, 0)
+
+	queryResult = dao.connection.
 		Order("experience DESC, streak DESC, weekly_goal DESC, id").
+		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
+		Where("user_friends.user_id = ? OR user_friends.friend_id = ?", userID, userID).
+		Where(`"user".id != ?`, userID).
 		Limit(int(size)).
 		Offset(int(offset)).
-		Find(&users)
+		Find(&friends)
 
 	if queryResult.Error != nil {
 		return nil, queryResult.Error
 	}
 
-	return users, nil
+	return friends, nil
+}
+
+func (dao *userDAO) GetUserWithFriendsRank(userID string, ctxLog *log.Entry) (*userModelDB.User, int64, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting user: %s with his global rank", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, -1, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, -1, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, -1, queryResult.Error
+	}
+
+	var rank int64 // 1-based
+	queryResult = dao.connection.
+		Raw(`
+			SELECT rank 
+			FROM (
+				SELECT id, ROW_NUMBER() OVER (ORDER BY experience DESC) AS rank
+				FROM (
+					(
+						-- Friends
+						SELECT "user".id, "user".experience, "user".streak, "user".weekly_goal
+						FROM "user"
+						JOIN user_friends 
+							ON "user".id = user_friends.user_id
+							OR "user".id = user_friends.friend_id 
+						WHERE (user_friends.user_id = ? OR user_friends.friend_id = ?)
+						AND "user".id != ?
+					)
+					UNION
+					(
+						-- User himself
+						SELECT "user".id, "user".experience, "user".streak, "user".weekly_goal
+						FROM "user"
+						WHERE "user".id = ?
+					)
+					ORDER BY experience DESC, streak DESC, weekly_goal DESC, id
+				)
+			)
+			WHERE "id" = ?
+		`, userID).
+		Scan(&rank)
+
+	if queryResult.Error != nil {
+		return nil, -1, queryResult.Error
+	}
+
+	return &user, rank, nil
 }

@@ -50,6 +50,8 @@ type IUserDAO interface {
 	// Rankings
 
 	// Returned rank is 1-based
-	GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*User, int64, error)
 	GetUsersOrderedByExp(offset int64, size int32, ctxLog *log.Entry) ([]*User, error)
+	GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*User, int64, error)
+	GetFriendsOrderedByExp(userID string, offset int64, size int32, ctxLog *log.Entry) ([]*User, error)
+	GetUserWithFriendsRank(userID string, ctxLog *log.Entry) (*User, int64, error)
 }
