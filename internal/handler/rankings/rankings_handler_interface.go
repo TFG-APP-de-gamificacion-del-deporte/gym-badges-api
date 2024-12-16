@@ -8,4 +8,5 @@ import (
 
 type IRankingsHandler interface {
 	GetGlobalRanking(params rankings.GetGlobalRankingParams) middleware.Responder
+	GetFriendsRanking(params rankings.GetFriendsRankingParams) middleware.Responder
 }
