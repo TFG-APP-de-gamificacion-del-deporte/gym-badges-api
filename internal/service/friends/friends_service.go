@@ -5,6 +5,7 @@ import (
 	badgeDAO "gym-badges-api/internal/repository/badge"
 	userDAO "gym-badges-api/internal/repository/user"
 	"gym-badges-api/models"
+	"gym-badges-api/tools/utils"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -40,7 +41,7 @@ func (s friendsService) GetFriendsByUserID(userID string, page int32, ctxLog *lo
 		response.Friends[i] = &models.FriendInfo{
 			Fat:      friend.BodyFat,
 			Image:    friend.Image,
-			Level:    calcLevel(friend.Experience),
+			Level:    utils.CalcLevel(friend.Experience),
 			Name:     friend.Name,
 			Streak:   friend.Streak,
 			TopFeats: mapTopFeats(friend.TopFeats),
@@ -68,11 +69,6 @@ func mapTopFeats(badges []*badgeDAO.Badge) []*models.Feat {
 	return topFeats
 }
 
-func calcLevel(experience int64) int32 {
-	// TODO: To be defined
-	return int32(experience / 100)
-}
-
 func (s friendsService) AddFriend(userID string, friendID string, ctxLog *log.Entry) (*models.FriendInfo, error) {
 
 	ctxLog.Debugf("FRIENDS_SERVICE: Making %s (user) and %s (friend) friends.", userID, friendID)
@@ -85,7 +81,7 @@ func (s friendsService) AddFriend(userID string, friendID string, ctxLog *log.En
 	friendInfo := models.FriendInfo{
 		Fat:      friend.BodyFat,
 		Image:    friend.Image,
-		Level:    calcLevel(friend.Experience),
+		Level:    utils.CalcLevel(friend.Experience),
 		Name:     friend.Name,
 		Streak:   friend.Streak,
 		TopFeats: mapTopFeats(friend.Badges),
