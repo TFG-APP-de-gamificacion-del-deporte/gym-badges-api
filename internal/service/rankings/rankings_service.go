@@ -42,7 +42,7 @@ func (r *rankingsService) GetGlobalRanking(userID string, page int32, ctxLog *lo
 		Ranking: mapRanking(users, firstRank),
 	}
 
-	// User not in rank
+	// User not in ranking
 	if selfRank < firstRank || selfRank > lastRank {
 		response.Yourself = &models.RakingUser{
 			UserID: userID,
@@ -80,7 +80,7 @@ func (r *rankingsService) GetFriendsRanking(userID string, page int32, ctxLog *l
 		Ranking: mapRanking(users, firstRank),
 	}
 
-	// User not in rank
+	// User not in ranking
 	if selfRank < firstRank || selfRank > lastRank {
 		response.Yourself = &models.RakingUser{
 			UserID: userID,

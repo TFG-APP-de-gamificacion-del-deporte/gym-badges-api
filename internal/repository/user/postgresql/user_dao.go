@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"database/sql"
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
 	"gym-badges-api/internal/repository/config/postgresql"
@@ -752,9 +753,9 @@ func (dao *userDAO) GetFriendsOrderedByExp(userID string, offset int64, size int
 
 	queryResult = dao.connection.
 		Order("experience DESC, streak DESC, weekly_goal DESC, id").
+		Distinct("experience, streak, weekly_goal, id").
 		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
 		Where("user_friends.user_id = ? OR user_friends.friend_id = ?", userID, userID).
-		Where(`"user".id != ?`, userID).
 		Limit(int(size)).
 		Offset(int(offset)).
 		Find(&friends)
@@ -768,7 +769,7 @@ func (dao *userDAO) GetFriendsOrderedByExp(userID string, offset int64, size int
 
 func (dao *userDAO) GetUserWithFriendsRank(userID string, ctxLog *log.Entry) (*userModelDB.User, int64, error) {
 
-	ctxLog.Debugf("USER_DAO: Getting user: %s with his global rank", userID)
+	ctxLog.Debugf("USER_DAO: Getting user: %s with his friends rank", userID)
 
 	if err := dao.connection.Error; err != nil {
 		return nil, -1, err
@@ -792,30 +793,18 @@ func (dao *userDAO) GetUserWithFriendsRank(userID string, ctxLog *log.Entry) (*u
 		Raw(`
 			SELECT rank 
 			FROM (
-				SELECT id, ROW_NUMBER() OVER (ORDER BY experience DESC) AS rank
+				SELECT id, ROW_NUMBER() OVER (ORDER BY experience DESC, streak DESC, weekly_goal DESC, id) AS rank
 				FROM (
-					(
-						-- Friends
-						SELECT "user".id, "user".experience, "user".streak, "user".weekly_goal
-						FROM "user"
-						JOIN user_friends 
-							ON "user".id = user_friends.user_id
-							OR "user".id = user_friends.friend_id 
-						WHERE (user_friends.user_id = ? OR user_friends.friend_id = ?)
-						AND "user".id != ?
-					)
-					UNION
-					(
-						-- User himself
-						SELECT "user".id, "user".experience, "user".streak, "user".weekly_goal
-						FROM "user"
-						WHERE "user".id = ?
-					)
-					ORDER BY experience DESC, streak DESC, weekly_goal DESC, id
+					SELECT DISTINCT ON ("user".id) "user".id, "user".experience, "user".streak, "user".weekly_goal
+					FROM "user"
+					JOIN user_friends 
+						ON "user".id = user_friends.user_id
+						OR "user".id = user_friends.friend_id 
+					WHERE (user_friends.user_id = @user_id OR user_friends.friend_id = @user_id)
 				)
 			)
-			WHERE "id" = ?
-		`, userID).
+			WHERE "id" = @user_id
+		`, sql.Named("user_id", userID)).
 		Scan(&rank)
 
 	if queryResult.Error != nil {
