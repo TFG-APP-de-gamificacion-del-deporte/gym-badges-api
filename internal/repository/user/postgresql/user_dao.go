@@ -685,7 +685,7 @@ func (dao *userDAO) GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*us
 		return nil, -1, queryResult.Error
 	}
 
-	var rank int64
+	var rank int64 // 1-based
 	queryResult = dao.connection.
 		Raw(`
 			SELECT rank 
@@ -704,7 +704,7 @@ func (dao *userDAO) GetUserWithGlobalRank(userID string, ctxLog *log.Entry) (*us
 	return &user, rank, nil
 }
 
-func (dao *userDAO) GetUsersOrderedByExp(offset int32, size int32, ctxLog *log.Entry) ([]*userModelDB.User, error) {
+func (dao *userDAO) GetUsersOrderedByExp(offset int64, size int32, ctxLog *log.Entry) ([]*userModelDB.User, error) {
 
 	ctxLog.Debugf("USER_DAO: Getting global ranking offset: %d size: %d", offset, size)
 

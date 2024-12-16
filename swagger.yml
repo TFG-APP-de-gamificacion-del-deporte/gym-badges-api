@@ -855,7 +855,7 @@ paths:
           description: Page number for pagination (1-based).
           required: true
           type: integer
-          format: int64
+          format: int32
       security:
         - jwt: []
       responses:
@@ -1219,17 +1219,23 @@ definitions:
     properties:
       user_id:
         type: string
+        x-omitempty: false
       name:
         type: string
+        x-omitempty: false
       image:
         type: string
         format: byte
+        x-omitempty: false
       level:
         type: number
         format: int64
-      streak:
-        type: number
-        format: int32
+        x-omitempty: false
       rank:
         type: number
         format: int64
+        x-omitempty: false
+      streak:
+        type: number
+        format: int32
+        x-omitempty: false

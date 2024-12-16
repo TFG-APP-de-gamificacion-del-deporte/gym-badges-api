@@ -1,25 +1,20 @@
 package rankings_handler
 
 import (
-	// "errors"
+	"errors"
 	"fmt"
 	customErrors "gym-badges-api/internal/custom-errors"
-	userService "gym-badges-api/internal/service/user"
+	rankingsService "gym-badges-api/internal/service/rankings"
 	"gym-badges-api/models"
-	"gym-badges-api/restapi/operations/rankings"
 
-	// op "gym-badges-api/restapi/operations/user"
-	// toolsLogging "gym-badges-api/tools/logging"
+	op "gym-badges-api/restapi/operations/rankings"
+	toolsLogging "gym-badges-api/tools/logging"
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 var (
-	unauthorizedError customErrors.UnauthorizedError
-	conflictError     customErrors.ConflictError
-	NotFoundError     customErrors.NotFoundError
-
 	unauthorizedErrorResponse = models.GenericResponse{
 		Code:    fmt.Sprint(http.StatusUnauthorized),
 		Message: http.StatusText(http.StatusUnauthorized),
@@ -36,16 +31,33 @@ var (
 	}
 )
 
-func NewRankingsHandler(userService userService.IUserService) IRankingsHandler {
+func NewRankingsHandler(rankingsService rankingsService.IRankingsService) IRankingsHandler {
 	return &rankingsHandler{
-		// userService: userService,
+		rankingsService: rankingsService,
 	}
 }
 
 type rankingsHandler struct {
-	// userService userService.IUserService
+	rankingsService rankingsService.IRankingsService
 }
 
-func (r *rankingsHandler) GetGlobalRanking(params rankings.GetGlobalRankingParams) middleware.Responder {
-	panic("unimplemented")
+func (h *rankingsHandler) GetGlobalRanking(params op.GetGlobalRankingParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("RANKINGS_HANDLER: Getting global ranking with user: %s", params.UserID)
+
+	response, err := h.rankingsService.GetGlobalRanking(params.UserID, params.Page, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewGetGlobalRankingUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewGetGlobalRankingNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewGetGlobalRankingInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewGetGlobalRankingOK().WithPayload(response)
 }

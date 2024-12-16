@@ -7,6 +7,7 @@ import (
 	badgeHandler "gym-badges-api/internal/handler/badge"
 	friendsHandler "gym-badges-api/internal/handler/friends"
 	loginHandler "gym-badges-api/internal/handler/login"
+	rankings_handler "gym-badges-api/internal/handler/rankings"
 	statsHandler "gym-badges-api/internal/handler/stats"
 	userHandler "gym-badges-api/internal/handler/user"
 	badgeDAO "gym-badges-api/internal/repository/badge/postgresql"
@@ -14,6 +15,7 @@ import (
 	badgeService "gym-badges-api/internal/service/badge"
 	friendsService "gym-badges-api/internal/service/friends"
 	loginService "gym-badges-api/internal/service/login"
+	rankingsService "gym-badges-api/internal/service/rankings"
 	sessionService "gym-badges-api/internal/service/session"
 	statsService "gym-badges-api/internal/service/stats"
 	userService "gym-badges-api/internal/service/user"
@@ -22,6 +24,7 @@ import (
 	"gym-badges-api/restapi/operations/friends"
 	"gym-badges-api/restapi/operations/login"
 	"gym-badges-api/restapi/operations/login_with_token"
+	"gym-badges-api/restapi/operations/rankings"
 	"gym-badges-api/restapi/operations/stats"
 	"gym-badges-api/restapi/operations/user"
 	"net/http"
@@ -61,6 +64,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	statsService := statsService.NewStatsService(userDAO, sessionService)
 	friendsService := friendsService.NewFriendsService(userDAO)
 	badgeService := badgeService.NewBadgeService(userDAO, badgeDAO)
+	rankingsService := rankingsService.NewRankingsService(userDAO)
 
 	// HANDLERS
 	loginHandler := loginHandler.NewLoginHandler(loginService)
@@ -68,6 +72,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	statsHandler := statsHandler.NewStatsHandler(statsService)
 	friendsHandler := friendsHandler.NewFriendsHandler(friendsService)
 	badgeHandler := badgeHandler.NewBadgeHandler(badgeService)
+	rankingsHandler := rankings_handler.NewRankingsHandler(rankingsService)
 
 	api.ServeError = errors.ServeError
 
@@ -167,6 +172,14 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	api.BadgesDeleteBadgeHandler = badges.DeleteBadgeHandlerFunc(func(params badges.DeleteBadgeParams, new interface{}) middleware.Responder {
 		return badgeHandler.DeleteBadge(params)
+	})
+
+	// *******************************************************************
+	// RANKINGS
+	// *******************************************************************
+
+	api.RankingsGetGlobalRankingHandler = rankings.GetGlobalRankingHandlerFunc(func(params rankings.GetGlobalRankingParams, new interface{}) middleware.Responder {
+		return rankingsHandler.GetGlobalRanking(params)
 	})
 
 	// Authentication Middleware

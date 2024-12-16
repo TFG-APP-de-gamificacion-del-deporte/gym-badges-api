@@ -153,10 +153,10 @@ func buildFriends(num int) []*userDAO.User {
 			BodyFat:    utils.NewFloat32(1.0 * float32(i)),
 			Email:      fmt.Sprintf("user-%d@local.com", i),
 			Experience: int64(i) * 1000,
-			Image:      fmt.Sprintf("/image-%d.jpg", i),
-			Name:       fmt.Sprintf("user-%d", i),
-			Streak:     int32(i) * 10,
-			Weight:     utils.NewFloat32(float32(i) * 1.5),
+			// Image:      fmt.Sprintf("/image-%d.jpg", i),
+			Name:   fmt.Sprintf("user-%d", i),
+			Streak: int32(i) * 10,
+			Weight: utils.NewFloat32(float32(i) * 1.5),
 			TopFeats: []*badgeDAO.Badge{
 				{
 					Name:        fmt.Sprintf("badge-%d", i),
