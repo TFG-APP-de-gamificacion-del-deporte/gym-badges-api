@@ -659,3 +659,11 @@ func (dao userDAO) AddExperience(userID string, exp int64, ctxLog *log.Entry) er
 
 	return dao.connection.Save(&user).Error
 }
+
+// *******************************************************************
+// RANKINGS
+// *******************************************************************
+
+func (dao *userDAO) GetUsersOrderedByExp(offset int32, size int32, ctxLog *log.Entry) (*[]userModelDB.User, error) {
+	panic("unimplemented")
+}
