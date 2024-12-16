@@ -182,6 +182,10 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 		return rankingsHandler.GetGlobalRanking(params)
 	})
 
+	api.RankingsGetFriendsRankingHandler = rankings.GetFriendsRankingHandlerFunc(func(params rankings.GetFriendsRankingParams, new interface{}) middleware.Responder {
+		return rankingsHandler.GetFriendsRanking(params)
+	})
+
 	// Authentication Middleware
 	api.APIKeyAuthenticator = func(_ string, _ string, authentication security.TokenAuthentication) runtime.Authenticator {
 		return Authenticator{sessionService: sessionService}

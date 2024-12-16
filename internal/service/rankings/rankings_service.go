@@ -42,7 +42,45 @@ func (r *rankingsService) GetGlobalRanking(userID string, page int32, ctxLog *lo
 		Ranking: mapRanking(users, firstRank),
 	}
 
-	// User not in rank
+	// User not in ranking
+	if selfRank < firstRank || selfRank > lastRank {
+		response.Yourself = &models.RakingUser{
+			UserID: userID,
+			Name:   user.Name,
+			Image:  user.Image,
+			Level:  int64(utils.CalcLevel(user.Experience)),
+			Rank:   selfRank,
+			Streak: user.Streak,
+		}
+	}
+
+	return &response, nil
+}
+
+func (r *rankingsService) GetFriendsRanking(userID string, page int32, ctxLog *log.Entry) (*models.GetRankingResponse, error) {
+
+	ctxLog.Debugf("RANKINGS_SERVICE: Processing GetFriendsRanking for user: %s", userID)
+
+	offset := int64(page-1) * int64(configs.Basic.RankingsPageSize)
+	size := configs.Basic.RankingsPageSize
+	firstRank := offset + 1
+	lastRank := firstRank + int64(size) - 1
+
+	users, err := r.UserDAO.GetFriendsOrderedByExp(userID, offset, size, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	user, selfRank, err := r.UserDAO.GetUserWithFriendsRank(userID, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	response := models.GetRankingResponse{
+		Ranking: mapRanking(users, firstRank),
+	}
+
+	// User not in ranking
 	if selfRank < firstRank || selfRank > lastRank {
 		response.Yourself = &models.RakingUser{
 			UserID: userID,

@@ -8,4 +8,5 @@ import (
 
 type IRankingsService interface {
 	GetGlobalRanking(userID string, page int32, ctxLog *log.Entry) (*models.GetRankingResponse, error)
+	GetFriendsRanking(userID string, page int32, ctxLog *log.Entry) (*models.GetRankingResponse, error)
 }

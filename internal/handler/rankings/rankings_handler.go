@@ -61,3 +61,24 @@ func (h *rankingsHandler) GetGlobalRanking(params op.GetGlobalRankingParams) mid
 
 	return op.NewGetGlobalRankingOK().WithPayload(response)
 }
+
+func (h *rankingsHandler) GetFriendsRanking(params op.GetFriendsRankingParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("RANKINGS_HANDLER: Getting friends ranking with user: %s", params.UserID)
+
+	response, err := h.rankingsService.GetFriendsRanking(params.UserID, params.Page, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewGetFriendsRankingUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewGetFriendsRankingNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewGetFriendsRankingInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewGetFriendsRankingOK().WithPayload(response)
+}
