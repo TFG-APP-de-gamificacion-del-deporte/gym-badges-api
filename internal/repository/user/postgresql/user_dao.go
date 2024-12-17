@@ -752,8 +752,8 @@ func (dao *userDAO) GetFriendsOrderedByExp(userID string, offset int64, size int
 	var friends = make([]*userModelDB.User, 0)
 
 	queryResult = dao.connection.
-		Order("experience DESC, streak DESC, weekly_goal DESC, id").
-		Distinct("experience, streak, weekly_goal, id").
+		Order("experience DESC, streak DESC, weekly_goal DESC, id, name, image").
+		Distinct("experience, streak, weekly_goal, id, name, image").
 		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
 		Where("user_friends.user_id = ? OR user_friends.friend_id = ?", userID, userID).
 		Limit(int(size)).
