@@ -12,7 +12,7 @@ var (
 
 type BasicConfiguration struct {
 	Port             int    `default:"8080" envconfig:"APP_PORT"`
-	SessionDuration  int    `default:"3600" envconfig:"SESSION_DURATION"` // TODO Cambiar duración a un año
+	SessionDuration  int    `default:"31536000" envconfig:"SESSION_DURATION"` // One year
 	JWTKey           string `default:"GymBadges" envconfig:"JWT_KEY"`
 	LogLevel         string `default:"DEBUG" envconfig:"LOG_LEVEL"`
 	FriendsPageSize  int32  `default:"3" envconfig:"FRIENDS_PAGE_SIZE"`
