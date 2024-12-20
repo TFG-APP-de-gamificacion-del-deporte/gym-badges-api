@@ -143,6 +143,18 @@ var (
 		{84, 3},   // BadgeID 84: Get to the top 3 at the Global Ranking
 		{85, 1},   // BadgeID 85: Get to the top 1 at the Global Ranking
 	}
+
+	friendsRankingBadges = []struct {
+		badgeID    int16
+		minFriends int32
+		rank       int64
+	}{
+		{90, 20, 3}, // BadgeID 90: Reach the podium at the Friends Ranking with at least 20 friends
+		{91, 20, 1}, // BadgeID 91: Get to the top at the Friends Ranking with at least 20 friends
+		{92, 10, 3}, // BadgeID 92: Reach the podium at the Friends Ranking with at least 10 friends
+		{93, 10, 1}, // BadgeID 93: Get to the top at the Friends Ranking with at least 10 friends
+		{94, 5, 1},  // BadgeID 94: Get to the top at the Friends Ranking with at least 5 friends
+	}
 )
 
 func (s badgesService) checkGlobalRankingBadges(userID string, ctxLog *log.Entry) error {
@@ -156,6 +168,38 @@ func (s badgesService) checkGlobalRankingBadges(userID string, ctxLog *log.Entry
 
 	for _, b := range globalRankingBadges {
 		if rank <= b.rank {
+			hasBadge, err := s.badgeDAO.CheckBadge(userID, b.badgeID, ctxLog)
+			if err != nil {
+				return err
+			}
+
+			if !hasBadge {
+				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s badgesService) checkFriendsRankingBadges(userID string, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("BADGES_SERVICE: Checking global ranking badges.")
+
+	_, rank, err := s.userDAO.GetUserWithFriendsRank(userID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	friendsCount, err := s.userDAO.GetFriendsCount(userID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	for _, b := range friendsRankingBadges {
+		if friendsCount >= b.minFriends && rank <= b.rank {
 			hasBadge, err := s.badgeDAO.CheckBadge(userID, b.badgeID, ctxLog)
 			if err != nil {
 				return err
