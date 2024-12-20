@@ -26,6 +26,9 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 
 	ctxLog.Debugf("BADGES_SERVICE: Processing GetBadgesByUserID for user: %s", userID)
 
+	// Check auto achievable badges
+	s.checkAutoBadges(userID, ctxLog)
+
 	var (
 		eg     *errgroup.Group
 		user   *userDAO.User
