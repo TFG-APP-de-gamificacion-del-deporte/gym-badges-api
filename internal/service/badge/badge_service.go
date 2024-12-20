@@ -26,25 +26,8 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 
 	ctxLog.Debugf("BADGES_SERVICE: Processing GetBadgesByUserID for user: %s", userID)
 
-	if err := s.checkStreakBadges(userID, ctxLog); err != nil {
-		return nil, err
-	}
-
-	if err := s.checkAttendancesBadges(userID, ctxLog); err != nil {
-		return nil, err
-	}
-
-	if err := s.checkTimeBadges(userID, ctxLog); err != nil {
-		return nil, err
-	}
-
-	if err := s.checkGlobalRankingBadges(userID, ctxLog); err != nil {
-		return nil, err
-	}
-
-	if err := s.checkFriendsRankingBadges(userID, ctxLog); err != nil {
-		return nil, err
-	}
+	// Check auto achievable badges
+	s.checkAutoBadges(userID, ctxLog)
 
 	var (
 		eg     *errgroup.Group

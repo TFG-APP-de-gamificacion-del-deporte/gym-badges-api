@@ -6,6 +6,35 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func (s badgesService) checkAutoBadges(userID string, ctxLog *log.Entry) error {
+
+	if err := s.checkStreakBadges(userID, ctxLog); err != nil {
+		return err
+	}
+
+	if err := s.checkAttendancesBadges(userID, ctxLog); err != nil {
+		return err
+	}
+
+	if err := s.checkTimeBadges(userID, ctxLog); err != nil {
+		return err
+	}
+
+	if err := s.checkGlobalRankingBadges(userID, ctxLog); err != nil {
+		return err
+	}
+
+	if err := s.checkFriendsRankingBadges(userID, ctxLog); err != nil {
+		return err
+	}
+
+	if err := s.checkFriendCountBadges(userID, ctxLog); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // *******************************************************************
 // CONSISTENCY BADGES
 // *******************************************************************
@@ -186,7 +215,7 @@ func (s badgesService) checkGlobalRankingBadges(userID string, ctxLog *log.Entry
 
 func (s badgesService) checkFriendsRankingBadges(userID string, ctxLog *log.Entry) error {
 
-	ctxLog.Debugf("BADGES_SERVICE: Checking global ranking badges.")
+	ctxLog.Debugf("BADGES_SERVICE: Checking friends ranking badges.")
 
 	_, rank, err := s.userDAO.GetUserWithFriendsRank(userID, ctxLog)
 	if err != nil {
@@ -200,6 +229,49 @@ func (s badgesService) checkFriendsRankingBadges(userID string, ctxLog *log.Entr
 
 	for _, b := range friendsRankingBadges {
 		if friendsCount >= b.minFriends && rank <= b.rank {
+			hasBadge, err := s.badgeDAO.CheckBadge(userID, b.badgeID, ctxLog)
+			if err != nil {
+				return err
+			}
+
+			if !hasBadge {
+				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// *******************************************************************
+// FRIEND COUNT BADGES
+// *******************************************************************
+
+var (
+	friendCountBadges = []struct {
+		badgeID    int16
+		minFriends int32
+	}{
+		{86, 1},  // BadgeID 86: Add your first friend
+		{87, 5},  // BadgeID 87: Add five friends
+		{88, 10}, // BadgeID 88: Add ten friends
+		{89, 20}, // BadgeID 89: Add twenty friends
+	}
+)
+
+func (s badgesService) checkFriendCountBadges(userID string, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("BADGES_SERVICE: Checking friend count badges.")
+
+	friendsCount, err := s.userDAO.GetFriendsCount(userID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	for _, b := range friendCountBadges {
+		if friendsCount >= b.minFriends {
 			hasBadge, err := s.badgeDAO.CheckBadge(userID, b.badgeID, ctxLog)
 			if err != nil {
 				return err
