@@ -34,6 +34,10 @@ func (s badgesService) GetBadgesByUserID(userID string, ctxLog *log.Entry) (mode
 		return nil, err
 	}
 
+	if err := s.checkTimeBadges(userID, ctxLog); err != nil {
+		return nil, err
+	}
+
 	var (
 		eg     *errgroup.Group
 		user   *userDAO.User
