@@ -458,6 +458,32 @@ func (dao userDAO) DeleteGymAttendance(userID string, date time.Time, ctxLog *lo
 	return dao.connection.Save(&user).Error
 }
 
+func (dao userDAO) GetAttendanceCount(userID string, ctxLog *log.Entry) (int32, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting attendance count for user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return -1, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return -1, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return -1, queryResult.Error
+	}
+
+	count := dao.connection.Model(&user).Association("GymAttendance").Count()
+
+	return int32(count), nil
+}
+
 // *******************************************************************
 // FRIENDS
 // *******************************************************************
