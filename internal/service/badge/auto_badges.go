@@ -12,6 +12,8 @@ func (s badgesService) checkAutoBadges(userID string, ctxLog *log.Entry) error {
 	eg := new(errgroup.Group)
 
 	eg.Go(func() error {
+		// These depend on each other
+
 		if err := s.checkStreakBadges(userID, ctxLog); err != nil {
 			return err
 		}
@@ -30,6 +32,8 @@ func (s badgesService) checkAutoBadges(userID string, ctxLog *log.Entry) error {
 	})
 
 	eg.Go(func() error {
+		// These depend on each other
+
 		if err := s.checkFriendCountBadges(userID, ctxLog); err != nil {
 			return err
 		}
