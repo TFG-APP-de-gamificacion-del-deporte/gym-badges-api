@@ -12,15 +12,17 @@ func (s badgesService) checkAutoBadges(userID string, ctxLog *log.Entry) error {
 	eg := new(errgroup.Group)
 
 	eg.Go(func() error {
-		return s.checkStreakBadges(userID, ctxLog)
-	})
+		if err := s.checkStreakBadges(userID, ctxLog); err != nil {
+			return err
+		}
+		if err := s.checkAttendancesBadges(userID, ctxLog); err != nil {
+			return err
+		}
+		if err := s.checkTimeBadges(userID, ctxLog); err != nil {
+			return err
+		}
 
-	eg.Go(func() error {
-		return s.checkAttendancesBadges(userID, ctxLog)
-	})
-
-	eg.Go(func() error {
-		return s.checkTimeBadges(userID, ctxLog)
+		return nil
 	})
 
 	eg.Go(func() error {
@@ -28,11 +30,14 @@ func (s badgesService) checkAutoBadges(userID string, ctxLog *log.Entry) error {
 	})
 
 	eg.Go(func() error {
-		return s.checkFriendsRankingBadges(userID, ctxLog)
-	})
+		if err := s.checkFriendCountBadges(userID, ctxLog); err != nil {
+			return err
+		}
+		if err := s.checkFriendsRankingBadges(userID, ctxLog); err != nil {
+			return err
+		}
 
-	eg.Go(func() error {
-		return s.checkFriendCountBadges(userID, ctxLog)
+		return nil
 	})
 
 	return eg.Wait()
@@ -93,7 +98,7 @@ func (s badgesService) checkStreakBadges(userID string, ctxLog *log.Entry) error
 			}
 
 			if !hasBadge {
-				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+				if err := s.AddBadge(userID, b.badgeID, ctxLog); err != nil {
 					return err
 				}
 			}
@@ -120,7 +125,7 @@ func (s badgesService) checkAttendancesBadges(userID string, ctxLog *log.Entry) 
 			}
 
 			if !hasBadge {
-				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+				if err := s.AddBadge(userID, b.badgeID, ctxLog); err != nil {
 					return err
 				}
 			}
@@ -149,7 +154,7 @@ func (s badgesService) checkTimeBadges(userID string, ctxLog *log.Entry) error {
 			}
 
 			if !hasBadge {
-				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+				if err := s.AddBadge(userID, b.badgeID, ctxLog); err != nil {
 					return err
 				}
 			}
@@ -206,7 +211,7 @@ func (s badgesService) checkGlobalRankingBadges(userID string, ctxLog *log.Entry
 			}
 
 			if !hasBadge {
-				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+				if err := s.AddBadge(userID, b.badgeID, ctxLog); err != nil {
 					return err
 				}
 			}
@@ -238,7 +243,7 @@ func (s badgesService) checkFriendsRankingBadges(userID string, ctxLog *log.Entr
 			}
 
 			if !hasBadge {
-				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+				if err := s.AddBadge(userID, b.badgeID, ctxLog); err != nil {
 					return err
 				}
 			}
@@ -281,7 +286,7 @@ func (s badgesService) checkFriendCountBadges(userID string, ctxLog *log.Entry) 
 			}
 
 			if !hasBadge {
-				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+				if err := s.AddBadge(userID, b.badgeID, ctxLog); err != nil {
 					return err
 				}
 			}
