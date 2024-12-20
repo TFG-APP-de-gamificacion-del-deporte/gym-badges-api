@@ -6,6 +6,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// *******************************************************************
+// CONSISTENCY BADGES
+// *******************************************************************
+
 var (
 	streakBadges = []struct {
 		badgeID int16
@@ -107,6 +111,51 @@ func (s badgesService) checkTimeBadges(userID string, ctxLog *log.Entry) error {
 
 	for _, b := range timeBadges {
 		if userLifespan >= b.time {
+			hasBadge, err := s.badgeDAO.CheckBadge(userID, b.badgeID, ctxLog)
+			if err != nil {
+				return err
+			}
+
+			if !hasBadge {
+				if err := s.badgeDAO.AddBadge(userID, b.badgeID, ctxLog); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// *******************************************************************
+// RANKING BADGES
+// *******************************************************************
+
+var (
+	globalRankingBadges = []struct {
+		badgeID int16
+		rank    int64
+	}{
+		{80, 500}, // BadgeID 80: Get to the top 500 at the Global Ranking
+		{81, 100}, // BadgeID 81: Get to the top 100 at the Global Ranking
+		{82, 50},  // BadgeID 82: Get to the top 50 at the Global Ranking
+		{83, 10},  // BadgeID 83: Get to the top 10 at the Global Ranking
+		{84, 3},   // BadgeID 84: Get to the top 3 at the Global Ranking
+		{85, 1},   // BadgeID 85: Get to the top 1 at the Global Ranking
+	}
+)
+
+func (s badgesService) checkGlobalRankingBadges(userID string, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("BADGES_SERVICE: Checking global ranking badges.")
+
+	_, rank, err := s.userDAO.GetUserWithGlobalRank(userID, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	for _, b := range globalRankingBadges {
+		if rank <= b.rank {
 			hasBadge, err := s.badgeDAO.CheckBadge(userID, b.badgeID, ctxLog)
 			if err != nil {
 				return err
