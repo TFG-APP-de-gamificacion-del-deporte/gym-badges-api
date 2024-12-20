@@ -4,35 +4,38 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
 func (s badgesService) checkAutoBadges(userID string, ctxLog *log.Entry) error {
 
-	if err := s.checkStreakBadges(userID, ctxLog); err != nil {
-		return err
-	}
+	eg := new(errgroup.Group)
 
-	if err := s.checkAttendancesBadges(userID, ctxLog); err != nil {
-		return err
-	}
+	eg.Go(func() error {
+		return s.checkStreakBadges(userID, ctxLog)
+	})
 
-	if err := s.checkTimeBadges(userID, ctxLog); err != nil {
-		return err
-	}
+	eg.Go(func() error {
+		return s.checkAttendancesBadges(userID, ctxLog)
+	})
 
-	if err := s.checkGlobalRankingBadges(userID, ctxLog); err != nil {
-		return err
-	}
+	eg.Go(func() error {
+		return s.checkTimeBadges(userID, ctxLog)
+	})
 
-	if err := s.checkFriendsRankingBadges(userID, ctxLog); err != nil {
-		return err
-	}
+	eg.Go(func() error {
+		return s.checkGlobalRankingBadges(userID, ctxLog)
+	})
 
-	if err := s.checkFriendCountBadges(userID, ctxLog); err != nil {
-		return err
-	}
+	eg.Go(func() error {
+		return s.checkFriendsRankingBadges(userID, ctxLog)
+	})
 
-	return nil
+	eg.Go(func() error {
+		return s.checkFriendCountBadges(userID, ctxLog)
+	})
+
+	return eg.Wait()
 }
 
 // *******************************************************************
