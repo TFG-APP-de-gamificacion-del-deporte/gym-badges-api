@@ -141,7 +141,7 @@ func (dao badgeDAO) CheckBadge(userID string, badgeID int16, ctxLog *log.Entry) 
 	}
 
 	var badges []badgeModelDB.Badge
-	dao.connection.Model(&user).Where("badge_id == ?", badgeID).Association("Badges").Find(&badges)
+	dao.connection.Model(&user).Where("badge_id = ?", badgeID).Association("Badges").Find(&badges)
 
 	if queryResult.Error != nil {
 		return false, queryResult.Error
