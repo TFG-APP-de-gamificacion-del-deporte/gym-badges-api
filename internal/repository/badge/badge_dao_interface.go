@@ -9,4 +9,5 @@ type IBadgeDAO interface {
 	AddBadge(userID string, badgeID int16, ctxLog *log.Entry) error
 	GetBadge(badgeID int16, ctxLog *log.Entry) (*Badge, error)
 	DeleteBadge(userID string, badgeID int16, ctxLog *log.Entry) error
+	CheckBadge(userID string, badgeID int16, ctxLog *log.Entry) (bool, error)
 }
