@@ -561,15 +561,15 @@ func (dao userDAO) AddFriend(userID string, friendID string, ctxLog *log.Entry) 
 
 	var friend userModelDB.User
 
-	friendQueryResult := dao.connection.
+	queryResult = dao.connection.
 		Where("id = ?", friendID).
 		First(&friend)
 
-	if friendQueryResult.Error != nil {
-		if errors.Is(friendQueryResult.Error, gorm.ErrRecordNotFound) {
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
 			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
 		}
-		return nil, friendQueryResult.Error
+		return nil, queryResult.Error
 	}
 
 	user.Friends = append(user.Friends, &friend)
@@ -649,6 +649,7 @@ func (dao userDAO) GetFriendsCount(userID string, ctxLog *log.Entry) (int32, err
 	var count int64
 
 	queryResult = dao.connection.
+		Model(&user).
 		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
 		Where("user_friends.user_id = ? OR user_friends.friend_id = ?", userID, userID).
 		Where(`"user".id != ?`, userID).
@@ -659,6 +660,171 @@ func (dao userDAO) GetFriendsCount(userID string, ctxLog *log.Entry) (int32, err
 	}
 
 	return int32(count), nil
+}
+
+func (dao userDAO) CheckFriendship(userID string, friendID string, ctxLog *log.Entry) (bool, error) { // Returns: areFriends, confirmed, error
+
+	ctxLog.Debugf("USER_DAO: Checking %s and %s friendship.", userID, friendID)
+
+	if err := dao.connection.Error; err != nil {
+		return false, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return false, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return false, queryResult.Error
+	}
+
+	var friend userModelDB.User
+
+	queryResult = dao.connection.
+		Where("id = ?", friendID).
+		First(&friend)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return false, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return false, queryResult.Error
+	}
+
+	var count int64
+
+	queryResult = dao.connection.
+		Model(&user).
+		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
+		Where("(user_friends.user_id = ? AND user_friends.friend_id = ?) OR (user_friends.friend_id = ? AND user_friends.user_id = ?)", userID, friendID, userID, friendID).
+		Count(&count)
+
+	if queryResult.Error != nil {
+		return false, queryResult.Error
+	}
+
+	return count > 0, nil
+}
+
+func (dao userDAO) AddFriendRequest(userID string, friendID string, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Adding friend request for %s (user) and %s (friend).", userID, friendID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	var friend userModelDB.User
+
+	queryResult = dao.connection.
+		Where("id = ?", friendID).
+		First(&friend)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	friend.FriendRequests = append(friend.FriendRequests, &user)
+
+	return &friend, dao.connection.Save(&friend).Error
+}
+
+func (dao userDAO) CheckFriendRequest(userID string, friendID string, ctxLog *log.Entry) (bool, error) {
+
+	ctxLog.Debugf("USER_DAO: Cheking if friendship request from %s exists for %s.", friendID, userID)
+
+	if err := dao.connection.Error; err != nil {
+		return false, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return false, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return false, queryResult.Error
+	}
+
+	var count int64
+
+	queryResult = dao.connection.
+		Model(user).
+		Joins(`JOIN friend_requests ON "user".id = friend_requests.user_id`).
+		Where("friend_requests.friend_request_id = ?", friendID).
+		Count(&count)
+
+	if queryResult.Error != nil && errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+		return false, queryResult.Error
+	}
+
+	return count > 0, nil
+}
+
+func (dao userDAO) DeleteFriendRequest(userID string, friendID string, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Adding friend request for %s (user) and %s (friend).", userID, friendID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	var friend userModelDB.User
+
+	queryResult = dao.connection.
+		Where("id = ?", friendID).
+		First(&friend)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	if err := dao.connection.Unscoped().Model(&user).Association("FriendRequests").Unscoped().Delete(&friend); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // *******************************************************************
