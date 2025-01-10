@@ -73,9 +73,42 @@ func (s friendsService) AddFriend(userID string, friendID string, ctxLog *log.En
 
 	ctxLog.Debugf("FRIENDS_SERVICE: Making %s (user) and %s (friend) friends.", userID, friendID)
 
-	friend, err := s.UserDAO.AddFriend(userID, friendID, ctxLog)
+	areFriends, err := s.UserDAO.CheckFriendship(userID, friendID, ctxLog)
 	if err != nil {
 		return nil, err
+	}
+
+	var friend *userDAO.User
+
+	if !areFriends {
+		friendshipRequested, err := s.UserDAO.CheckFriendRequest(userID, friendID, ctxLog)
+		if err != nil {
+			return nil, err
+		}
+
+		if !friendshipRequested {
+			// Add friend request
+			friend, err = s.UserDAO.AddFriendRequest(userID, friendID, ctxLog)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// Add friend
+			friend, err = s.UserDAO.AddFriend(userID, friendID, ctxLog)
+			if err != nil {
+				return nil, err
+			}
+			// Delete friend request
+			err = s.UserDAO.DeleteFriendRequest(userID, friendID, ctxLog)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		friend, err = s.UserDAO.GetUser(friendID, ctxLog)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	friendInfo := models.FriendInfo{

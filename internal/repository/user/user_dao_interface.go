@@ -44,7 +44,11 @@ type IUserDAO interface {
 	AddFriend(userID string, friendID string, ctxLog *log.Entry) (*User, error)
 	DeleteFriend(userID string, friendID string, ctxLog *log.Entry) error
 	GetFriendsCount(userID string, ctxLog *log.Entry) (int32, error)
-
+	CheckFriendship(userID string, friendID string, ctxLog *log.Entry) (bool, error)
+	AddFriendRequest(userID string, friendID string, ctxLog *log.Entry) (*User, error)
+	DeleteFriendRequest(userID string, friendID string, ctxLog *log.Entry) error
+	// Checks if friendID has sent a friendship request to userID
+	CheckFriendRequest(userID string, friendID string, ctxLog *log.Entry) (bool, error)
 	// ******** Experience **********
 
 	AddExperience(userID string, exp int64, ctxLog *log.Entry) error
