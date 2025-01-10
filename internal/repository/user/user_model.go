@@ -21,13 +21,14 @@ type User struct {
 	WeeklyGoal  int32         `gorm:"not null" json:"weekly_goal"`
 	Weight      *float32      `gorm:"null;type:decimal(5,2)" json:"weight"`
 
-	GymAttendance []GymAttendance       `gorm:"constraint:OnDelete:CASCADE"`
-	FatHistory    []FatHistory          `gorm:"constraint:OnDelete:CASCADE"`
-	WeightHistory []WeightHistory       `gorm:"constraint:OnDelete:CASCADE"`
-	Friends       []*User               `gorm:"many2many:user_friends;constraint:OnDelete:CASCADE"`
-	Badges        []*badgeModelDB.Badge `gorm:"many2many:user_badges;constraint:OnDelete:CASCADE"`
-	TopFeats      []*badgeModelDB.Badge `gorm:"many2many:user_top_feats;constraint:OnDelete:CASCADE"`
-	Preferences   []Preference          `gorm:"constraint:OnDelete:CASCADE"`
+	GymAttendance  []GymAttendance       `gorm:"constraint:OnDelete:CASCADE"`
+	FatHistory     []FatHistory          `gorm:"constraint:OnDelete:CASCADE"`
+	WeightHistory  []WeightHistory       `gorm:"constraint:OnDelete:CASCADE"`
+	Friends        []*User               `gorm:"many2many:user_friends;constraint:OnDelete:CASCADE"`
+	FriendRequests []*User               `gorm:"many2many:friend_requests;constraint:OnDelete:CASCADE"`
+	Badges         []*badgeModelDB.Badge `gorm:"many2many:user_badges;constraint:OnDelete:CASCADE"`
+	TopFeats       []*badgeModelDB.Badge `gorm:"many2many:user_top_feats;constraint:OnDelete:CASCADE"`
+	Preferences    []Preference          `gorm:"constraint:OnDelete:CASCADE"`
 
 	CreatedAt time.Time `gorm:"null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"null" json:"updated_at"`
