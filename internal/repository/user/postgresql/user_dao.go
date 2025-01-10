@@ -646,7 +646,17 @@ func (dao userDAO) GetFriendsCount(userID string, ctxLog *log.Entry) (int32, err
 		return -1, queryResult.Error
 	}
 
-	count := dao.connection.Model(&user).Association("Friends").Count()
+	var count int64
+
+	queryResult = dao.connection.
+		Joins(`JOIN user_friends ON "user".id = user_friends.friend_id OR "user".id = user_friends.user_id`).
+		Where("user_friends.user_id = ? OR user_friends.friend_id = ?", userID, userID).
+		Where(`"user".id != ?`, userID).
+		Count(&count)
+
+	if queryResult.Error != nil && errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+		return -1, queryResult.Error
+	}
 
 	return int32(count), nil
 }
