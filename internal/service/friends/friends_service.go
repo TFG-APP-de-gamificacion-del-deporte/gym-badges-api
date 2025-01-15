@@ -129,10 +129,14 @@ func (s friendsService) DeleteFriend(userID string, friendID string, ctxLog *log
 
 	ctxLog.Debugf("FRIENDS_SERVICE: Making %s (user) and %s (friend) no longer friends.", userID, friendID)
 
-	err := s.UserDAO.DeleteFriend(userID, friendID, ctxLog)
+	areFriends, err := s.UserDAO.CheckFriendship(userID, friendID, ctxLog)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	if areFriends {
+		return s.UserDAO.DeleteFriend(userID, friendID, ctxLog)
+	} else {
+		return s.UserDAO.DeleteFriendRequest(userID, friendID, ctxLog)
+	}
 }
