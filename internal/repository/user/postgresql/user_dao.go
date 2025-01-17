@@ -750,6 +750,39 @@ func (dao userDAO) AddFriendRequest(userID string, friendID string, ctxLog *log.
 	return &friend, dao.connection.Save(&friend).Error
 }
 
+func (dao userDAO) GetUserWithFriendRequests(userID string, ctxLog *log.Entry) (*userModelDB.User, error) {
+
+	ctxLog.Debugf("USER_DAO: Getting friend requests for user: %s ", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var user userModelDB.User
+
+	queryResult := dao.connection.
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	queryResult = dao.connection.
+		Preload("FriendRequests").
+		Where("id = ?", userID).
+		First(&user)
+
+	if queryResult.Error != nil {
+		return nil, queryResult.Error
+	}
+
+	return &user, nil
+}
+
 func (dao userDAO) CheckFriendRequest(userID string, friendID string, ctxLog *log.Entry) (bool, error) {
 
 	ctxLog.Debugf("USER_DAO: Cheking if friendship request from %s exists for %s.", friendID, userID)
