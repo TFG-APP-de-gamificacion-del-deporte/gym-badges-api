@@ -6,7 +6,6 @@ import (
 	customErrors "gym-badges-api/internal/custom-errors"
 	friendsService "gym-badges-api/internal/service/friends"
 	"gym-badges-api/models"
-	"gym-badges-api/restapi/operations/friends"
 	op "gym-badges-api/restapi/operations/friends"
 	toolsLogging "gym-badges-api/tools/logging"
 	"net/http"
@@ -41,7 +40,7 @@ type friendsHandler struct {
 	friendsService friendsService.IFriendsService
 }
 
-func (h friendsHandler) GetFriendsByUserID(params friends.GetFriendsByUserIDParams) middleware.Responder {
+func (h friendsHandler) GetFriendsByUserID(params op.GetFriendsByUserIDParams) middleware.Responder {
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 
@@ -62,7 +61,7 @@ func (h friendsHandler) GetFriendsByUserID(params friends.GetFriendsByUserIDPara
 	return op.NewGetFriendsByUserIDOK().WithPayload(response)
 }
 
-func (h friendsHandler) AddFriend(params friends.AddFriendParams) middleware.Responder {
+func (h friendsHandler) AddFriend(params op.AddFriendParams) middleware.Responder {
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 
@@ -88,7 +87,7 @@ func (h friendsHandler) AddFriend(params friends.AddFriendParams) middleware.Res
 	return op.NewAddFriendOK().WithPayload(response)
 }
 
-func (h friendsHandler) DeleteFriend(params friends.DeleteFriendParams) middleware.Responder {
+func (h friendsHandler) DeleteFriend(params op.DeleteFriendParams) middleware.Responder {
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 
@@ -112,4 +111,25 @@ func (h friendsHandler) DeleteFriend(params friends.DeleteFriendParams) middlewa
 	}
 
 	return op.NewDeleteFriendOK()
+}
+
+func (h friendsHandler) GetFriendRequestsByUserID(params op.GetFriendRequestsByUserIDParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("FRIENDS_HANDLER: Getting friend requests for user: %s", params.UserID)
+
+	response, err := h.friendsService.GetFriendRequestsByUserID(params.UserID, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &customErrors.Unauthorized):
+			return op.NewGetFriendRequestsByUserIDUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &customErrors.NotFound):
+			return op.NewGetFriendRequestsByUserIDNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewGetFriendRequestsByUserIDInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewGetFriendRequestsByUserIDOK().WithPayload(response)
 }
