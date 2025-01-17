@@ -140,3 +140,27 @@ func (s friendsService) DeleteFriend(userID string, friendID string, ctxLog *log
 		return s.UserDAO.DeleteFriendRequest(userID, friendID, ctxLog)
 	}
 }
+
+func (s friendsService) GetFriendRequestsByUserID(userID string, ctxLog *log.Entry) (*models.FriendRequestsResponse, error) {
+
+	ctxLog.Debugf("FRIENDS_SERVICE: Getting friend requests for user: %s ", userID)
+
+	user, err := s.UserDAO.GetUserWithFriendRequests(userID, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	response := models.FriendRequestsResponse{
+		FriendRequests: make([]*models.FriendRequestInfo, len(user.FriendRequests)),
+	}
+
+	for i, friendRequest := range user.FriendRequests {
+		response.FriendRequests[i] = &models.FriendRequestInfo{
+			User:  friendRequest.ID,
+			Name:  friendRequest.Name,
+			Image: friendRequest.Image,
+		}
+	}
+
+	return &response, nil
+}
