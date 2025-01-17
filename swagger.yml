@@ -681,6 +681,48 @@ paths:
             $ref: "#/definitions/generic_response"
             description: Contains the operation error response object
 
+  /friend-requests/{user_id}:
+    get:
+      operationId: getFriendRequestsByUserID
+      summary: Get friend requests by user_id
+      tags:
+        - Friends
+      produces:
+        - application/json
+      parameters:
+        - name: user_id
+          in: path
+          description: User's id you want to get.
+          required: true
+          type: string
+        - name: auth_user_id
+          in: header
+          description: Your own user id. For authentication.
+          required: true
+          type: string
+      security:
+        - jwt: []
+      responses:
+        200:
+          description: Success Response
+          schema:
+            $ref: "#/definitions/friend_requests_response"
+        401:
+          description: Unauthorized Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the unauthorized error response object
+        404:
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the not found error response object
+        500:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/generic_response"
+            description: Contains the operation error response object
+
   # -----------------------------------------------------
   # BADGES
   # -----------------------------------------------------
@@ -1157,6 +1199,30 @@ definitions:
         x-omitempty: false
       image:
         type: string
+        x-omitempty: false
+
+  friend_requests_response:
+    type: object
+    title: Friend requests list
+    properties:
+      friend_requests:
+        type: array
+        items:
+          $ref: "#/definitions/friend_request_info"
+
+  friend_request_info:
+    type: object
+    title: Friend reques info
+    properties:
+      name:
+        type: string
+        x-omitempty: false
+      user:
+        type: string
+        x-omitempty: false
+      image:
+        type: string
+        format: byte
         x-omitempty: false
 
   create_user_request:
