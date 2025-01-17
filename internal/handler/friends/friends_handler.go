@@ -119,6 +119,11 @@ func (h friendsHandler) GetFriendRequestsByUserID(params op.GetFriendRequestsByU
 
 	ctxLog.Infof("FRIENDS_HANDLER: Getting friend requests for user: %s", params.UserID)
 
+	// An user can only see his own friend requests
+	if params.AuthUserID != params.UserID {
+		return op.NewGetFriendRequestsByUserIDUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
 	response, err := h.friendsService.GetFriendRequestsByUserID(params.UserID, ctxLog)
 	if err != nil {
 		switch {
