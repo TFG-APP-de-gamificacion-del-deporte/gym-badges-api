@@ -1214,10 +1214,10 @@ definitions:
     type: object
     title: Friend reques info
     properties:
-      name:
+      user_id:
         type: string
         x-omitempty: false
-      user:
+      name:
         type: string
         x-omitempty: false
       image:

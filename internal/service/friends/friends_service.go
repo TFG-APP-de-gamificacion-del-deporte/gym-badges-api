@@ -156,9 +156,9 @@ func (s friendsService) GetFriendRequestsByUserID(userID string, ctxLog *log.Ent
 
 	for i, friendRequest := range user.FriendRequests {
 		response.FriendRequests[i] = &models.FriendRequestInfo{
-			User:  friendRequest.ID,
-			Name:  friendRequest.Name,
-			Image: friendRequest.Image,
+			UserID: friendRequest.ID,
+			Name:   friendRequest.Name,
+			Image:  friendRequest.Image,
 		}
 	}
 
