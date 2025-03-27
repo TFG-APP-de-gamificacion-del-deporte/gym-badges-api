@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	customErrors "gym-badges-api/internal/custom-errors"
+	badgeModelDB "gym-badges-api/internal/repository/badge"
 	"gym-badges-api/internal/repository/config/postgresql"
 	userModelDB "gym-badges-api/internal/repository/user"
 	"time"
@@ -159,6 +160,53 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	user.Preferences = newUserInfo.Preferences
 
 	return &user, nil
+}
+
+func (dao userDAO) UpdateUserPreferences(userID string, preferences []userModelDB.Preference, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Editing information of user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	queryResult := dao.connection.Save(preferences)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	return nil
+}
+
+func (dao userDAO) UpdateUserTopFeats(userID string, topFeats []*badgeModelDB.Badge, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_DAO: Editing information of user: %s", userID)
+
+	if err := dao.connection.Error; err != nil {
+		return err
+	}
+
+	err := dao.connection.Model(&userModelDB.User{ID: userID}).Association("TopFeats").Clear()
+	if err != nil {
+		return err
+	}
+
+	queryResult := dao.connection.Model(&userModelDB.User{ID: userID}).
+		Where("id = ?", userID).
+		Update("TopFeats", topFeats)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return customErrors.BuildNotFoundError(userNotFoundErrorMsg)
+		}
+		return queryResult.Error
+	}
+
+	return nil
 }
 
 func (dao userDAO) setDayToCurrentWeek(userID string, dayIndex int, marked bool, ctxLog *log.Entry) (*userModelDB.User, error) {

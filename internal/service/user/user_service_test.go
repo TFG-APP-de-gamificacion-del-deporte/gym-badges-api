@@ -27,6 +27,7 @@ var _ = Describe("SERVICE: User Test Suite", func() {
 	var (
 		mockCtrl           *gomock.Controller
 		mockUserDAO        *mockDAO.MockIUserDAO
+		mockBadgeDAO       *mockDAO.MockIBadgeDAO
 		mockSessionService *mockService.MockISessionService
 		service            IUserService
 	)
@@ -35,7 +36,7 @@ var _ = Describe("SERVICE: User Test Suite", func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockUserDAO = mockDAO.NewMockIUserDAO(mockCtrl)
 		mockSessionService = mockService.NewMockISessionService(mockCtrl)
-		service = NewUserService(mockUserDAO, mockSessionService)
+		service = NewUserService(mockUserDAO, mockBadgeDAO, mockSessionService)
 	})
 
 	AfterEach(func() {

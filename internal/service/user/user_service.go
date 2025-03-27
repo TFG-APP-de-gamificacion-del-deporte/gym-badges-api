@@ -12,29 +12,34 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func NewUserService(userDAO userDAO.IUserDAO, sessionService sessionService.ISessionService) IUserService {
+func NewUserService(userDAO userDAO.IUserDAO, badgeDAO badgeDAO.IBadgeDAO, sessionService sessionService.ISessionService) IUserService {
 	return &UserService{
 		UserDAO:        userDAO,
+		badgeDAO:       badgeDAO,
 		sessionService: sessionService,
 	}
 }
 
 type UserService struct {
 	UserDAO        userDAO.IUserDAO
+	badgeDAO       badgeDAO.IBadgeDAO
 	sessionService sessionService.ISessionService
 }
 
-func (s UserService) GetUser(userID string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
+func (s UserService) GetUser(userID string, authUserID string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
 
 	ctxLog.Debugf("USER_SERVICE: Processing getUserInfo request for user: %s", userID)
 
 	user, err := s.UserDAO.GetUser(userID, ctxLog)
-
 	if err != nil {
 		return nil, err
 	}
 
-	response := models.GetUserInfoResponse{
+	if authUserID != user.ID {
+		return s.processOtherRequest(user, authUserID, ctxLog)
+	}
+
+	response := &models.GetUserInfoResponse{
 		UserID:      user.ID,
 		BodyFat:     user.BodyFat,
 		CurrentWeek: user.CurrentWeek,
@@ -48,9 +53,48 @@ func (s UserService) GetUser(userID string, ctxLog *log.Entry) (*models.GetUserI
 		WeeklyGoal:  user.WeeklyGoal,
 		TopFeats:    mapTopFeats(user.TopFeats),
 		Preferences: mapPreferences(user.Preferences),
+		IsFriend:    true,
 	}
 
-	return &response, nil
+	return response, nil
+}
+
+func (s UserService) processOtherRequest(user *userDAO.User, authUserID string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
+
+	preferencesMap := make(map[uint]bool)
+	for _, preference := range user.Preferences {
+		preferencesMap[preference.ID] = preference.On
+	}
+
+	isMyFriend, err := s.UserDAO.CheckFriendship(user.ID, authUserID, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.GetUserInfoResponse{
+		UserID:      user.ID,
+		Image:       user.Image,
+		Name:        user.Name,
+		Preferences: mapPreferences(user.Preferences),
+	}
+
+	if !isMyFriend && preferencesMap[1] {
+		return response, nil
+	}
+
+	response.CurrentWeek = user.CurrentWeek
+	response.Experience = user.Experience
+	response.Streak = user.Streak
+	response.WeeklyGoal = user.WeeklyGoal
+	response.TopFeats = mapTopFeats(user.TopFeats)
+	response.IsFriend = isMyFriend
+
+	if !preferencesMap[2] {
+		response.BodyFat = user.BodyFat
+		response.Weight = user.Weight
+	}
+
+	return response, nil
 }
 
 func mapPreferences(dbPreferences []userDAO.Preference) []*models.Preference {
@@ -206,4 +250,51 @@ func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoReq
 	}
 
 	return &response, nil
+}
+
+func (s UserService) EditUserPreferences(userID string, request *models.EditUserPreferenceRequest, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_SERVICE: Editing preferences of user: %s", userID)
+
+	privateAccountPref := userDAO.Preference{
+		UserID: userID,
+		ID:     uint(1),
+		On:     request.PrivateAccount,
+	}
+
+	hideWeightAndFatPref := userDAO.Preference{
+		UserID: userID,
+		ID:     uint(2),
+		On:     request.HideWeightAndFat,
+	}
+
+	var preferences = []userDAO.Preference{privateAccountPref, hideWeightAndFatPref}
+
+	err := s.UserDAO.UpdateUserPreferences(userID, preferences, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s UserService) EditUserTopFeats(userID string, topFeats []int16, ctxLog *log.Entry) error {
+
+	ctxLog.Debugf("USER_SERVICE: Editing preferences of user: %s", userID)
+
+	badges, err := s.badgeDAO.GetBadgesByIds(topFeats, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	if len(badges) != len(topFeats) {
+		return errors.New("invalid top feats")
+	}
+
+	err = s.UserDAO.UpdateUserTopFeats(userID, badges, ctxLog)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
