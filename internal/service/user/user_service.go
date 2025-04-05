@@ -43,6 +43,8 @@ func (s UserService) GetUser(userID string, ctxLog *log.Entry) (*models.GetUserI
 		Name:        user.Name,
 		Streak:      user.Streak,
 		Weight:      user.Weight,
+		Height:      *user.Height,
+		Sex:         user.Sex,
 		WeeklyGoal:  user.WeeklyGoal,
 		TopFeats:    mapTopFeats(user.TopFeats),
 		Preferences: mapPreferences(user.Preferences),
@@ -120,10 +122,12 @@ func (s UserService) CreateUser(user *models.CreateUserRequest, ctxLog *log.Entr
 		Password:    hash,
 		Streak:      0,
 		Weight:      nil,
+		Height:      &user.Height,
+		Sex:         user.Sex,
 		WeeklyGoal:  3,
 		Preferences: []userDAO.Preference{
 			{ID: 1, On: false, UserID: user.UserID}, // Private account
-			{ID: 2, On: false, UserID: user.UserID}, // Hide weight and fat
+			{ID: 2, On: false, UserID: user.UserID}, // Hide weight, fat, height and sex
 		},
 		Badges: []*badgeDAO.Badge{ // Base category badges
 			{ID: -1},
@@ -162,6 +166,8 @@ func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoReq
 	newUserInfo.Name = request.Name
 	newUserInfo.Image = request.Image
 	newUserInfo.WeeklyGoal = request.WeeklyGoal
+	newUserInfo.Height = &request.Height
+	newUserInfo.Sex = request.Sex
 
 	// Top feats
 	if request.TopFeats != nil {
@@ -193,6 +199,8 @@ func (s UserService) EditUserInfo(userID string, request *models.EditUserInfoReq
 		Name:        user.Name,
 		Streak:      user.Streak,
 		Weight:      user.Weight,
+		Height:      *user.Height,
+		Sex:         user.Sex,
 		TopFeats:    mapTopFeats(user.TopFeats),
 		Preferences: mapPreferences(user.Preferences),
 	}

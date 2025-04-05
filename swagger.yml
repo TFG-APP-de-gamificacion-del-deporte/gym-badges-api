@@ -168,7 +168,7 @@ paths:
         - application/json
       parameters:
         - name: input
-          description: Data required for login
+          description: Data required for signing up
           in: body
           required: true
           schema:
@@ -1055,6 +1055,12 @@ definitions:
         format: float
         x-nullable: true
         x-omitempty: false
+      height:
+        type: number
+        format: float
+      sex:
+        type: string
+        enum: [feminine, masculine]
 
   edit_user_info_request:
     type: object
@@ -1086,6 +1092,12 @@ definitions:
         type: number
         format: int32
         x-omitempty: false
+      height:
+        type: number
+        format: float
+      sex:
+        type: string
+        enum: [feminine, masculine]
 
   preference:
     type: object
@@ -1240,6 +1252,12 @@ definitions:
         type: string
       user_id:
         type: string
+      height:
+        type: number
+        format: float
+      sex:
+        type: string
+        enum: [feminine, masculine]
 
   badges_by_user_response:
     title: User badge list response

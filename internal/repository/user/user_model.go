@@ -20,6 +20,8 @@ type User struct {
 	Streak      int32         `gorm:"not null" json:"streak"`
 	WeeklyGoal  int32         `gorm:"not null" json:"weekly_goal"`
 	Weight      *float32      `gorm:"null;type:decimal(5,2)" json:"weight"`
+	Height      *float32      `gorm:"null;type:decimal(5,2)" json:"height"`
+	Sex         string        `gorm:"not null" json:"sex"`
 
 	GymAttendance  []GymAttendance       `gorm:"constraint:OnDelete:CASCADE"`
 	FatHistory     []FatHistory          `gorm:"constraint:OnDelete:CASCADE"`

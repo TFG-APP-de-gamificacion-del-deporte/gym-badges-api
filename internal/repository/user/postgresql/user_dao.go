@@ -127,6 +127,12 @@ func (dao userDAO) EditUserInfo(userID string, newUserInfo *userModelDB.User, ct
 	if newUserInfo.WeeklyGoal >= 1 && newUserInfo.WeeklyGoal <= 7 {
 		user.WeeklyGoal = newUserInfo.WeeklyGoal
 	}
+	if *newUserInfo.Height != 0 {
+		user.Height = newUserInfo.Height
+	}
+	if newUserInfo.Sex == "feminine" || newUserInfo.Sex == "masculine" {
+		user.Sex = newUserInfo.Sex
+	}
 
 	// Update top feats
 	if newUserInfo.TopFeats != nil {
