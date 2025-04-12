@@ -1,0 +1,28 @@
+run:
+  timeout: 3m
+  tests: true
+  skip-dirs:
+    - "mocks"
+    - "models"
+    - "restapi"
+
+issues:
+  exclude-dirs:
+    - models
+    - restapi
+    - mocks
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+
+linters:
+  enable:
+    - gofmt
+    - gocyclo
+    - unparam
+    - errcheck
+    - goimports
+    - govet
+    - staticcheck
+  fast: true
