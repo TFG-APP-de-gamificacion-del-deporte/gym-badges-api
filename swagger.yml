@@ -1160,8 +1160,7 @@ definitions:
         enum: [feminine, masculine]
       total_friends:
         type: number
-        format: float
-        x-nullable: true
+        format: int32
         x-omitempty: false
       is_friend:
         type: boolean

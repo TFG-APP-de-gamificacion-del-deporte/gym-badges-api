@@ -35,31 +35,37 @@ func (s UserService) GetUser(userID string, authUserID string, ctxLog *log.Entry
 		return nil, err
 	}
 
+	totalFriends, err := s.UserDAO.GetFriendsCount(userID, ctxLog)
+	if err != nil {
+		return nil, err
+	}
+
 	if authUserID != user.ID {
-		return s.processOtherRequest(user, authUserID, ctxLog)
+		return s.processOtherRequest(user, authUserID, totalFriends, ctxLog)
 	}
 
 	response := &models.GetUserInfoResponse{
-		UserID:      user.ID,
-		BodyFat:     user.BodyFat,
-		CurrentWeek: user.CurrentWeek,
-		Experience:  user.Experience,
-		Image:       user.Image,
-		Name:        user.Name,
-		Streak:      user.Streak,
-		Weight:      user.Weight,
-		Height:      *user.Height,
-		Sex:         user.Sex,
-		WeeklyGoal:  user.WeeklyGoal,
-		TopFeats:    mapTopFeats(user.TopFeats),
-		Preferences: mapPreferences(user.Preferences),
-		IsFriend:    true,
+		UserID:       user.ID,
+		BodyFat:      user.BodyFat,
+		CurrentWeek:  user.CurrentWeek,
+		Experience:   user.Experience,
+		Image:        user.Image,
+		Name:         user.Name,
+		Streak:       user.Streak,
+		Weight:       user.Weight,
+		Height:       *user.Height,
+		Sex:          user.Sex,
+		WeeklyGoal:   user.WeeklyGoal,
+		TopFeats:     mapTopFeats(user.TopFeats),
+		Preferences:  mapPreferences(user.Preferences),
+		IsFriend:     true,
+		TotalFriends: totalFriends,
 	}
 
 	return response, nil
 }
 
-func (s UserService) processOtherRequest(user *userDAO.User, authUserID string, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
+func (s UserService) processOtherRequest(user *userDAO.User, authUserID string, totalFriends int32, ctxLog *log.Entry) (*models.GetUserInfoResponse, error) {
 
 	preferencesMap := make(map[uint]bool)
 	for _, preference := range user.Preferences {
@@ -72,10 +78,11 @@ func (s UserService) processOtherRequest(user *userDAO.User, authUserID string, 
 	}
 
 	response := &models.GetUserInfoResponse{
-		UserID:      user.ID,
-		Image:       user.Image,
-		Name:        user.Name,
-		Preferences: mapPreferences(user.Preferences),
+		UserID:       user.ID,
+		Image:        user.Image,
+		Name:         user.Name,
+		Preferences:  mapPreferences(user.Preferences),
+		TotalFriends: totalFriends,
 	}
 
 	if !isMyFriend && preferencesMap[1] {
