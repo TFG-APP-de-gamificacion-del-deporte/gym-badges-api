@@ -53,13 +53,16 @@ func (s UserService) GetUser(userID string, authUserID string, ctxLog *log.Entry
 		Name:         user.Name,
 		Streak:       user.Streak,
 		Weight:       user.Weight,
-		Height:       *user.Height,
 		Sex:          user.Sex,
 		WeeklyGoal:   user.WeeklyGoal,
 		TopFeats:     mapTopFeats(user.TopFeats),
 		Preferences:  mapPreferences(user.Preferences),
 		IsFriend:     true,
 		TotalFriends: totalFriends,
+	}
+
+	if user.Height != nil {
+		response.Height = *user.Height
 	}
 
 	return response, nil
