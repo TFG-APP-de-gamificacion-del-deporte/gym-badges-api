@@ -60,7 +60,7 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 	// SERVICES
 	sessionService := sessionService.NewSessionService()
 	loginService := loginService.NewLoginService(userDAO, sessionService)
-	userService := userService.NewUserService(userDAO, sessionService)
+	userService := userService.NewUserService(userDAO, badgeDAO, sessionService)
 	statsService := statsService.NewStatsService(userDAO, sessionService)
 	friendsService := friendsService.NewFriendsService(userDAO)
 	badgeService := badgeService.NewBadgeService(userDAO, badgeDAO)
@@ -108,6 +108,14 @@ func configureAPI(api *operations.GymBadgesAPI) http.Handler {
 
 	api.UserEditUserInfoHandler = user.EditUserInfoHandlerFunc(func(params user.EditUserInfoParams, new interface{}) middleware.Responder {
 		return userHandler.EditUserInfo(params)
+	})
+
+	api.UserEditUserPreferencesHandler = user.EditUserPreferencesHandlerFunc(func(params user.EditUserPreferencesParams, new interface{}) middleware.Responder {
+		return userHandler.EditUserPreferences(params)
+	})
+
+	api.UserEditUserTopFeatsHandler = user.EditUserTopFeatsHandlerFunc(func(params user.EditUserTopFeatsParams, new interface{}) middleware.Responder {
+		return userHandler.EditUserTopFeats(params)
 	})
 
 	// *******************************************************************

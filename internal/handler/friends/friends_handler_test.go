@@ -171,4 +171,269 @@ var _ = Describe("HANDLER: Friends Test Suite", func() {
 
 	})
 
+	Context("POST /friends/{user_id}", func() {
+
+		var (
+			params op.AddFriendParams
+		)
+
+		BeforeEach(func() {
+			params = op.NewAddFriendParams()
+			params.HTTPRequest = new(http.Request)
+			params.AuthUserID = "admin"
+			params.UserID = "admin"
+			params.Input = &models.AddDeleteFriendRequest{
+				FriendID: "homer",
+			}
+		})
+
+		type Params struct {
+			ExpectedResponse any
+			ServiceResponse  *models.FriendInfo
+			ServiceError     error
+		}
+
+		DescribeTable("Checking add friends by user_id handler cases", func(input Params) {
+
+			mockFriendsService.EXPECT().AddFriend(gomock.Any(), gomock.Any(), gomock.Any()).
+				Times(1).
+				Return(input.ServiceResponse, input.ServiceError)
+
+			response := handler.AddFriend(params)
+			Expect(response).To(BeEquivalentTo(input.ExpectedResponse))
+		},
+			Entry("CASE: Success Response (200)", Params{
+				ExpectedResponse: op.NewAddFriendOK().WithPayload(&models.FriendInfo{
+					Fat:    utils.NewFloat32(5.5),
+					Level:  10,
+					Name:   "Friend 1",
+					Streak: 10,
+					TopFeats: []*models.Feat{
+						{
+							Description: "Description 1",
+							Image:       "/feat_1.jpg",
+							Name:        "Feat 1",
+						},
+					},
+					User:   "friend1",
+					Weight: utils.NewFloat32(80.5),
+				}),
+				ServiceResponse: &models.FriendInfo{
+					Fat:    utils.NewFloat32(5.5),
+					Level:  10,
+					Name:   "Friend 1",
+					Streak: 10,
+					TopFeats: []*models.Feat{
+						{
+							Description: "Description 1",
+							Image:       "/feat_1.jpg",
+							Name:        "Feat 1",
+						},
+					},
+					User:   "friend1",
+					Weight: utils.NewFloat32(80.5),
+				},
+				ServiceError: nil,
+			}),
+			Entry("CASE: Not Found Error Response (404)", Params{
+				ExpectedResponse: op.NewAddFriendNotFound().WithPayload(&models.GenericResponse{
+					Code:    "404",
+					Message: "Not Found",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    customErrors.BuildNotFoundError("user not found"),
+			}),
+			Entry("CASE: Unauthorized Error Response (401)", Params{
+				ExpectedResponse: op.NewAddFriendUnauthorized().WithPayload(&models.GenericResponse{
+					Code:    "401",
+					Message: "Unauthorized",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    customErrors.BuildUnauthorizedError("unauthorized"),
+			}),
+			Entry("CASE: Internal Server Error Response (500)", Params{
+				ExpectedResponse: op.NewAddFriendInternalServerError().WithPayload(&models.GenericResponse{
+					Code:    "500",
+					Message: "Internal Server Error",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    errors.New("panic"),
+			}),
+		)
+		It("CASE: Unauthorized Error Response (401) - Bad user id", func() {
+
+			params.AuthUserID = "other"
+
+			expectedResponse := op.NewAddFriendUnauthorized().WithPayload(&models.GenericResponse{
+				Code:    "401",
+				Message: "Unauthorized",
+			})
+			response := handler.AddFriend(params)
+			Expect(response).To(BeEquivalentTo(expectedResponse))
+		})
+	})
+
+	Context("DELETE /friends/{user_id}", func() {
+
+		var (
+			params op.DeleteFriendParams
+		)
+
+		BeforeEach(func() {
+			params = op.NewDeleteFriendParams()
+			params.HTTPRequest = new(http.Request)
+			params.AuthUserID = "admin"
+			params.UserID = "admin"
+			params.Input = &models.AddDeleteFriendRequest{
+				FriendID: "homer",
+			}
+		})
+
+		type Params struct {
+			ExpectedResponse any
+			ServiceError     error
+		}
+
+		DescribeTable("Checking delete friends by user_id handler cases", func(input Params) {
+
+			mockFriendsService.EXPECT().DeleteFriend(gomock.Any(), gomock.Any(), gomock.Any()).
+				Times(1).
+				Return(input.ServiceError)
+
+			response := handler.DeleteFriend(params)
+			Expect(response).To(BeEquivalentTo(input.ExpectedResponse))
+		},
+			Entry("CASE: Success Response (200)", Params{
+				ExpectedResponse: op.NewDeleteFriendOK(),
+				ServiceError:     nil,
+			}),
+			Entry("CASE: Not Found Error Response (404)", Params{
+				ExpectedResponse: op.NewAddFriendNotFound().WithPayload(&models.GenericResponse{
+					Code:    "404",
+					Message: "Not Found",
+				}),
+				ServiceError: customErrors.BuildNotFoundError("user not found"),
+			}),
+			Entry("CASE: Unauthorized Error Response (401)", Params{
+				ExpectedResponse: op.NewAddFriendUnauthorized().WithPayload(&models.GenericResponse{
+					Code:    "401",
+					Message: "Unauthorized",
+				}),
+				ServiceError: customErrors.BuildUnauthorizedError("unauthorized"),
+			}),
+			Entry("CASE: Internal Server Error Response (500)", Params{
+				ExpectedResponse: op.NewAddFriendInternalServerError().WithPayload(&models.GenericResponse{
+					Code:    "500",
+					Message: "Internal Server Error",
+				}),
+				ServiceError: errors.New("panic"),
+			}),
+		)
+		It("CASE: Unauthorized Error Response (401) - Bad user id", func() {
+
+			params.AuthUserID = "other"
+
+			expectedResponse := op.NewDeleteFriendUnauthorized().WithPayload(&models.GenericResponse{
+				Code:    "401",
+				Message: "Unauthorized",
+			})
+			response := handler.DeleteFriend(params)
+			Expect(response).To(BeEquivalentTo(expectedResponse))
+		})
+	})
+
+	Context("GET /friend-requests/{user_id}", func() {
+
+		var (
+			params op.GetFriendRequestsByUserIDParams
+		)
+
+		BeforeEach(func() {
+			params = op.NewGetFriendRequestsByUserIDParams()
+			params.HTTPRequest = new(http.Request)
+			params.UserID = "admin"
+			params.AuthUserID = "admin"
+		})
+
+		type Params struct {
+			ExpectedResponse any
+			ServiceResponse  *models.FriendRequestsResponse
+			ServiceError     error
+		}
+
+		DescribeTable("Checking get friend request by user_id handler cases", func(input Params) {
+
+			mockFriendsService.EXPECT().GetFriendRequestsByUserID(gomock.Any(), gomock.Any()).
+				Times(1).
+				Return(input.ServiceResponse, input.ServiceError)
+
+			response := handler.GetFriendRequestsByUserID(params)
+			Expect(response).To(BeEquivalentTo(input.ExpectedResponse))
+		},
+			Entry("CASE: Success Response (200)", Params{
+				ExpectedResponse: op.NewGetFriendRequestsByUserIDOK().WithPayload(&models.FriendRequestsResponse{
+					FriendRequests: []*models.FriendRequestInfo{
+						{
+							Name:   "Maggie Simpson",
+							UserID: "maggie",
+						},
+						{
+							Name:   "Krusty The Clown Simpson",
+							UserID: "krusty",
+						},
+					},
+				}),
+				ServiceResponse: &models.FriendRequestsResponse{
+					FriendRequests: []*models.FriendRequestInfo{
+						{
+							Name:   "Maggie Simpson",
+							UserID: "maggie",
+						},
+						{
+							Name:   "Krusty The Clown Simpson",
+							UserID: "krusty",
+						},
+					},
+				},
+				ServiceError: nil,
+			}),
+			Entry("CASE: Not Found Error Response (404)", Params{
+				ExpectedResponse: op.NewGetFriendRequestsByUserIDNotFound().WithPayload(&models.GenericResponse{
+					Code:    "404",
+					Message: "Not Found",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    customErrors.BuildNotFoundError("user not found"),
+			}),
+			Entry("CASE: Unauthorized Error Response (401)", Params{
+				ExpectedResponse: op.NewGetFriendRequestsByUserIDUnauthorized().WithPayload(&models.GenericResponse{
+					Code:    "401",
+					Message: "Unauthorized",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    customErrors.BuildUnauthorizedError("unauthorized"),
+			}),
+			Entry("CASE: Internal Server Error Response (500)", Params{
+				ExpectedResponse: op.NewGetFriendRequestsByUserIDInternalServerError().WithPayload(&models.GenericResponse{
+					Code:    "500",
+					Message: "Internal Server Error",
+				}),
+				ServiceResponse: nil,
+				ServiceError:    errors.New("panic"),
+			}),
+		)
+
+		It("CASE: Unauthorized Error Response (401) - Bad user id", func() {
+
+			params.AuthUserID = "other"
+
+			expectedResponse := op.NewGetFriendRequestsByUserIDUnauthorized().WithPayload(&models.GenericResponse{
+				Code:    "401",
+				Message: "Unauthorized",
+			})
+			response := handler.GetFriendRequestsByUserID(params)
+			Expect(response).To(BeEquivalentTo(expectedResponse))
+		})
+
+	})
 })

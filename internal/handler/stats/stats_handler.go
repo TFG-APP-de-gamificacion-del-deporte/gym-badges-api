@@ -161,7 +161,7 @@ func (h statsHandler) AddGymAttendance(params op.AddGymAttendanceParams) middlew
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 
-	ctxLog.Infof("STATS_HANDLER: Adding a gym attendance to user: %s", params.UserID)
+	ctxLog.Infof("STATS_HANDLER: Adding a gym attendance to user: %s - %s", params.UserID, params.Input.Date)
 
 	// An user can only add new gym attendances to himself
 	if params.AuthUserID != params.UserID {
@@ -195,7 +195,7 @@ func (h statsHandler) DeleteGymAttendance(params op.DeleteGymAttendanceParams) m
 
 	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
 
-	ctxLog.Infof("STATS_HANDLER: Deleting a gym attendance to user: %s", params.UserID)
+	ctxLog.Infof("STATS_HANDLER: Deleting a gym attendance to user: %s - %s", params.UserID, params.Input.Date)
 
 	// An user can only delete gym attendances to himself
 	if params.AuthUserID != params.UserID {

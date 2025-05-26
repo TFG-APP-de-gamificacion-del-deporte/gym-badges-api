@@ -1,6 +1,7 @@
 package user
 
 import (
+	badgeModelDB "gym-badges-api/internal/repository/badge"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -14,7 +15,8 @@ type IUserDAO interface {
 	GetUserByEmail(email string, ctxLog *log.Entry) (*User, error)
 	CreateUser(user *User, ctxLog *log.Entry) error
 	EditUserInfo(userID string, newUserInfo *User, ctxLog *log.Entry) (*User, error)
-
+	UpdateUserPreferences(userID string, preferences []Preference, ctxLog *log.Entry) error
+	UpdateUserTopFeats(userID string, topFeats []*badgeModelDB.Badge, ctxLog *log.Entry) error
 	// ******** Current week **********
 
 	AddDayToCurrentWeek(userID string, dayIndex int, ctxLog *log.Entry) error
