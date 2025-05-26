@@ -69,6 +69,29 @@ func (dao badgeDAO) GetBadge(badgeID int16, ctxLog *log.Entry) (*badgeModelDB.Ba
 	return &badge, nil
 }
 
+func (dao badgeDAO) GetBadgesByIds(badgeIds []int16, ctxLog *log.Entry) ([]*badgeModelDB.Badge, error) {
+
+	ctxLog.Debugf("BADGE_DAO: Getting badges: %v", badgeIds)
+
+	if err := dao.connection.Error; err != nil {
+		return nil, err
+	}
+
+	var badges = make([]*badgeModelDB.Badge, 0, len(badgeIds))
+
+	queryResult := dao.connection.
+		Where("id IN ?", badgeIds).Find(&badges)
+
+	if queryResult.Error != nil {
+		if errors.Is(queryResult.Error, gorm.ErrRecordNotFound) {
+			return nil, customErrors.BuildNotFoundError(badgeNotFoundErrorMsg)
+		}
+		return nil, queryResult.Error
+	}
+
+	return badges, nil
+}
+
 func (dao badgeDAO) AddBadge(userID string, badgeID int16, ctxLog *log.Entry) error {
 
 	ctxLog.Debugf("BADGE_DAO: Adding badge %d to user %s", badgeID, userID)

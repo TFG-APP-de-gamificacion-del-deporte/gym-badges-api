@@ -9,7 +9,7 @@ import (
 
 func ConfigureLogger(logLvl string) {
 
-	log.SetFormatter(&log.TextFormatter{})
+	log.SetFormatter(&log.JSONFormatter{})
 
 	lvl, err := log.ParseLevel(logLvl)
 	if err != nil {

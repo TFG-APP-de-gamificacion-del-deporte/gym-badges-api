@@ -15,7 +15,7 @@ type BasicConfiguration struct {
 	SessionDuration  int    `default:"31536000" envconfig:"SESSION_DURATION"` // One year
 	JWTKey           string `default:"GymBadges" envconfig:"JWT_KEY"`
 	LogLevel         string `default:"DEBUG" envconfig:"LOG_LEVEL"`
-	FriendsPageSize  int32  `default:"3" envconfig:"FRIENDS_PAGE_SIZE"`
+	FriendsPageSize  int32  `default:"10" envconfig:"FRIENDS_PAGE_SIZE"`
 	RankingsPageSize int32  `default:"10" envconfig:"RANKINGS_PAGE_SIZE"`
 }
 

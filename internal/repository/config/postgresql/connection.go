@@ -22,10 +22,10 @@ var (
 )
 
 type GormConfiguration struct {
-	Host                      string `default:"127.0.0.1" envconfig:"CLOUDSQL_CONNECTION_NAME"`
-	Port                      int    `default:"5432" envconfig:"CLOUDSQL_CONNECTION_PORT"`
+	Host                      string `default:"192.168.1.105" envconfig:"CLOUDSQL_CONNECTION_NAME"`
+	Port                      int    `default:"15432" envconfig:"CLOUDSQL_CONNECTION_PORT"`
 	User                      string `default:"postgres" envconfig:"CLOUDSQL_USER"`
-	Password                  string `default:"example" envconfig:"CLOUDSQL_PASSWORD"`
+	Password                  string `default:"admin" envconfig:"CLOUDSQL_PASSWORD"`
 	DbName                    string `default:"postgres" envconfig:"CLOUDSQL_DB"`
 	CloudSqlPrefix            string `default:"" envconfig:"CLOUDSQL_PREFIX"`
 	TableGormPrefix           string `default:"" envconfig:"TABLEGORM_PREFIX"`

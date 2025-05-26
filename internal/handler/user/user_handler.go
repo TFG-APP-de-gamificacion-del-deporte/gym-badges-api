@@ -50,7 +50,7 @@ func (h userHandler) GetUser(params op.GetUserInfoParams) middleware.Responder {
 
 	ctxLog.Infof("USER_HANDLER: Getting info for user: %s", params.UserID)
 
-	response, err := h.userService.GetUser(params.UserID, ctxLog)
+	response, err := h.userService.GetUser(params.UserID, params.AuthUserID, ctxLog)
 	if err != nil {
 		switch {
 		case errors.As(err, &unauthorizedError):
@@ -111,4 +111,54 @@ func (h userHandler) EditUserInfo(params op.EditUserInfoParams) middleware.Respo
 	}
 
 	return op.NewEditUserInfoOK().WithPayload(response)
+}
+
+func (h userHandler) EditUserPreferences(params op.EditUserPreferencesParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("USER_HANDLER: Editing user: %s preferences", params.UserID)
+
+	if params.AuthUserID != params.UserID {
+		return op.NewEditUserInfoUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	err := h.userService.EditUserPreferences(params.UserID, params.Input, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &unauthorizedError):
+			return op.NewEditUserPreferencesUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &NotFoundError):
+			return op.NewEditUserPreferencesNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewEditUserPreferencesInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewEditUserPreferencesNoContent()
+}
+
+func (h userHandler) EditUserTopFeats(params op.EditUserTopFeatsParams) middleware.Responder {
+
+	ctxLog := toolsLogging.BuildLogger(params.HTTPRequest.Context())
+
+	ctxLog.Infof("USER_HANDLER: Editing user: %s top feats", params.UserID)
+
+	if params.AuthUserID != params.UserID {
+		return op.NewEditUserInfoUnauthorized().WithPayload(&unauthorizedErrorResponse)
+	}
+
+	err := h.userService.EditUserTopFeats(params.UserID, params.Input, ctxLog)
+	if err != nil {
+		switch {
+		case errors.As(err, &unauthorizedError):
+			return op.NewEditUserPreferencesUnauthorized().WithPayload(&unauthorizedErrorResponse)
+		case errors.As(err, &NotFoundError):
+			return op.NewEditUserPreferencesNotFound().WithPayload(&notFoundErrorResponse)
+		default:
+			return op.NewEditUserPreferencesInternalServerError().WithPayload(&internalServerErrorResponse)
+		}
+	}
+
+	return op.NewEditUserPreferencesNoContent()
 }
