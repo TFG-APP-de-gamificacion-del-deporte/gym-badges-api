@@ -57,4 +57,18 @@ var _ = Describe("ERRORS: Custom Errors Test Suite", func() {
 
 	})
 
+	Context("Forbidden Error", func() {
+
+		It("BuildForbiddenError", func() {
+			err := BuildForbiddenError("forbidden")
+			Expect(err.Error()).To(Equal("forbidden"))
+		})
+
+		It("BuildForbiddenError with parameters", func() {
+			err := BuildForbiddenError("forbidden %d", http.StatusForbidden)
+			Expect(err.Error()).To(Equal("forbidden 403"))
+		})
+
+	})
+
 })
