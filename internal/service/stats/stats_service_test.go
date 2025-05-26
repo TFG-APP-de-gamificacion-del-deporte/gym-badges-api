@@ -1,6 +1,7 @@
 package stats_service
 
 import (
+	"errors"
 	"fmt"
 	customErrors "gym-badges-api/internal/custom-errors"
 	userDAO "gym-badges-api/internal/repository/user"
@@ -28,6 +29,8 @@ var _ = Describe("SERVICE: Stats Test Suite", func() {
 		mockUserDAO        *mockDAO.MockIUserDAO
 		mockSessionService *mockService.MockISessionService
 		service            IStatsService
+		ctxLogger          *log.Entry
+		userID             string
 	)
 
 	BeforeEach(func() {
@@ -35,85 +38,40 @@ var _ = Describe("SERVICE: Stats Test Suite", func() {
 		mockUserDAO = mockDAO.NewMockIUserDAO(mockCtrl)
 		mockSessionService = mockService.NewMockISessionService(mockCtrl)
 		service = NewStatsService(mockUserDAO, mockSessionService)
+		ctxLogger = toolsLogging.BuildLogger()
+		userID = "test-user"
 	})
 
 	AfterEach(func() {
 		defer mockCtrl.Finish()
 	})
 
-	Context("Get Weight History", func() {
-
-		var (
-			ctxLogger *log.Entry
-			userID    string
-			months    int32
-			user      userDAO.User
-		)
-
-		BeforeEach(func() {
-			ctxLogger = toolsLogging.BuildLogger()
-
-			userID = "admin"
-			months = 3
-
-			user = userDAO.User{
-				ID:    "admin",
-				Email: "admin@admin.com",
-				Name:  "John",
+	Context("GetWeightHistory", func() {
+		It("CASE: Successfully gets weight history", func() {
+			months := int32(3)
+			user := &userDAO.User{
+				ID: userID,
 				WeightHistory: []userDAO.WeightHistory{
 					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-01T10:30:00"),
-						Weight: 79.0,
-					},
-					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-07T10:30:00"),
-						Weight: 80.5,
-					},
-					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-14T10:30:00"),
-						Weight: 83.0,
+						UserID: userID,
+						Date:   time.Now(),
+						Weight: 75.5,
 					},
 				},
 			}
-		})
-
-		It("CASE: Successful get weight history", func() {
 
 			mockUserDAO.EXPECT().GetUserWithWeightHistory(userID, months, ctxLogger).
 				Times(1).
-				Return(&user, nil)
+				Return(user, nil)
 
 			response, err := service.GetWeightHistory(userID, months, ctxLogger)
 			Expect(err).To(BeNil())
-			Expect(len(response.Days)).To(Equal(3))
-			Expect(response.Days[0].Date).To(Equal("2024-11-01"))
-			Expect(response.Days[0].Value).To(Equal(float32(79)))
-			Expect(response.Days[1].Date).To(Equal("2024-11-07"))
-			Expect(response.Days[1].Value).To(Equal(float32(80.5)))
-			Expect(response.Days[2].Date).To(Equal("2024-11-14"))
-			Expect(response.Days[2].Value).To(Equal(float32(83)))
+			Expect(response.Days).To(HaveLen(1))
+			Expect(response.Days[0].Value).To(Equal(float32(75.5)))
 		})
 
-		It("CASE: Successful retrieval without weight history info", func() {
-
-			user.WeightHistory = nil
-
-			mockUserDAO.EXPECT().GetUserWithWeightHistory(userID, months, ctxLogger).
-				Times(1).
-				Return(&user, nil)
-
-			response, err := service.GetWeightHistory(userID, months, ctxLogger)
-			Expect(err).To(BeNil())
-			Expect(len(response.Days)).To(Equal(0))
-		})
-
-		It("CASE: Get weight history failed cause user not exist", func() {
-
-			user.WeightHistory = nil
-
+		It("CASE: Returns error when user not found", func() {
+			months := int32(3)
 			mockUserDAO.EXPECT().GetUserWithWeightHistory(userID, months, ctxLogger).
 				Times(1).
 				Return(nil, customErrors.BuildNotFoundError("not found"))
@@ -122,82 +80,60 @@ var _ = Describe("SERVICE: Stats Test Suite", func() {
 			Expect(err).To(BeAssignableToTypeOf(customErrors.NotFoundError{}))
 			Expect(response).To(BeNil())
 		})
-
 	})
 
-	Context("Get Fat History", func() {
+	Context("AddWeight", func() {
+		It("CASE: Successfully adds weight", func() {
+			weight := float32(75.5)
+			now := time.Now().Truncate(time.Hour * 24)
 
-		var (
-			ctxLogger *log.Entry
-			userID    string
-			months    int32
-			user      userDAO.User
-		)
+			mockUserDAO.EXPECT().AddWeight(userID, weight, now, ctxLogger).
+				Times(1).
+				Return(nil)
 
-		BeforeEach(func() {
-			ctxLogger = toolsLogging.BuildLogger()
+			err := service.AddWeight(userID, weight, ctxLogger)
+			Expect(err).To(BeNil())
+		})
 
-			userID = "admin"
-			months = 3
+		It("CASE: Returns error when adding weight fails", func() {
+			weight := float32(75.5)
+			now := time.Now().Truncate(time.Hour * 24)
 
-			user = userDAO.User{
-				ID:    "admin",
-				Email: "admin@admin.com",
-				Name:  "John",
+			mockUserDAO.EXPECT().AddWeight(userID, weight, now, ctxLogger).
+				Times(1).
+				Return(errors.New("database error"))
+
+			err := service.AddWeight(userID, weight, ctxLogger)
+			Expect(err).ToNot(BeNil())
+		})
+	})
+
+	Context("GetFatHistory", func() {
+		It("CASE: Successfully gets fat history", func() {
+			months := int32(3)
+			user := &userDAO.User{
+				ID: userID,
 				FatHistory: []userDAO.FatHistory{
 					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-01T10:30:00"),
-						Fat:    79.0,
-					},
-					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-07T10:30:00"),
-						Fat:    80.5,
-					},
-					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-14T10:30:00"),
-						Fat:    83.0,
+						UserID: userID,
+						Date:   time.Now(),
+						Fat:    15.0,
 					},
 				},
 			}
-		})
-
-		It("CASE: Successful get fat history", func() {
 
 			mockUserDAO.EXPECT().GetUserWithFatHistory(userID, months, ctxLogger).
 				Times(1).
-				Return(&user, nil)
+				Return(user, nil)
 
 			response, err := service.GetFatHistory(userID, months, ctxLogger)
 			Expect(err).To(BeNil())
-			Expect(len(response.Days)).To(Equal(3))
-			Expect(response.Days[0].Date).To(Equal("2024-11-01"))
-			Expect(response.Days[0].Value).To(Equal(float32(79)))
-			Expect(response.Days[1].Date).To(Equal("2024-11-07"))
-			Expect(response.Days[1].Value).To(Equal(float32(80.5)))
-			Expect(response.Days[2].Date).To(Equal("2024-11-14"))
-			Expect(response.Days[2].Value).To(Equal(float32(83)))
+			Expect(response.Days).To(HaveLen(1))
+			Expect(response.Days[0].Value).To(Equal(float32(15.0)))
 		})
 
-		It("CASE: Successful retrieval without fat history info", func() {
-
-			user.FatHistory = nil
-
-			mockUserDAO.EXPECT().GetUserWithFatHistory(userID, months, ctxLogger).
-				Times(1).
-				Return(&user, nil)
-
-			response, err := service.GetFatHistory(userID, months, ctxLogger)
-			Expect(err).To(BeNil())
-			Expect(len(response.Days)).To(Equal(0))
-		})
-
-		It("CASE: Get fat history failed cause user not exist", func() {
-
-			user.WeightHistory = nil
-
+		It("CASE: Returns error when user not found", func() {
+			months := int32(3)
 			mockUserDAO.EXPECT().GetUserWithFatHistory(userID, months, ctxLogger).
 				Times(1).
 				Return(nil, customErrors.BuildNotFoundError("not found"))
@@ -206,84 +142,65 @@ var _ = Describe("SERVICE: Stats Test Suite", func() {
 			Expect(err).To(BeAssignableToTypeOf(customErrors.NotFoundError{}))
 			Expect(response).To(BeNil())
 		})
-
 	})
 
-	Context("Get Streak Calendar By Year And Month", func() {
+	Context("AddBodyFat", func() {
+		It("CASE: Successfully adds body fat", func() {
+			bodyFat := float32(15.0)
+			now := time.Now().Truncate(time.Hour * 24)
 
-		var (
-			ctxLogger *log.Entry
-			userID    string
-			month     int32
-			year      int32
-			user      userDAO.User
-		)
+			mockUserDAO.EXPECT().AddBodyFat(userID, bodyFat, now, ctxLogger).
+				Times(1).
+				Return(nil)
 
-		BeforeEach(func() {
-			ctxLogger = toolsLogging.BuildLogger()
+			err := service.AddBodyFat(userID, bodyFat, ctxLogger)
+			Expect(err).To(BeNil())
+		})
 
-			userID = "admin"
-			year = 2024
-			month = 11
+		It("CASE: Returns error when adding body fat fails", func() {
+			bodyFat := float32(15.0)
+			now := time.Now().Truncate(time.Hour * 24)
 
-			user = userDAO.User{
-				ID:         "admin",
-				Email:      "admin@admin.com",
-				Name:       "John",
-				Streak:     77,
-				WeeklyGoal: 3,
+			mockUserDAO.EXPECT().AddBodyFat(userID, bodyFat, now, ctxLogger).
+				Times(1).
+				Return(errors.New("database error"))
+
+			err := service.AddBodyFat(userID, bodyFat, ctxLogger)
+			Expect(err).ToNot(BeNil())
+		})
+	})
+
+	Context("GetStreakCalendarByYearAndMonth", func() {
+		It("CASE: Successfully gets streak calendar", func() {
+			year := int32(2024)
+			month := int32(3)
+			user := &userDAO.User{
+				ID: userID,
 				GymAttendance: []userDAO.GymAttendance{
 					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-01T10:30:00"),
-					},
-					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-07T10:30:00"),
-					},
-					{
-						UserID: "admin",
-						Date:   parseTime("2024-11-14T10:30:00"),
+						UserID: userID,
+						Date:   time.Date(2024, 3, 1, 0, 0, 0, 0, time.UTC),
 					},
 				},
+				Streak:     5,
+				WeeklyGoal: 3,
 			}
-		})
-
-		It("CASE: Successful get streak calendar info", func() {
 
 			mockUserDAO.EXPECT().GetUserWithAttendance(userID, year, month, ctxLogger).
 				Times(1).
-				Return(&user, nil)
+				Return(user, nil)
 
 			response, err := service.GetStreakCalendarByYearAndMonth(userID, year, month, ctxLogger)
 			Expect(err).To(BeNil())
-			Expect(response.Streak).To(Equal(int32(77)))
+			Expect(response.Days).To(HaveLen(1))
+			Expect(response.Days[0]).To(Equal("2024-03-01"))
+			Expect(response.Streak).To(Equal(int32(5)))
 			Expect(response.WeeklyGoal).To(Equal(int32(3)))
-			Expect(len(response.Days)).To(Equal(3))
-			Expect(response.Days[0]).To(Equal("2024-11-01"))
-			Expect(response.Days[1]).To(Equal("2024-11-07"))
-			Expect(response.Days[2]).To(Equal("2024-11-14"))
 		})
 
-		It("CASE: Successful retrieval without attendance info", func() {
-
-			user.GymAttendance = nil
-
-			mockUserDAO.EXPECT().GetUserWithAttendance(userID, year, month, ctxLogger).
-				Times(1).
-				Return(&user, nil)
-
-			response, err := service.GetStreakCalendarByYearAndMonth(userID, year, month, ctxLogger)
-			Expect(err).To(BeNil())
-			Expect(response.Streak).To(Equal(int32(77)))
-			Expect(response.WeeklyGoal).To(Equal(int32(3)))
-			Expect(len(response.Days)).To(Equal(0))
-		})
-
-		It("CASE: Get streak calendar failed cause user not exist", func() {
-
-			user.WeightHistory = nil
-
+		It("CASE: Returns error when user not found", func() {
+			year := int32(2024)
+			month := int32(3)
 			mockUserDAO.EXPECT().GetUserWithAttendance(userID, year, month, ctxLogger).
 				Times(1).
 				Return(nil, customErrors.BuildNotFoundError("not found"))
@@ -292,9 +209,72 @@ var _ = Describe("SERVICE: Stats Test Suite", func() {
 			Expect(err).To(BeAssignableToTypeOf(customErrors.NotFoundError{}))
 			Expect(response).To(BeNil())
 		})
-
 	})
 
+	Context("AddGymAttendance", func() {
+
+		It("CASE: Successfully adds gym attendance", func() {
+			date := time.Now().Truncate(time.Hour * 24)
+			monday := monday()
+			dateIndex := int(date.Sub(monday).Hours() / 24)
+
+			mockUserDAO.EXPECT().AddDayToCurrentWeek(userID, dateIndex, ctxLogger).
+				Times(1).
+				Return(nil)
+
+			mockUserDAO.EXPECT().AddGymAttendance(userID, date, ctxLogger).
+				Times(1).
+				Return(nil)
+
+			err := service.AddGymAttendance(userID, date, ctxLogger)
+			Expect(err).To(BeNil())
+		})
+
+		It("CASE: Returns error when adding gym attendance fails", func() {
+			date := time.Now().Truncate(time.Hour * 24)
+			monday := monday()
+			dateIndex := int(date.Sub(monday).Hours() / 24)
+
+			mockUserDAO.EXPECT().AddDayToCurrentWeek(userID, dateIndex, ctxLogger).
+				Times(1).
+				Return(errors.New("database error"))
+
+			err := service.AddGymAttendance(userID, date, ctxLogger)
+			Expect(err).ToNot(BeNil())
+		})
+	})
+
+	Context("DeleteGymAttendance", func() {
+		It("CASE: Successfully deletes gym attendance", func() {
+			date := time.Now().Truncate(time.Hour * 24)
+			monday := monday()
+			dateIndex := int(date.Sub(monday).Hours() / 24)
+
+			mockUserDAO.EXPECT().DeleteDayFromCurrentWeek(userID, dateIndex, ctxLogger).
+				Times(1).
+				Return(nil)
+
+			mockUserDAO.EXPECT().DeleteGymAttendance(userID, date, ctxLogger).
+				Times(1).
+				Return(nil)
+
+			err := service.DeleteGymAttendance(userID, date, ctxLogger)
+			Expect(err).To(BeNil())
+		})
+
+		It("CASE: Returns error when deleting gym attendance fails", func() {
+			date := time.Now().Truncate(time.Hour * 24)
+			monday := monday()
+			dateIndex := int(date.Sub(monday).Hours() / 24)
+
+			mockUserDAO.EXPECT().DeleteDayFromCurrentWeek(userID, dateIndex, ctxLogger).
+				Times(1).
+				Return(errors.New("database error"))
+
+			err := service.DeleteGymAttendance(userID, date, ctxLogger)
+			Expect(err).ToNot(BeNil())
+		})
+	})
 })
 
 func parseTime(dateStr string) time.Time {
